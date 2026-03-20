@@ -10,6 +10,8 @@ module wtl_policy {
   var blocked_on_input: bool
 
   var phase: str
+  var thread_mode: str
+  var prompt_kind: str
   var iteration: int
   var worktree_ready: bool
   var plan_exists: bool
@@ -26,6 +28,8 @@ module wtl_policy {
     completion_approved' = false,
     blocked_on_input' = false,
     phase' = "idle",
+    thread_mode' = "reuse_current",
+    prompt_kind' = "user_request",
     iteration' = 0,
     worktree_ready' = false,
     plan_exists' = false,
@@ -43,6 +47,8 @@ module wtl_policy {
     completion_approved' = false,
     blocked_on_input' = false,
     phase' = "idle",
+    thread_mode' = "start_new",
+    prompt_kind' = "bootstrap",
     iteration' = 0,
     worktree_ready' = false,
     plan_exists' = false,
@@ -67,6 +73,8 @@ module wtl_policy {
     completion_approved' = false,
     blocked_on_input' = blocked_on_input,
     phase' = phase,
+    thread_mode' = thread_mode,
+    prompt_kind' = prompt_kind,
     iteration' = iteration,
     worktree_ready' = worktree_ready,
     plan_exists' = plan_exists,
@@ -86,6 +94,8 @@ module wtl_policy {
     completion_approved' = false,
     blocked_on_input' = false,
     phase' = phase,
+    thread_mode' = thread_mode,
+    prompt_kind' = prompt_kind,
     iteration' = iteration,
     worktree_ready' = worktree_ready,
     plan_exists' = plan_exists,
@@ -105,6 +115,8 @@ module wtl_policy {
     completion_approved' = false,
     blocked_on_input' = false,
     phase' = phase,
+    thread_mode' = thread_mode,
+    prompt_kind' = prompt_kind,
     iteration' = iteration,
     worktree_ready' = worktree_ready,
     plan_exists' = plan_exists,
@@ -124,6 +136,8 @@ module wtl_policy {
     completion_approved' = false,
     blocked_on_input' = blocked_on_input,
     phase' = phase,
+    thread_mode' = thread_mode,
+    prompt_kind' = prompt_kind,
     iteration' = iteration,
     worktree_ready' = worktree_ready,
     plan_exists' = plan_exists,
@@ -143,6 +157,8 @@ module wtl_policy {
     completion_approved' = false,
     blocked_on_input' = blocked_on_input,
     phase' = phase,
+    thread_mode' = thread_mode,
+    prompt_kind' = prompt_kind,
     iteration' = iteration,
     worktree_ready' = worktree_ready,
     plan_exists' = plan_exists,
@@ -162,6 +178,8 @@ module wtl_policy {
     completion_approved' = false,
     blocked_on_input' = true,
     phase' = phase,
+    thread_mode' = thread_mode,
+    prompt_kind' = prompt_kind,
     iteration' = iteration,
     worktree_ready' = worktree_ready,
     plan_exists' = plan_exists,
@@ -181,6 +199,8 @@ module wtl_policy {
     completion_approved' = false,
     blocked_on_input' = blocked_on_input,
     phase' = phase,
+    thread_mode' = thread_mode,
+    prompt_kind' = prompt_kind,
     iteration' = iteration,
     worktree_ready' = worktree_ready,
     plan_exists' = plan_exists,
@@ -200,6 +220,8 @@ module wtl_policy {
     completion_approved' = false,
     blocked_on_input' = blocked_on_input,
     phase' = phase,
+    thread_mode' = thread_mode,
+    prompt_kind' = prompt_kind,
     iteration' = iteration,
     worktree_ready' = worktree_ready,
     plan_exists' = plan_exists,
@@ -220,6 +242,8 @@ module wtl_policy {
     completion_approved' = true,
     blocked_on_input' = blocked_on_input,
     phase' = phase,
+    thread_mode' = thread_mode,
+    prompt_kind' = prompt_kind,
     iteration' = iteration,
     worktree_ready' = worktree_ready,
     plan_exists' = plan_exists,
@@ -239,6 +263,8 @@ module wtl_policy {
     completion_approved' = completion_approved,
     blocked_on_input' = blocked_on_input,
     phase' = phase,
+    thread_mode' = thread_mode,
+    prompt_kind' = prompt_kind,
     iteration' = iteration,
     worktree_ready' = worktree_ready,
     plan_exists' = plan_exists,
@@ -258,6 +284,8 @@ module wtl_policy {
     completion_approved' = completion_approved,
     blocked_on_input' = blocked_on_input,
     phase' = "init",
+    thread_mode' = "start_new",
+    prompt_kind' = "init_prompt",
     iteration' = iteration,
     worktree_ready' = worktree_ready,
     plan_exists' = plan_exists,
@@ -277,6 +305,8 @@ module wtl_policy {
     completion_approved' = completion_approved,
     blocked_on_input' = blocked_on_input,
     phase' = "planning",
+    thread_mode' = "start_new",
+    prompt_kind' = "planning_prompt",
     iteration' = iteration,
     worktree_ready' = true,
     plan_exists' = false,
@@ -297,6 +327,8 @@ module wtl_policy {
     completion_approved' = completion_approved,
     blocked_on_input' = blocked_on_input,
     phase' = "implementing",
+    thread_mode' = "start_new",
+    prompt_kind' = "implementation_prompt",
     iteration' = iteration,
     worktree_ready' = worktree_ready,
     plan_exists' = true,
@@ -318,6 +350,8 @@ module wtl_policy {
     completion_approved' = completion_approved,
     blocked_on_input' = blocked_on_input,
     phase' = "implementing",
+    thread_mode' = "reuse_current",
+    prompt_kind' = "implementation_prompt",
     iteration' = iteration + 1,
     worktree_ready' = worktree_ready,
     plan_exists' = plan_exists,
@@ -339,6 +373,8 @@ module wtl_policy {
     completion_approved' = completion_approved,
     blocked_on_input' = blocked_on_input,
     phase' = "implementing",
+    thread_mode' = "reuse_current",
+    prompt_kind' = "recovery_prompt",
     iteration' = iteration + 1,
     worktree_ready' = worktree_ready,
     plan_exists' = plan_exists,
@@ -360,6 +396,8 @@ module wtl_policy {
     completion_approved' = completion_approved,
     blocked_on_input' = blocked_on_input,
     phase' = "review",
+    thread_mode' = "start_new",
+    prompt_kind' = "review_prompt",
     iteration' = iteration + 1,
     worktree_ready' = worktree_ready,
     plan_exists' = plan_exists,
@@ -380,6 +418,8 @@ module wtl_policy {
     completion_approved' = completion_approved,
     blocked_on_input' = blocked_on_input,
     phase' = "failed",
+    thread_mode' = thread_mode,
+    prompt_kind' = prompt_kind,
     iteration' = iteration,
     worktree_ready' = worktree_ready,
     plan_exists' = plan_exists,
@@ -400,6 +440,8 @@ module wtl_policy {
     completion_approved' = completion_approved,
     blocked_on_input' = blocked_on_input,
     phase' = "completed",
+    thread_mode' = thread_mode,
+    prompt_kind' = "none",
     iteration' = iteration,
     worktree_ready' = worktree_ready,
     plan_exists' = plan_exists,
@@ -419,6 +461,8 @@ module wtl_policy {
     completion_approved' = completion_approved,
     blocked_on_input' = blocked_on_input,
     phase' = "failed",
+    thread_mode' = thread_mode,
+    prompt_kind' = prompt_kind,
     iteration' = iteration,
     worktree_ready' = worktree_ready,
     plan_exists' = plan_exists,
@@ -509,4 +553,30 @@ module wtl_policy {
         "completed",
         "failed",
       ).contains(phase)
+
+  val valid_thread_mode =
+    Set("reuse_current", "start_new").contains(thread_mode)
+
+  val valid_prompt_kind =
+    Set(
+      "none",
+      "bootstrap",
+      "user_request",
+      "init_prompt",
+      "planning_prompt",
+      "implementation_prompt",
+      "recovery_prompt",
+      "review_prompt",
+    ).contains(prompt_kind)
+
+  val phase_prompt_alignment =
+    policy_kind != "phased_delivery"
+      or (
+        (phase != "idle" or prompt_kind == "bootstrap")
+          and (phase != "init" or prompt_kind == "init_prompt")
+          and (phase != "planning" or prompt_kind == "planning_prompt")
+          and (phase != "implementing" or Set("implementation_prompt", "recovery_prompt").contains(prompt_kind))
+          and (phase != "review" or prompt_kind == "review_prompt")
+          and (phase != "completed" or prompt_kind == "none")
+      )
 }

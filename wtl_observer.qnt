@@ -1,6 +1,8 @@
 module wtl_observer {
   var run_started: bool
   var phase_changes: int
+  var thread_started: int
+  var thread_reused: int
   var turn_started: int
   var turn_finished: int
   var wait_events: int
@@ -10,6 +12,8 @@ module wtl_observer {
   action init = all {
     run_started' = false,
     phase_changes' = 0,
+    thread_started' = 0,
+    thread_reused' = 0,
     turn_started' = 0,
     turn_finished' = 0,
     wait_events' = 0,
@@ -21,6 +25,8 @@ module wtl_observer {
     not(run_started),
     run_started' = true,
     phase_changes' = phase_changes,
+    thread_started' = thread_started,
+    thread_reused' = thread_reused,
     turn_started' = turn_started,
     turn_finished' = turn_finished,
     wait_events' = wait_events,
@@ -33,6 +39,8 @@ module wtl_observer {
     terminal_event == "none",
     run_started' = run_started,
     phase_changes' = phase_changes + 1,
+    thread_started' = thread_started,
+    thread_reused' = thread_reused,
     turn_started' = turn_started,
     turn_finished' = turn_finished,
     wait_events' = wait_events,
@@ -40,11 +48,41 @@ module wtl_observer {
     last_event' = "phase_changed",
   }
 
+  action emit_thread_started = all {
+    run_started,
+    terminal_event == "none",
+    run_started' = run_started,
+    phase_changes' = phase_changes,
+    thread_started' = thread_started + 1,
+    thread_reused' = thread_reused,
+    turn_started' = turn_started,
+    turn_finished' = turn_finished,
+    wait_events' = wait_events,
+    terminal_event' = terminal_event,
+    last_event' = "thread_started",
+  }
+
+  action emit_thread_reused = all {
+    run_started,
+    terminal_event == "none",
+    run_started' = run_started,
+    phase_changes' = phase_changes,
+    thread_started' = thread_started,
+    thread_reused' = thread_reused + 1,
+    turn_started' = turn_started,
+    turn_finished' = turn_finished,
+    wait_events' = wait_events,
+    terminal_event' = terminal_event,
+    last_event' = "thread_reused",
+  }
+
   action emit_turn_started = all {
     run_started,
     terminal_event == "none",
     run_started' = run_started,
     phase_changes' = phase_changes,
+    thread_started' = thread_started,
+    thread_reused' = thread_reused,
     turn_started' = turn_started + 1,
     turn_finished' = turn_finished,
     wait_events' = wait_events,
@@ -58,6 +96,8 @@ module wtl_observer {
     turn_started > turn_finished,
     run_started' = run_started,
     phase_changes' = phase_changes,
+    thread_started' = thread_started,
+    thread_reused' = thread_reused,
     turn_started' = turn_started,
     turn_finished' = turn_finished + 1,
     wait_events' = wait_events,
@@ -70,6 +110,8 @@ module wtl_observer {
     terminal_event == "none",
     run_started' = run_started,
     phase_changes' = phase_changes,
+    thread_started' = thread_started,
+    thread_reused' = thread_reused,
     turn_started' = turn_started,
     turn_finished' = turn_finished,
     wait_events' = wait_events + 1,
@@ -82,6 +124,8 @@ module wtl_observer {
     terminal_event == "none",
     run_started' = run_started,
     phase_changes' = phase_changes,
+    thread_started' = thread_started,
+    thread_reused' = thread_reused,
     turn_started' = turn_started,
     turn_finished' = turn_finished,
     wait_events' = wait_events,
@@ -94,6 +138,8 @@ module wtl_observer {
     terminal_event == "none",
     run_started' = run_started,
     phase_changes' = phase_changes,
+    thread_started' = thread_started,
+    thread_reused' = thread_reused,
     turn_started' = turn_started,
     turn_finished' = turn_finished,
     wait_events' = wait_events,
@@ -104,6 +150,8 @@ module wtl_observer {
   action step = any {
     emit_run_started,
     emit_phase_changed,
+    emit_thread_started,
+    emit_thread_reused,
     emit_turn_started,
     emit_turn_finished,
     emit_wait,
@@ -128,6 +176,8 @@ module wtl_observer {
       "none",
       "run_started",
       "phase_changed",
+      "thread_started",
+      "thread_reused",
       "turn_started",
       "turn_finished",
       "wait",

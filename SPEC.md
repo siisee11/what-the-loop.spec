@@ -54,7 +54,7 @@ The goal is to let different workflows share one engine while each using a diffe
 | **Directive** | The next action instruction issued by the policy to the engine |
 | **Phase** | A semantically distinct stage within a run |
 | **Terminal outcome** | The final result of a run: `completed` or `exhausted` |
-| **Same-thread execution** | Turns in the same phase reuse the same logical thread |
+| **Phase-scoped thread reuse** | A policy may either reuse the current logical thread for a phase or start a new one when entering a phase |
 | **Compaction** | Context compression performed by the engine when context grows too large |
 | **External wait** | A paused state while waiting for external input such as user action |
 
@@ -67,10 +67,11 @@ The goal is to let different workflows share one engine while each using a diffe
 The engine is responsible for **loop mechanics**.
 
 Must do:
-- Initialize the run and logical thread
+- Initialize the run and logical thread state
 - Start turns and detect their completion
 - Enforce iteration and retry limits
 - Perform compaction when needed
+- Create, reuse, or replace the active logical thread according to the policy's execution plan
 - Terminate in a terminal state
 - Notify observers of lifecycle events
 
@@ -85,10 +86,11 @@ Must do:
 - Define its own internal state
 - Receive turn outcomes and decide the next directive
 - Determine the current run state (continue, wait, retry, complete, etc.)
+- Provide the execution plan for the next turn, including phase identity, prompt or instruction, and thread reuse mode
 - Validate whether completion is allowed
 
 Must not do:
-- **Directly control execution mechanics** such as thread creation, turn dispatch, or observer calls
+- **Directly control execution mechanics** such as dispatching turns or invoking observers. The policy specifies intent; the engine performs the mechanics.
 
 ### Observer
 
@@ -97,6 +99,7 @@ The observer is a **passive listener**.
 May receive notifications for:
 - run start
 - phase change
+- thread started / reused
 - turn start / finish
 - wait entry
 - terminal completion / exhaustion
@@ -118,7 +121,7 @@ Instructions issued by the policy to the engine. The engine treats them as autho
 | `wait` | Wait for external input. No new turns may start | An external event such as user approval or input is needed |
 | `retry` | Retry the last turn in the same phase | The turn failed but the error is recoverable |
 | `compact` | Compress context before continuing | Context is too large to proceed as-is |
-| `advance_phase` | Move to the next phase | The current phase goal is achieved and the next stage begins |
+| `advance_phase` | Move to the next phase and install a new execution plan | The current phase goal is achieved and the next stage begins |
 | `complete` | Terminate the run successfully | The policy has explicitly approved completion |
 
 ---
@@ -144,7 +147,7 @@ The full flow of a single run:
                ├── wait           → enter waiting state
                ├── retry          → retry in same phase
                ├── compact        → compact then continue
-               ├── advance_phase  → move to next phase, repeat loop
+               ├── advance_phase  → move to next phase, update prompt and thread plan, repeat loop
                └── complete       → [terminate: completed]
 
   iteration/retry limit reached → [terminate: exhausted]
@@ -163,6 +166,19 @@ The initial policy state must define:
 
 - Whether the run is immediately executable or requires phase initialization first
 - Initial completion / wait / planning state
+- The initial execution plan for the first turn
+
+### Execution Plan
+
+The policy must provide an execution plan for every runnable turn. The plan must
+include at least:
+
+- phase identity
+- prompt or instruction content for the next turn
+- thread mode: reuse current thread or start a new thread
+- any optional execution metadata the host needs to interpret, such as prompt kind or sandbox class
+
+The engine owns the actual thread lifecycle, but must honor the plan's thread mode.
 
 ### Before Each Turn
 
@@ -171,11 +187,12 @@ The engine checks the current execution context from the policy state:
 - Can a turn start?
 - Is the run in a waiting state?
 - Is the run already terminal?
-- Should the current phase reuse the existing thread?
+- What prompt or instruction should be sent for this turn?
+- Should the current phase reuse the existing thread or start a new one?
 
 ### After Each Turn
 
-The engine delivers the turn outcome to the policy. The policy responds with one of the directives above.
+The engine delivers the turn outcome to the policy. The policy responds with one of the directives above and, when needed, an updated execution plan for the next turn or phase.
 
 ### On Wait Resolution
 
@@ -210,7 +227,8 @@ idle → ready → turn started → turn running
 Required invariants:
 
 - iteration count must never exceed the configured maximum
-- thread identity must remain stable within a same-thread phase
+- if the policy selects thread reuse for the current phase, thread identity must remain stable until the policy changes phase or requests a new thread
+- prompt or instruction identity may change between turns; it must not be assumed constant across a whole run
 - in waiting state, the current directive must be `wait`
 - in completed state, the current directive must be `complete`
 
@@ -302,8 +320,8 @@ WTL does not require a specific persistence mechanism, but ownership must be cle
 
 | Owner | Owns |
 |-------|------|
-| **Engine** | loop control, iteration count, thread identity, retry/wait mechanics |
-| **Policy** | workflow meaning, completion gating, phase ordering |
+| **Engine** | loop control, iteration count, active thread lifecycle, retry/wait mechanics |
+| **Policy** | workflow meaning, completion gating, phase ordering, prompt selection, and thread reuse boundaries |
 | **Observer** | logs, metrics, UI, traces, audit records |
 
 The engine must not depend on observer behavior. The policy may request
@@ -316,7 +334,8 @@ persistence through the host application.
 Properties verified by the current Quint models:
 
 - iteration does not exceed the configured limit
-- same-phase turns execute on the same thread
+- when a phase requests thread reuse, the active thread remains stable
+- a phase transition may either reuse the current thread or start a new one
 - completion requires explicit approval
 - completion is not possible while waiting
 - phase ordering is enforced (review only after delivery)
@@ -399,7 +418,8 @@ Done: your request was completed successfully.
 ### Input
 
 - The prompt is read from stdin at startup
-- The prompt is held constant for the entire run
+- The initial user request is held constant for the entire run in the minimal CLI
+- Policies may still derive a different per-turn instruction or prompt wrapper from that same user request
 
 ### Log Output
 
