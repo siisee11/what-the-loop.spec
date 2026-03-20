@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="assets/logo.svg" alt="What The Loop logo" width="420" />
+  <img src="assets/logo.png" alt="What The Loop logo" width="420" />
 </p>
 
 # what-the-loop.spec
