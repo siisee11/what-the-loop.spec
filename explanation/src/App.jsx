@@ -647,8 +647,7 @@ export default function App() {
               <Reveal className="hero-inner" amount={0.1}>
                 <p className="eyebrow">Spec-first execution contract</p>
                 <h1>
-                  WhatTheLoop explains how an agent run keeps moving without
-                  hiding who owns what.
+                  The loop contract for agent runs.
                 </h1>
                 <p className="hero-text">
                   WTL is not a framework and not a runtime. It is the shared
