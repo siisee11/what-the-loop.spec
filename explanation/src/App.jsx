@@ -7,140 +7,7 @@ import {
   useSpring,
   useTransform
 } from "motion/react";
-
-const roles = [
-  {
-    name: "Engine",
-    tag: "Loop mechanics",
-    accent: "var(--coral)",
-    points: [
-      "Starts turns, enforces limits, and owns thread lifecycle.",
-      "Performs compaction, retry handling, and termination.",
-      "Must not decide what a turn means."
-    ]
-  },
-  {
-    name: "Policy",
-    tag: "Workflow meaning",
-    accent: "var(--gold)",
-    points: [
-      "Interprets turn outcomes and returns the next directive.",
-      "Owns completion gating, phase ordering, and wait states.",
-      "Defines the execution plan for each runnable turn."
-    ]
-  },
-  {
-    name: "Observer",
-    tag: "Read-only visibility",
-    accent: "var(--teal)",
-    points: [
-      "Receives lifecycle events like run start, phase change, and completion.",
-      "Can log, trace, or render UI without affecting correctness.",
-      "Must never become a control dependency."
-    ]
-  }
-];
-
-const directives = [
-  ["continue", "Proceed with the next turn in the current phase."],
-  ["wait", "Stop launching turns until external input resolves the block."],
-  ["retry", "Retry the last turn after a recoverable failure."],
-  ["compact", "Compress context before the next step."],
-  ["advance_phase", "Install a new execution plan for the next stage."],
-  ["complete", "Terminate only after explicit policy approval."]
-];
-
-const lifecycle = [
-  {
-    step: "Init",
-    body: "The engine initializes run state, the policy seeds its internal state, and observers get the first event."
-  },
-  {
-    step: "Turn",
-    body: "If the policy is runnable, the engine executes a turn using the current execution plan."
-  },
-  {
-    step: "Interpret",
-    body: "The policy receives the outcome and returns a directive that gives the engine meaning."
-  },
-  {
-    step: "Handle",
-    body: "The engine loops, waits, retries, compacts, changes phase, or terminates based on that directive."
-  }
-];
-
-const guarantees = [
-  "Completion only happens when the policy explicitly says `complete`.",
-  "Waiting is a real state: no new turns may start while blocked.",
-  "Thread identity remains stable when a phase asks for reuse.",
-  "Observers can record everything without steering execution.",
-  "Exhaustion and recoverable failure stay distinguishable in external reporting."
-];
-
-const heroChips = [
-  { label: "continue", tone: "coral" },
-  { label: "retry", tone: "gold" },
-  { label: "complete", tone: "teal" }
-];
-
-const loopNodes = [
-  {
-    name: "Init",
-    body: "Seed policy state and emit run start.",
-    x: "11%",
-    y: "18%",
-    tone: "coral"
-  },
-  {
-    name: "Turn",
-    body: "The engine executes one runnable turn.",
-    x: "31%",
-    y: "18%",
-    tone: "gold"
-  },
-  {
-    name: "Policy",
-    body: "Interpret the result and return meaning.",
-    x: "57%",
-    y: "18%",
-    tone: "teal"
-  },
-  {
-    name: "Directive",
-    body: "continue, wait, retry, compact, advance_phase, complete",
-    x: "73%",
-    y: "39%",
-    tone: "ink"
-  },
-  {
-    name: "Engine",
-    body: "Handle mechanics and route the next action.",
-    x: "48%",
-    y: "71%",
-    tone: "teal"
-  },
-  {
-    name: "Observer",
-    body: "Receive events without steering execution.",
-    x: "13%",
-    y: "69%",
-    tone: "coral"
-  },
-  {
-    name: "Wait",
-    body: "External input pauses new turns.",
-    x: "73%",
-    y: "8%",
-    tone: "gold"
-  },
-  {
-    name: "Complete",
-    body: "Termination only with explicit approval.",
-    x: "78%",
-    y: "76%",
-    tone: "teal"
-  }
-];
+import { i18n } from "./i18n.js";
 
 const terminalSnippet = `$ wtl run
 > Enter your request: explain the repo contract
@@ -187,7 +54,7 @@ function SectionIntro({ eyebrow, title, body }) {
 const HERO_DELAYS = [850, 950, 850, 950];
 const HERO_DIRECTIVES = ["continue", "retry", "wait", "complete"];
 
-function HeroDiagram() {
+function HeroDiagram({ t }) {
   const reduceMotion = useReducedMotion();
   const [phase, setPhase] = useState(0);
   const [cycle, setCycle] = useState(0);
@@ -207,6 +74,7 @@ function HeroDiagram() {
 
   const directive = HERO_DIRECTIVES[cycle % 4];
   const turnNum = cycle + 1;
+  const ui = t.ui;
 
   // viewBox 540×540 (1:1 square)
   // Engine card:  left=36  top=70  w=158 h=82  → right=194, center=(115,111)
@@ -214,6 +82,9 @@ function HeroDiagram() {
   // Horizontal lines at y=98 (outcome →) and y=124 (← directive), x: 194↔346
   // Observer card: centered x=270, top=390, w=170, h=80 → center=(270,430)
   // Diagonals: Engine(115,152)→Observer(220,390) and Policy(425,152)→Observer(320,390)
+
+  const connOutcome = (t.loopMap.connOutcome || "outcome →").toUpperCase();
+  const connDirective = (t.loopMap.connDirective || "← directive").toUpperCase();
 
   return (
     <div className="hero-diagram">
@@ -234,12 +105,12 @@ function HeroDiagram() {
         <text x="270" y="88" textAnchor="middle"
           fill="rgba(29,23,17,0.34)" fontSize="10"
           fontFamily="Space Grotesk,sans-serif" fontWeight="700" letterSpacing="1.5">
-          OUTCOME →
+          {connOutcome}
         </text>
         <text x="270" y="144" textAnchor="middle"
           fill="rgba(29,23,17,0.34)" fontSize="10"
           fontFamily="Space Grotesk,sans-serif" fontWeight="700" letterSpacing="1.5">
-          ← DIRECTIVE
+          {connDirective}
         </text>
 
         {/* ── Diagonal lines: Engine/Policy → Observer ── */}
@@ -317,10 +188,10 @@ function HeroDiagram() {
       >
         <span className="wtl-role">Engine</span>
         <span className="wtl-sub">
-          {phase === 0 ? `Turn ${turnNum} running…`
-            : phase === 1 ? "Sending outcome"
-            : phase === 3 ? "Got directive"
-            : "Idle"}
+          {phase === 0 ? ui.turnRunning.replace("{n}", turnNum)
+            : phase === 1 ? ui.sendingOutcome
+            : phase === 3 ? ui.gotDirective
+            : ui.idle}
         </span>
       </motion.div>
 
@@ -332,9 +203,9 @@ function HeroDiagram() {
       >
         <span className="wtl-role">Policy</span>
         <span className="wtl-sub">
-          {phase === 2 ? "Interpreting…"
+          {phase === 2 ? ui.interpreting
             : phase === 3 ? `→ ${directive}`
-            : "Waiting"}
+            : ui.waiting}
         </span>
       </motion.div>
 
@@ -342,8 +213,8 @@ function HeroDiagram() {
       <div className="wtl-node wtl-node-observer">
         <span className="wtl-role">Observer</span>
         <span className="wtl-sub">
-          {phase === 1 ? "↗ turn:start"
-            : phase === 3 ? "↗ turn:complete"
+          {phase === 1 ? `↗ ${ui.logStart}`
+            : phase === 3 ? `↗ ${ui.logComplete}`
             : "watching…"}
         </span>
       </div>
@@ -385,19 +256,19 @@ function DirectiveCard({ directive, index }) {
   );
 }
 
-function LifecycleRail() {
+function LifecycleRail({ steps }) {
   const reduceMotion = useReducedMotion();
 
   return (
     <div className="lifecycle-rail">
-      {lifecycle.map((item, index) => (
+      {steps.map((item, index) => (
         <Reveal className="lifecycle-step" key={item.step} delay={index * 0.08}>
           <div className="lifecycle-index">0{index + 1}</div>
           <div>
             <h3>{item.step}</h3>
             <p>{item.body}</p>
           </div>
-          {index < lifecycle.length - 1 ? (
+          {index < steps.length - 1 ? (
             <motion.div
               className="lifecycle-connector"
               animate={reduceMotion ? undefined : { scaleX: [0.75, 1, 0.75], opacity: [0.35, 1, 0.35] }}
@@ -413,7 +284,7 @@ function LifecycleRail() {
 const LOOP_DIRECTIVES = ["continue", "retry", "wait", "complete"];
 const LOOP_DELAYS = [900, 1000, 900, 1000];
 
-function LoopMap() {
+function LoopMap({ t }) {
   const reduceMotion = useReducedMotion();
   const [phase, setPhase] = useState(0);
   const [cycle, setCycle] = useState(0);
@@ -433,18 +304,15 @@ function LoopMap() {
 
   const directive = LOOP_DIRECTIVES[cycle % 4];
   const dirColor = { continue: "coral", retry: "gold", wait: "gold", complete: "teal" }[directive];
+  const ui = t.ui;
+  const lm = t.loopMap;
 
   return (
     <Reveal className="loop-map-shell" amount={0.2}>
       <div className="loop-map-copy">
-        <p className="eyebrow">Animated system map</p>
-        <h2>Signals move, responsibilities stay fixed.</h2>
-        <p className="section-copy">
-          The point of WTL is not that nothing moves. It is that movement has a
-          contract. The engine cycles, the policy interprets, the observer
-          listens, and the run stays legible even while directives branch into
-          waiting or completion.
-        </p>
+        <p className="eyebrow">{lm.eyebrow}</p>
+        <h2>{lm.h2}</h2>
+        <p className="section-copy">{lm.body}</p>
       </div>
 
       <div className="loop-map-stage">
@@ -461,24 +329,21 @@ function LoopMap() {
             >
               <div className="role-header">
                 <strong>Engine</strong>
-                <span className="role-tag">Mechanics</span>
+                <span className="role-tag">{lm.engine.tag}</span>
               </div>
               <ul className="role-owns">
-                <li>Starts and runs turns</li>
-                <li>Enforces iteration limits</li>
-                <li>Handles retries and waits</li>
-                <li>Owns thread lifecycle</li>
+                {lm.engine.owns.map(item => <li key={item}>{item}</li>)}
               </ul>
               <div className={`role-live${phase === 0 ? " role-live-on role-live-engine" : ""}`}>
-                {phase === 0 ? `Turn ${cycle + 1} running…`
-                  : phase === 3 ? `Acting on: ${directive}`
-                  : "—"}
+                {phase === 0 ? ui.turnRunning.replace("{n}", cycle + 1)
+                  : phase === 3 ? `${ui.actingOn} ${directive}`
+                  : ui.liveIdle || "—"}
               </div>
             </motion.div>
 
             {/* Bidirectional connector */}
             <div className="role-conn">
-              <span className="role-conn-lbl">outcome →</span>
+              <span className="role-conn-lbl">{lm.connOutcome}</span>
               <div className="role-conn-svg-wrap">
                 <svg viewBox="0 0 72 64" className="role-conn-svg" aria-hidden="true">
                   {/* Outcome track top */}
@@ -510,7 +375,7 @@ function LoopMap() {
                   )}
                 </svg>
               </div>
-              <span className="role-conn-lbl">← directive</span>
+              <span className="role-conn-lbl">{lm.connDirective}</span>
             </div>
 
             {/* Policy */}
@@ -521,18 +386,15 @@ function LoopMap() {
             >
               <div className="role-header">
                 <strong>Policy</strong>
-                <span className="role-tag">Meaning</span>
+                <span className="role-tag">{lm.policy.tag}</span>
               </div>
               <ul className="role-owns">
-                <li>Interprets turn outcomes</li>
-                <li>Returns directives</li>
-                <li>Controls completion gating</li>
-                <li>Owns phase ordering</li>
+                {lm.policy.owns.map(item => <li key={item}>{item}</li>)}
               </ul>
               <div className={`role-live${phase === 2 ? " role-live-on role-live-policy" : ""}`}>
-                {phase === 2 ? "Interpreting…"
+                {phase === 2 ? ui.interpreting
                   : phase === 3 ? `→ ${directive}`
-                  : "—"}
+                  : ui.liveIdle || "—"}
               </div>
             </motion.div>
           </div>
@@ -547,7 +409,7 @@ function LoopMap() {
                   initial={{ opacity: 0, y: -4 }}
                   animate={{ opacity: [0, 1, 1, 0], y: [0, 8] }}
                   transition={{ duration: 0.9 }}
-                >events ↓</motion.span>
+                >{ui.eventsDown}</motion.span>
               )}
             </div>
             <div className="role-event-divider" />
@@ -559,7 +421,7 @@ function LoopMap() {
                   initial={{ opacity: 0, y: -4 }}
                   animate={{ opacity: [0, 1, 1, 0], y: [0, 8] }}
                   transition={{ duration: 0.9, delay: 0.1 }}
-                >events ↓</motion.span>
+                >{ui.eventsDown}</motion.span>
               )}
             </div>
           </div>
@@ -568,16 +430,14 @@ function LoopMap() {
           <div className="role-card role-card-observer">
             <div className="role-header">
               <strong>Observer</strong>
-              <span className="role-tag">Visibility · never controls</span>
+              <span className="role-tag">{lm.observer.tag}</span>
             </div>
             <div className="role-obs-body">
               <ul className="role-owns">
-                <li>Receives all lifecycle events</li>
-                <li>Cannot steer execution</li>
-                <li>Logs · traces · UI · audit</li>
+                {lm.observer.owns.map(item => <li key={item}>{item}</li>)}
               </ul>
               <div className="role-log">
-                <span className="role-log-hdr">event log</span>
+                <span className="role-log-hdr">{ui.logHdr}</span>
                 {(phase === 1 || phase === 3) ? (
                   <motion.span
                     key={`log-${phase}-${cycle}`}
@@ -586,10 +446,10 @@ function LoopMap() {
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ duration: 0.3 }}
                   >
-                    {phase === 1 ? "turn:start" : "turn:complete"}
+                    {phase === 1 ? ui.logStart : ui.logComplete}
                   </motion.span>
                 ) : (
-                  <span className="role-log-idle">…</span>
+                  <span className="role-log-idle">{ui.logIdle}</span>
                 )}
                 {phase === 3 && (
                   <motion.span
@@ -623,6 +483,9 @@ export default function App() {
   const heroShift = useTransform(scrollYProgress, [0, 0.25], [0, reduceMotion ? 0 : -84]);
   const heroRotate = useTransform(scrollYProgress, [0, 0.3], [0, reduceMotion ? 0 : -2]);
 
+  const [lang, setLang] = useState("en");
+  const t = i18n[lang];
+
   return (
     <MotionConfig reducedMotion="user">
       <div className="site-shell">
@@ -635,53 +498,47 @@ export default function App() {
               <span>WhatTheLoop</span>
             </div>
             <nav>
-              <a href="#roles">Roles</a>
-              <a href="#directives">Directives</a>
-              <a href="#lifecycle">Lifecycle</a>
-              <a href="#cli">CLI</a>
+              <a href="#roles">{t.nav.roles}</a>
+              <a href="#directives">{t.nav.directives}</a>
+              <a href="#lifecycle">{t.nav.lifecycle}</a>
+              <a href="#cli">{t.nav.cli}</a>
+              <button
+                className="lang-toggle"
+                onClick={() => setLang(l => l === "en" ? "ko" : "en")}
+              >
+                {t.langToggle}
+              </button>
             </nav>
           </div>
 
           <div className="hero-grid">
             <motion.div className="hero-copy" style={{ y: heroShift }}>
               <Reveal className="hero-inner" amount={0.1}>
-                <p className="eyebrow">Spec-first execution contract</p>
-                <h1>
-                  The loop contract for agent runs.
-                </h1>
-                <p className="hero-text">
-                  WTL is not a framework and not a runtime. It is the shared
-                  behavioral contract between the part that runs the loop, the
-                  part that interprets outcomes, and the part that watches.
-                </p>
+                <p className="eyebrow">{t.hero.eyebrow}</p>
+                <h1>{t.hero.h1}</h1>
+                <p className="hero-text">{t.hero.body}</p>
                 <div className="hero-actions">
                   <a href="#roles" className="button button-primary">
-                    See the split
+                    {t.hero.btnSplit}
                   </a>
                   <a href="#lifecycle" className="button button-secondary">
-                    Follow the loop
+                    {t.hero.btnLoop}
                   </a>
                 </div>
                 <div className="hero-facts">
-                  <div>
-                    <strong>3 roles</strong>
-                    <span>Engine, Policy, Observer</span>
-                  </div>
-                  <div>
-                    <strong>6 directives</strong>
-                    <span>Meaning returned to the engine</span>
-                  </div>
-                  <div>
-                    <strong>1 rule</strong>
-                    <span>The engine never invents semantics</span>
-                  </div>
+                  {t.hero.facts.map(f => (
+                    <div key={f.strong}>
+                      <strong>{f.strong}</strong>
+                      <span>{f.span}</span>
+                    </div>
+                  ))}
                 </div>
               </Reveal>
             </motion.div>
 
             <motion.div className="hero-visual" style={{ rotate: heroRotate }}>
               <Reveal className="hero-visual-inner" amount={0.1} delay={0.15}>
-                <HeroDiagram />
+                <HeroDiagram t={t} />
               </Reveal>
             </motion.div>
           </div>
@@ -691,34 +548,24 @@ export default function App() {
           <section className="section band">
             <Reveal className="band-grid" amount={0.2}>
               <div className="band-lead">
-                <p className="eyebrow">Why this matters</p>
-                <h2>WTL separates mechanics from meaning.</h2>
+                <p className="eyebrow">{t.band.eyebrow}</p>
+                <h2>{t.band.h2}</h2>
               </div>
               <div className="band-points">
-                <p>
-                  You can swap policies without rewriting the loop controller.
-                </p>
-                <p>
-                  You can add observers for logs, traces, and UI without making
-                  them correctness dependencies.
-                </p>
-                <p>
-                  You can verify invariants like completion gating and thread
-                  reuse because ownership boundaries stay explicit.
-                </p>
+                {t.band.points.map(p => <p key={p}>{p}</p>)}
               </div>
             </Reveal>
           </section>
 
           <section className="section" id="roles">
             <SectionIntro
-              eyebrow="Three roles"
-              title="Every run is a small constitutional system."
-              body="The spec stays small by assigning a single job to each actor. Once those responsibilities stop leaking across boundaries, the loop becomes reusable."
+              eyebrow={t.roles.eyebrow}
+              title={t.roles.title}
+              body={t.roles.body}
             />
 
             <div className="roles-grid">
-              {roles.map((role, index) => (
+              {t.roles.items.map((role, index) => (
                 <RoleCard key={role.name} role={role} index={index} />
               ))}
             </div>
@@ -726,13 +573,13 @@ export default function App() {
 
           <section className="section accent-section" id="directives">
             <SectionIntro
-              eyebrow="Directive grammar"
-              title="The policy speaks in a tight set of loop instructions."
-              body="Instead of micromanaging execution, the policy returns directives. The engine treats those as authoritative and handles the mechanics."
+              eyebrow={t.directives.eyebrow}
+              title={t.directives.title}
+              body={t.directives.body}
             />
 
             <div className="directive-grid">
-              {directives.map((directive, index) => (
+              {t.directives.items.map((directive, index) => (
                 <DirectiveCard key={directive[0]} directive={directive} index={index} />
               ))}
             </div>
@@ -740,54 +587,48 @@ export default function App() {
 
           <section className="section" id="lifecycle">
             <SectionIntro
-              eyebrow="Lifecycle"
-              title="A run keeps cycling until the policy blocks it or ends it."
-              body="The engine starts turns, the policy interprets outcomes, and observers get every transition. Waiting, retrying, compacting, and completion are all first-class states."
+              eyebrow={t.lifecycle.eyebrow}
+              title={t.lifecycle.title}
+              body={t.lifecycle.body}
             />
 
-            <LifecycleRail />
+            <LifecycleRail steps={t.lifecycle.steps} />
           </section>
 
           <section className="section diagram-section">
-            <LoopMap />
+            <LoopMap t={t} />
           </section>
 
           <section className="section split-section">
             <Reveal className="panel guarantee-panel">
-              <p className="eyebrow">Hard guarantees</p>
-              <h2>The spec defines what must stay true.</h2>
+              <p className="eyebrow">{t.guarantees.eyebrow}</p>
+              <h2>{t.guarantees.h2}</h2>
               <ul className="guarantee-list">
-                {guarantees.map((item) => (
+                {t.guarantees.items.map((item) => (
                   <li key={item}>{item}</li>
                 ))}
               </ul>
             </Reveal>
 
             <Reveal className="panel ownership-panel" delay={0.12}>
-              <p className="eyebrow">State ownership</p>
-              <h2>Each subsystem owns different failure modes.</h2>
+              <p className="eyebrow">{t.ownership.eyebrow}</p>
+              <h2>{t.ownership.h2}</h2>
               <div className="ownership-grid">
-                <div>
-                  <span>Engine</span>
-                  <p>Loop control, iteration count, retries, waiting, thread lifecycle.</p>
-                </div>
-                <div>
-                  <span>Policy</span>
-                  <p>Completion gating, phase order, execution plans, thread reuse boundaries.</p>
-                </div>
-                <div>
-                  <span>Observer</span>
-                  <p>Logs, traces, metrics, UI, and audit views.</p>
-                </div>
+                {t.ownership.items.map(item => (
+                  <div key={item.name}>
+                    <span>{item.name}</span>
+                    <p>{item.body}</p>
+                  </div>
+                ))}
               </div>
             </Reveal>
           </section>
 
           <section className="section terminal-section" id="cli">
             <SectionIntro
-              eyebrow="Minimal implementation"
-              title="The spec also defines a tiny CLI contract."
-              body="The first implementation is intentionally small: a single prompt, turn logs, streamed runtime output, and a completion marker protocol."
+              eyebrow={t.cli.eyebrow}
+              title={t.cli.title}
+              body={t.cli.body}
             />
 
             <Reveal className="terminal-shell" delay={0.08}>

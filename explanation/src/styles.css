@@ -123,6 +123,25 @@ a {
   color: var(--text);
 }
 
+.lang-toggle {
+  background: none;
+  border: 1.5px solid rgba(29, 23, 17, 0.22);
+  color: var(--muted);
+  border-radius: 999px;
+  padding: 3px 12px;
+  font-size: 0.78rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  cursor: pointer;
+  transition: border-color 0.18s, color 0.18s;
+  white-space: nowrap;
+}
+
+.lang-toggle:hover {
+  border-color: var(--teal);
+  color: var(--teal);
+}
+
 .hero-grid {
   display: grid;
   grid-template-columns: minmax(0, 1.05fr) minmax(420px, 0.95fr);
