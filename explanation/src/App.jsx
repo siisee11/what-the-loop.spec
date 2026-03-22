@@ -1,3 +1,4 @@
+import { useState, useEffect } from "react";
 import {
   MotionConfig,
   motion,
@@ -182,191 +183,113 @@ function SectionIntro({ eyebrow, title, body }) {
   );
 }
 
+const flowStepLabels = ["Init", "Turn", "Interpret", "Handle"];
+
 function HeroDiagram() {
   const reduceMotion = useReducedMotion();
+  const [step, setStep] = useState(0);
+
+  useEffect(() => {
+    if (reduceMotion) return;
+    const t = setInterval(() => setStep(s => (s + 1) % 4), 1900);
+    return () => clearInterval(t);
+  }, [reduceMotion]);
 
   return (
     <div className="hero-diagram">
-      <motion.div
-        className="diagram-ambient-grid"
-        animate={reduceMotion ? undefined : { rotate: [0, 12, 0], scale: [1, 1.05, 1] }}
-        transition={{ duration: 18, repeat: Infinity, ease: "easeInOut" }}
-      />
-      <motion.div
-        className="diagram-beam diagram-beam-a"
-        animate={reduceMotion ? undefined : { x: ["-10%", "20%", "-10%"], y: ["-4%", "8%", "-4%"] }}
-        transition={{ duration: 16, repeat: Infinity, ease: "easeInOut" }}
-      />
-      <motion.div
-        className="diagram-beam diagram-beam-b"
-        animate={reduceMotion ? undefined : { x: ["12%", "-8%", "12%"], y: ["8%", "-4%", "8%"] }}
-        transition={{ duration: 14, repeat: Infinity, ease: "easeInOut" }}
-      />
-      <motion.div
-        className="diagram-halo diagram-halo-a"
-        animate={reduceMotion ? undefined : { scale: [1, 1.08, 1], opacity: [0.45, 0.7, 0.45] }}
-        transition={{ duration: 8, repeat: Infinity, ease: "easeInOut" }}
-      />
-      <motion.div
-        className="diagram-halo diagram-halo-b"
-        animate={reduceMotion ? undefined : { scale: [1.02, 0.96, 1.02], rotate: [0, 8, 0] }}
-        transition={{ duration: 12, repeat: Infinity, ease: "easeInOut" }}
-      />
-      <motion.div
-        className="diagram-orbit diagram-orbit-outer"
-        animate={reduceMotion ? undefined : { rotate: 360 }}
-        transition={{ duration: 24, repeat: Infinity, ease: "linear" }}
-      >
-        <span className="orbit-dot orbit-dot-coral" />
-        <span className="orbit-dot orbit-dot-gold" />
-      </motion.div>
-      <motion.div
-        className="diagram-orbit diagram-orbit-inner"
-        animate={reduceMotion ? undefined : { rotate: -360 }}
-        transition={{ duration: 18, repeat: Infinity, ease: "linear" }}
-      >
-        <span className="orbit-dot orbit-dot-teal" />
-      </motion.div>
-      <div className="diagram-ring" />
-      <svg className="diagram-links" viewBox="0 0 540 540" aria-hidden="true">
-        <path
-          d="M145 122C200 150 210 178 238 228"
-          className="diagram-link-path"
-        />
-        <path
-          d="M392 158C350 184 332 195 300 230"
-          className="diagram-link-path"
-        />
-        <path
-          d="M270 356C270 325 270 314 270 300"
-          className="diagram-link-path"
-        />
-        <motion.path
-          d="M145 122C200 150 210 178 238 228"
-          className="diagram-link-active diagram-link-active-coral"
-          animate={reduceMotion ? undefined : { pathLength: [0.12, 1, 0.12], opacity: [0.3, 1, 0.3] }}
-          transition={{ duration: 4.2, repeat: Infinity, ease: "easeInOut" }}
-        />
-        <motion.path
-          d="M392 158C350 184 332 195 300 230"
-          className="diagram-link-active diagram-link-active-gold"
-          animate={reduceMotion ? undefined : { pathLength: [0.14, 1, 0.14], opacity: [0.25, 1, 0.25] }}
-          transition={{ duration: 4.6, repeat: Infinity, ease: "easeInOut", delay: 0.5 }}
-        />
-        <motion.path
-          d="M270 356C270 325 270 314 270 300"
-          className="diagram-link-active diagram-link-active-teal"
-          animate={reduceMotion ? undefined : { pathLength: [0.2, 1, 0.2], opacity: [0.25, 1, 0.25] }}
-          transition={{ duration: 3.8, repeat: Infinity, ease: "easeInOut", delay: 1 }}
-        />
-        <motion.circle
-          cx="145"
-          cy="122"
-          r="6"
-          className="diagram-signal diagram-signal-coral"
-          animate={
-            reduceMotion
-              ? undefined
-              : {
-                  x: [0, 37, 67, 93],
-                  y: [0, 21, 54, 106]
-                }
-          }
-          transition={{ duration: 2.7, repeat: Infinity, ease: "easeInOut" }}
-        />
-        <motion.circle
-          cx="392"
-          cy="158"
-          r="6"
-          className="diagram-signal diagram-signal-gold"
-          animate={
-            reduceMotion
-              ? undefined
-              : {
-                  x: [0, -32, -62, -92],
-                  y: [0, 22, 40, 72]
-                }
-          }
-          transition={{ duration: 3, repeat: Infinity, ease: "easeInOut", delay: 0.4 }}
-        />
-        <motion.circle
-          cx="270"
-          cy="356"
-          r="6"
-          className="diagram-signal diagram-signal-teal"
-          animate={
-            reduceMotion
-              ? undefined
-              : {
-                  x: [0, 0, 0],
-                  y: [0, -28, -56]
-                }
-          }
-          transition={{ duration: 2.3, repeat: Infinity, ease: "easeInOut", delay: 0.8 }}
-        />
-      </svg>
+      <div className="flow-diagram">
+        <p className="flow-eyebrow">How a WTL run moves</p>
 
-      <motion.div
-        className="diagram-core"
-        initial={{ opacity: 0, scale: 0.86 }}
-        animate={
-          reduceMotion
-            ? { opacity: 1, scale: 1 }
-            : { opacity: 1, scale: [1, 1.04, 1], boxShadow: ["0 30px 60px rgba(11, 34, 44, 0.28)", "0 36px 90px rgba(11, 34, 44, 0.34)", "0 30px 60px rgba(11, 34, 44, 0.28)"] }
-        }
-        transition={{
-          duration: 6,
-          repeat: reduceMotion ? 0 : Infinity,
-          ease: "easeInOut"
-        }}
-      >
-        <span>Run</span>
-        <strong>One shared execution loop</strong>
-      </motion.div>
+        <div className="flow-row">
+          <div className="flow-node">
+            <span className="flow-icon" aria-hidden="true">🤖</span>
+            <strong>Agent</strong>
+          </div>
 
-      <motion.article
-        className="diagram-card diagram-card-engine"
-        animate={reduceMotion ? undefined : { y: [0, -10, 0], rotate: [0, -1.5, 0] }}
-        transition={{ duration: 7, repeat: Infinity, ease: "easeInOut" }}
-      >
-        <p>Engine</p>
-        <span>Runs turns and enforces limits</span>
-      </motion.article>
+          <div className="flow-conn">
+            <svg viewBox="0 0 100 16" preserveAspectRatio="none" className="conn-svg" aria-hidden="true">
+              <line x1="2" y1="8" x2="98" y2="8" className="conn-track" />
+              {!reduceMotion && step === 0 && (
+                <motion.circle
+                  key="dot-a0"
+                  cx="2" cy="8" r="5"
+                  className="conn-dot-coral"
+                  animate={{ cx: 98 }}
+                  transition={{ duration: 0.75, ease: "easeInOut" }}
+                />
+              )}
+            </svg>
+          </div>
 
-      <motion.article
-        className="diagram-card diagram-card-policy"
-        animate={reduceMotion ? undefined : { y: [0, 12, 0], rotate: [0, 1.5, 0] }}
-        transition={{ duration: 8, repeat: Infinity, ease: "easeInOut", delay: 0.4 }}
-      >
-        <p>Policy</p>
-        <span>Assigns meaning and emits directives</span>
-      </motion.article>
-
-      <motion.article
-        className="diagram-card diagram-card-observer"
-        animate={reduceMotion ? undefined : { y: [0, -8, 0], x: [0, -4, 0] }}
-        transition={{ duration: 9, repeat: Infinity, ease: "easeInOut", delay: 0.8 }}
-      >
-        <p>Observer</p>
-        <span>Sees everything, controls nothing</span>
-      </motion.article>
-
-      <div className="diagram-chip-rail">
-        {heroChips.map((chip, index) => (
           <motion.div
-            key={chip.label}
-            className={`diagram-chip diagram-chip-${chip.tone}`}
-            animate={reduceMotion ? undefined : { y: [0, -6, 0], opacity: [0.72, 1, 0.72] }}
-            transition={{
-              duration: 2.8,
-              repeat: Infinity,
-              ease: "easeInOut",
-              delay: index * 0.35
-            }}
+            className="flow-node flow-node-center"
+            animate={!reduceMotion && (step === 0 || step === 3) ? { scale: [1, 1.05, 1] } : {}}
+            transition={{ duration: 0.5 }}
           >
-            {chip.label}
+            <span className="flow-icon flow-icon-teal" aria-hidden="true">{">>"}</span>
+            <strong>Engine</strong>
           </motion.div>
-        ))}
+
+          <div className="flow-conn">
+            <svg viewBox="0 0 100 16" preserveAspectRatio="none" className="conn-svg" aria-hidden="true">
+              <line x1="2" y1="8" x2="98" y2="8" className="conn-track" />
+              {!reduceMotion && step === 1 && (
+                <motion.circle
+                  key="dot-fwd"
+                  cx="2" cy="8" r="5"
+                  className="conn-dot-gold"
+                  animate={{ cx: 98 }}
+                  transition={{ duration: 0.75, ease: "easeInOut" }}
+                />
+              )}
+              {!reduceMotion && step === 2 && (
+                <motion.circle
+                  key="dot-back"
+                  cx="98" cy="8" r="5"
+                  className="conn-dot-teal"
+                  animate={{ cx: 2 }}
+                  transition={{ duration: 0.75, ease: "easeInOut" }}
+                />
+              )}
+            </svg>
+          </div>
+
+          <motion.div
+            className="flow-node"
+            animate={!reduceMotion && step === 2 ? { scale: [1, 1.05, 1] } : {}}
+            transition={{ duration: 0.5 }}
+          >
+            <span className="flow-icon" aria-hidden="true">⚙</span>
+            <strong>Policy</strong>
+          </motion.div>
+        </div>
+
+        <div className="flow-obs-area">
+          <div className="flow-obs-line" />
+          <div className="flow-obs-wrap">
+            <div className="flow-obs-node">
+              <strong>Observer</strong>
+              <span>reads all events</span>
+            </div>
+            <motion.span
+              className="flow-badge"
+              animate={reduceMotion ? undefined : { opacity: step === 2 ? 1 : 0.28, y: step === 2 ? 0 : 4 }}
+              transition={{ duration: 0.35 }}
+            >
+              ✓ directive
+            </motion.span>
+          </div>
+        </div>
+
+        <div className="flow-steps">
+          {flowStepLabels.flatMap((label, i) => [
+            i > 0 && <span key={`sep-${i}`} className="flow-step-sep">←</span>,
+            <div key={label} className={`flow-step${step === i ? " flow-step-on" : ""}`}>
+              <span>{i + 1}</span>
+              <strong>{label}</strong>
+            </div>
+          ]).filter(Boolean)}
+        </div>
       </div>
     </div>
   );
@@ -422,6 +345,9 @@ function LifecycleRail() {
   );
 }
 
+const archCallers = ["OpenClaw", "NanoClaw", "IronClaw", "Any Agent"];
+const archDirectives = ["continue", "wait", "retry", "compact", "advance_phase", "complete"];
+
 function LoopMap() {
   const reduceMotion = useReducedMotion();
 
@@ -439,130 +365,79 @@ function LoopMap() {
       </div>
 
       <div className="loop-map-stage">
-        <motion.div
-          className="loop-map-sheen"
-          animate={reduceMotion ? undefined : { x: ["-12%", "12%", "-12%"] }}
-          transition={{ duration: 12, repeat: Infinity, ease: "easeInOut" }}
-        />
-
-        <svg className="loop-map-svg" viewBox="0 0 760 520" aria-hidden="true">
-          <path
-            d="M108 122H235H430C505 122 555 152 604 204C578 262 533 317 460 338H183C122 338 92 300 92 248V156C92 136 96 128 108 122Z"
-            className="loop-map-path"
-          />
-          <path
-            d="M430 122C484 122 564 96 640 58"
-            className="loop-map-branch"
-          />
-          <path
-            d="M604 204C632 250 650 294 664 342"
-            className="loop-map-branch"
-          />
-          <path
-            d="M183 338C152 338 120 338 96 334"
-            className="loop-map-branch"
-          />
-
-          <motion.path
-            d="M108 122H235H430C505 122 555 152 604 204C578 262 533 317 460 338H183C122 338 92 300 92 248V156C92 136 96 128 108 122Z"
-            className="loop-map-active"
-            animate={reduceMotion ? undefined : { pathLength: [0.1, 1, 0.1], opacity: [0.25, 1, 0.25] }}
-            transition={{ duration: 7, repeat: Infinity, ease: "easeInOut" }}
-          />
-          <motion.path
-            d="M430 122C484 122 564 96 640 58"
-            className="loop-map-active loop-map-active-wait"
-            animate={reduceMotion ? undefined : { pathLength: [0.15, 1, 0.15], opacity: [0.2, 1, 0.2] }}
-            transition={{ duration: 4.6, repeat: Infinity, ease: "easeInOut", delay: 0.5 }}
-          />
-          <motion.path
-            d="M604 204C632 250 650 294 664 342"
-            className="loop-map-active loop-map-active-complete"
-            animate={reduceMotion ? undefined : { pathLength: [0.2, 1, 0.2], opacity: [0.2, 1, 0.2] }}
-            transition={{ duration: 4.2, repeat: Infinity, ease: "easeInOut", delay: 1.2 }}
-          />
-
-          <motion.circle
-            cx="108"
-            cy="122"
-            r="7"
-            className="loop-map-pulse loop-map-pulse-main"
-            animate={
-              reduceMotion
-                ? undefined
-                : {
-                    x: [0, 127, 322, 496, 352, 75, -16, 0],
-                    y: [0, 0, 0, 82, 216, 216, 126, 0]
-                  }
-            }
-            transition={{ duration: 7, repeat: Infinity, ease: "easeInOut" }}
-          />
-          <motion.circle
-            cx="430"
-            cy="122"
-            r="6"
-            className="loop-map-pulse loop-map-pulse-wait"
-            animate={
-              reduceMotion
-                ? undefined
-                : {
-                    x: [0, 78, 150, 210, 150, 78, 0],
-                    y: [0, -8, -30, -64, -30, -8, 0]
-                  }
-            }
-            transition={{ duration: 4.6, repeat: Infinity, ease: "easeInOut", delay: 0.45 }}
-          />
-          <motion.circle
-            cx="604"
-            cy="204"
-            r="6"
-            className="loop-map-pulse loop-map-pulse-complete"
-            animate={
-              reduceMotion
-                ? undefined
-                : {
-                    x: [0, 24, 44, 60],
-                    y: [0, 48, 92, 138]
-                  }
-            }
-            transition={{ duration: 4.2, repeat: Infinity, ease: "easeInOut", delay: 1.15 }}
-          />
-        </svg>
-
-        {loopNodes.map((node, index) => (
-          <motion.article
-            key={node.name}
-            className={`loop-node loop-node-${node.tone}`}
-            style={{ left: node.x, top: node.y }}
-            animate={
-              reduceMotion
-                ? undefined
-                : { y: [0, index % 2 === 0 ? -8 : 8, 0], rotate: [0, index % 2 === 0 ? -1 : 1, 0] }
-            }
-            transition={{
-              duration: 5.5 + index * 0.25,
-              repeat: Infinity,
-              ease: "easeInOut",
-              delay: index * 0.18
-            }}
-          >
-            <strong>{node.name}</strong>
-            <span>{node.body}</span>
-          </motion.article>
-        ))}
-
-        <div className="loop-map-legend">
-          <div>
-            <span className="legend-swatch legend-main" />
-            <p>Main run loop</p>
+        <div className="arch-diagram">
+          <p className="arch-tier-label">Callers</p>
+          <div className="arch-tier">
+            {archCallers.map((c, i) => (
+              <motion.div
+                key={c}
+                className="arch-cell arch-cell-plain"
+                animate={reduceMotion ? undefined : { opacity: [0.7, 1, 0.7] }}
+                transition={{ duration: 3.5, repeat: Infinity, delay: i * 0.4 }}
+              >
+                {c}
+              </motion.div>
+            ))}
           </div>
-          <div>
-            <span className="legend-swatch legend-wait" />
-            <p>Wait branch</p>
+
+          <div className="arch-arrow-row">
+            {archCallers.map((_, i) => (
+              <div key={i} className="arch-arrow-col">
+                <motion.div
+                  className="arch-arrow-stem"
+                  animate={reduceMotion ? undefined : { scaleY: [0.6, 1, 0.6], opacity: [0.45, 1, 0.45] }}
+                  transition={{ duration: 2, repeat: Infinity, delay: i * 0.35 }}
+                />
+                <div className="arch-arrow-head" />
+              </div>
+            ))}
           </div>
-          <div>
-            <span className="legend-swatch legend-complete" />
-            <p>Completion branch</p>
+
+          <div className="arch-gateway">
+            <p className="arch-gateway-label">WTL LOOP</p>
+            <div className="arch-gateway-body">
+              <div className="arch-cell arch-cell-core arch-cell-coral">
+                <strong>Engine</strong>
+                <span>Runs turns · enforces limits</span>
+              </div>
+              <div className="arch-inner-dash" />
+              <div className="arch-cell arch-cell-core arch-cell-gold arch-cell-focus">
+                <strong>Policy</strong>
+                <span>Interprets outcomes · returns directives</span>
+              </div>
+              <div className="arch-inner-dash" />
+              <div className="arch-cell arch-cell-core arch-cell-teal">
+                <strong>Observer</strong>
+                <span>Read-only event visibility</span>
+              </div>
+            </div>
+          </div>
+
+          <div className="arch-arrow-row">
+            {[0, 1, 2, 3].map(i => (
+              <div key={i} className="arch-arrow-col">
+                <motion.div
+                  className="arch-arrow-stem"
+                  animate={reduceMotion ? undefined : { scaleY: [0.6, 1, 0.6], opacity: [0.45, 1, 0.45] }}
+                  transition={{ duration: 2, repeat: Infinity, delay: i * 0.35 + 0.25 }}
+                />
+                <div className="arch-arrow-head" />
+              </div>
+            ))}
+          </div>
+
+          <p className="arch-tier-label">Directives</p>
+          <div className="arch-tier arch-tier-directives">
+            {archDirectives.map((d, i) => (
+              <motion.div
+                key={d}
+                className="arch-cell arch-cell-plain arch-cell-sm"
+                animate={reduceMotion ? undefined : { opacity: [0.65, 1, 0.65] }}
+                transition={{ duration: 3, repeat: Infinity, delay: i * 0.2 }}
+              >
+                {d}
+              </motion.div>
+            ))}
           </div>
         </div>
       </div>
