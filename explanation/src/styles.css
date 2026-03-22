@@ -1113,393 +1113,368 @@ h3 {
   }
 }
 
-/* ---- Flow Diagram (Hero) ---- */
+/* ---- WTL Loop Diagram (Hero) ---- */
 
-.flow-diagram {
+/* SVG track covers the full container */
+.wtl-track-svg {
   position: absolute;
   inset: 0;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: space-between;
-  padding: 24px 20px 20px;
-}
-
-.flow-eyebrow {
-  margin: 0 0 8px;
-  font-size: 0.72rem;
-  text-transform: uppercase;
-  letter-spacing: 0.18em;
-  font-weight: 700;
-  color: rgba(29, 23, 17, 0.48);
-}
-
-.flow-row {
-  display: flex;
-  align-items: center;
   width: 100%;
-  flex: 1;
-  max-height: 110px;
+  height: 100%;
 }
 
-.flow-node {
+/* Shared node card */
+.wtl-node {
+  position: absolute;
   display: flex;
   flex-direction: column;
   align-items: center;
-  justify-content: center;
-  gap: 7px;
-  min-width: 86px;
-  padding: 14px 10px;
+  gap: 5px;
+  padding: 13px 14px;
   border-radius: 18px;
   background: var(--surface-strong);
-  border: 1px solid rgba(255, 255, 255, 0.75);
-  box-shadow: 0 6px 24px rgba(70, 41, 12, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.78);
+  box-shadow: 0 6px 28px rgba(70, 41, 12, 0.1);
   text-align: center;
-  flex-shrink: 0;
+  width: 140px;
+  transition: box-shadow 0.3s;
 }
 
-.flow-node strong {
-  font-size: 0.82rem;
+.wtl-node-active {
+  box-shadow: 0 8px 32px rgba(70, 41, 12, 0.14);
+}
+
+/* Engine: left point of ellipse (cx=107, cy=150 → 5% from left, 29% from top) */
+.wtl-node-engine {
+  left: 5%;
+  top: 29%;
+  transform: translateY(-50%);
+  border-top: 2.5px solid var(--coral);
+}
+
+/* Policy: right point (cx=433, cy=150 → 5% from right, 29% from top) */
+.wtl-node-policy {
+  right: 5%;
+  top: 29%;
+  transform: translateY(-50%);
+  border-top: 2.5px solid var(--gold);
+}
+
+/* Observer: below ellipse, centered (cy≈300 → 74% from top) */
+.wtl-node-observer {
+  left: 50%;
+  top: 72%;
+  transform: translate(-50%, -50%);
+  border-top: 2.5px solid var(--teal);
+}
+
+.wtl-role {
+  display: block;
+  font-size: 0.9rem;
   font-weight: 700;
   letter-spacing: 0.01em;
 }
 
-.flow-node-center {
-  border-color: rgba(0, 109, 114, 0.4);
-  box-shadow: 0 6px 24px rgba(0, 109, 114, 0.14), 0 0 0 3px rgba(0, 109, 114, 0.08);
-}
-
-.flow-icon {
-  font-size: 1.3rem;
-  display: block;
-  line-height: 1;
-}
-
-.flow-icon-teal {
-  color: var(--teal);
-  font-family: "SFMono-Regular", monospace;
-  font-size: 1.1rem;
-  font-weight: 700;
-}
-
-.flow-conn {
-  flex: 1;
-  min-width: 0;
-  padding: 0 2px;
-  display: flex;
-  flex-direction: column;
-  align-items: stretch;
-}
-
-.conn-svg {
-  width: 100%;
-  height: 20px;
-  overflow: visible;
-}
-
-.conn-track {
-  stroke: rgba(29, 23, 17, 0.22);
-  stroke-width: 1.5;
-  stroke-dasharray: 6 8;
-  fill: none;
-}
-
-.conn-dot-coral { fill: var(--coral); }
-.conn-dot-gold   { fill: var(--gold); }
-.conn-dot-teal   { fill: var(--teal); }
-
-.flow-obs-area {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 6px;
-  margin: 2px 0;
-}
-
-.flow-obs-line {
-  width: 1.5px;
-  height: 18px;
-  background: repeating-linear-gradient(
-    to bottom,
-    rgba(29, 23, 17, 0.22) 0,
-    rgba(29, 23, 17, 0.22) 4px,
-    transparent 4px,
-    transparent 8px
-  );
-}
-
-.flow-obs-wrap {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-}
-
-.flow-obs-node {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 3px;
-  padding: 10px 16px;
-  border-radius: 14px;
-  background: var(--surface);
-  border: 1px solid rgba(255, 255, 255, 0.65);
-  box-shadow: 0 4px 16px rgba(70, 41, 12, 0.08);
-  text-align: center;
-}
-
-.flow-obs-node strong {
-  font-size: 0.82rem;
-  font-weight: 700;
-}
-
-.flow-obs-node span {
-  font-size: 0.74rem;
-  color: var(--muted);
-}
-
-.flow-badge {
-  display: inline-flex;
-  align-items: center;
-  padding: 7px 13px;
-  border-radius: 999px;
-  background: rgba(0, 109, 114, 0.1);
-  border: 1px solid rgba(0, 109, 114, 0.3);
-  color: var(--teal);
-  font-size: 0.79rem;
-  font-weight: 700;
-  white-space: nowrap;
-}
-
-.flow-steps {
-  display: flex;
-  align-items: center;
-  gap: 4px;
-  flex-wrap: wrap;
-  justify-content: center;
-}
-
-.flow-step-sep {
-  font-size: 0.7rem;
-  color: rgba(29, 23, 17, 0.28);
-  user-select: none;
-}
-
-.flow-step {
-  display: inline-flex;
-  align-items: center;
-  gap: 7px;
-  padding: 6px 11px;
-  border-radius: 999px;
-  border: 1.5px solid rgba(29, 23, 17, 0.1);
-  background: rgba(255, 255, 255, 0.42);
-  color: var(--muted);
-  transition: border-color 0.3s, background 0.3s, color 0.3s;
-}
-
-.flow-step span {
-  width: 18px;
-  height: 18px;
-  border-radius: 50%;
-  display: grid;
-  place-items: center;
-  font-size: 0.7rem;
-  font-weight: 700;
-  background: rgba(29, 23, 17, 0.1);
-  transition: background 0.3s, color 0.3s;
-}
-
-.flow-step strong {
-  font-size: 0.77rem;
-  font-weight: 700;
-}
-
-.flow-step-on {
-  border-color: rgba(0, 109, 114, 0.5);
-  background: rgba(0, 109, 114, 0.08);
-  color: var(--text);
-}
-
-.flow-step-on span {
-  background: var(--teal);
-  color: #fff;
-}
-
-/* ---- Architecture Diagram (Loop Map) ---- */
-
-.arch-diagram {
-  padding: 28px 24px 24px;
-  display: flex;
-  flex-direction: column;
-  gap: 0;
-  height: 100%;
-  min-height: 520px;
-}
-
-.arch-tier-label {
-  margin: 0 0 10px;
-  font-size: 0.72rem;
-  text-transform: uppercase;
-  letter-spacing: 0.18em;
-  font-weight: 700;
-  color: rgba(29, 23, 17, 0.48);
-  text-align: center;
-}
-
-.arch-tier {
-  display: flex;
-  gap: 10px;
-  justify-content: center;
-}
-
-.arch-tier-directives {
-  flex-wrap: wrap;
-}
-
-.arch-cell {
-  flex: 1;
-  min-width: 0;
-  border-radius: 14px;
-  border: 1px solid rgba(255, 255, 255, 0.7);
-  background: rgba(255, 251, 245, 0.82);
-  text-align: center;
-  padding: 13px 10px;
-  font-size: 0.86rem;
-  font-weight: 500;
-  color: var(--text);
-}
-
-.arch-cell-sm {
-  flex: 0 0 auto;
-  padding: 8px 12px;
-  font-size: 0.79rem;
-  font-family: "SFMono-Regular", monospace;
-}
-
-.arch-cell-core {
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
-  padding: 15px 12px;
-}
-
-.arch-cell-core strong {
-  display: block;
-  font-size: 0.92rem;
-  font-weight: 700;
-}
-
-.arch-cell-core span {
+.wtl-sub {
   display: block;
   font-size: 0.76rem;
   color: var(--muted);
+  line-height: 1.35;
+  min-height: 1.35em;
+}
+
+/* Directive chip: centered, between ellipse bottom and observer */
+.wtl-chip {
+  position: absolute;
+  left: 50%;
+  top: 57%;
+  transform: translateX(-50%);
+  display: inline-flex;
+  align-items: center;
+  padding: 6px 14px;
+  border-radius: 999px;
+  font-size: 0.8rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  white-space: nowrap;
+}
+
+.wtl-chip-continue {
+  background: rgba(209, 77, 44, 0.1);
+  border: 1px solid rgba(209, 77, 44, 0.3);
+  color: var(--coral);
+}
+
+.wtl-chip-retry {
+  background: rgba(210, 163, 58, 0.12);
+  border: 1px solid rgba(210, 163, 58, 0.35);
+  color: #9f6c00;
+}
+
+.wtl-chip-wait {
+  background: rgba(210, 163, 58, 0.12);
+  border: 1px solid rgba(210, 163, 58, 0.35);
+  color: #9f6c00;
+}
+
+.wtl-chip-complete {
+  background: rgba(0, 109, 114, 0.1);
+  border: 1px solid rgba(0, 109, 114, 0.3);
+  color: var(--teal);
+}
+
+/* ---- Role Diagram (Loop Map stage) ---- */
+
+.role-diagram {
+  padding: 28px 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  height: 100%;
+}
+
+/* Top row: Engine connector Policy */
+.role-top {
+  display: flex;
+  align-items: stretch;
+  gap: 0;
+  flex: 0 0 auto;
+}
+
+.role-card {
+  flex: 1;
+  padding: 20px;
+  border-radius: 20px;
+  background: rgba(255, 251, 245, 0.88);
+  border: 1px solid rgba(255, 255, 255, 0.76);
+  box-shadow: 0 6px 28px rgba(70, 41, 12, 0.09);
+  transition: box-shadow 0.3s;
+}
+
+.role-card-active {
+  box-shadow: 0 10px 40px rgba(70, 41, 12, 0.14);
+}
+
+.role-card-engine  { border-top: 3px solid var(--coral); }
+.role-card-policy  { border-top: 3px solid var(--gold); }
+.role-card-observer { border-top: 3px solid var(--teal); }
+
+.role-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 14px;
+}
+
+.role-header strong {
+  font-size: 1rem;
+  font-weight: 700;
+}
+
+.role-tag {
+  font-size: 0.7rem;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  font-weight: 700;
+  padding: 4px 10px;
+  border-radius: 999px;
+  background: rgba(29, 23, 17, 0.06);
+  color: var(--muted);
+}
+
+.role-owns {
+  list-style: none;
+  padding: 0;
+  margin: 0 0 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.role-owns li {
+  font-size: 0.82rem;
+  color: var(--muted);
+  padding-left: 13px;
+  position: relative;
   line-height: 1.4;
 }
 
-.arch-cell-coral strong { color: var(--coral); }
-.arch-cell-gold  strong { color: #9f6c00; }
-.arch-cell-teal  strong { color: var(--teal); }
-
-.arch-cell-focus {
-  border-color: rgba(0, 109, 114, 0.4);
-  box-shadow: 0 0 0 3px rgba(0, 109, 114, 0.08);
+.role-owns li::before {
+  content: "·";
+  position: absolute;
+  left: 2px;
+  color: rgba(29, 23, 17, 0.3);
 }
 
-.arch-arrow-row {
+.role-live {
+  font-size: 0.8rem;
+  color: var(--muted);
+  padding: 7px 11px;
+  border-radius: 10px;
+  background: rgba(29, 23, 17, 0.04);
+  min-height: 32px;
   display: flex;
-  justify-content: space-around;
-  padding: 8px 32px;
+  align-items: center;
 }
 
-.arch-arrow-col {
+.role-live-on {
+  font-weight: 600;
+}
+
+.role-live-engine.role-live-on {
+  background: rgba(209, 77, 44, 0.08);
+  color: var(--coral);
+}
+
+.role-live-policy.role-live-on {
+  background: rgba(210, 163, 58, 0.1);
+  color: #9f6c00;
+}
+
+/* Bidirectional connector between Engine and Policy */
+.role-conn {
+  width: 88px;
+  flex-shrink: 0;
   display: flex;
   flex-direction: column;
   align-items: center;
+  justify-content: center;
+  gap: 4px;
+  padding: 0 4px;
 }
 
-.arch-arrow-stem {
-  width: 2px;
-  height: 24px;
-  background: var(--teal);
-  opacity: 0.6;
-  transform-origin: top center;
-}
-
-.arch-arrow-head {
-  width: 0;
-  height: 0;
-  border-left: 5px solid transparent;
-  border-right: 5px solid transparent;
-  border-top: 7px solid var(--teal);
-  opacity: 0.6;
-}
-
-.arch-gateway {
-  border: 1.5px solid rgba(0, 109, 114, 0.32);
-  border-radius: 20px;
-  padding: 16px;
-  background: rgba(0, 109, 114, 0.04);
-}
-
-.arch-gateway-label {
-  margin: 0 0 14px;
-  font-size: 0.72rem;
+.role-conn-lbl {
+  font-size: 0.67rem;
   text-transform: uppercase;
-  letter-spacing: 0.2em;
+  letter-spacing: 0.1em;
   font-weight: 700;
-  color: var(--teal);
+  color: rgba(29, 23, 17, 0.36);
   text-align: center;
 }
 
-.arch-gateway-body {
-  display: flex;
-  align-items: center;
-  gap: 8px;
+.role-conn-svg-wrap {
+  width: 72px;
 }
 
-.arch-inner-dash {
-  width: 24px;
-  flex-shrink: 0;
-  height: 1.5px;
-  background: repeating-linear-gradient(
-    to right,
-    rgba(29, 23, 17, 0.22) 0,
-    rgba(29, 23, 17, 0.22) 4px,
-    transparent 4px,
-    transparent 8px
-  );
+.role-conn-svg {
+  width: 72px;
+  height: 64px;
+  overflow: visible;
 }
+
+/* Events bridge rows */
+.role-event-bridge {
+  display: grid;
+  grid-template-columns: 1fr auto 1fr;
+  align-items: center;
+  height: 32px;
+  padding: 0 20px;
+}
+
+.role-event-col {
+  display: flex;
+  justify-content: center;
+}
+
+.role-event-label {
+  font-size: 0.72rem;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  font-weight: 700;
+  color: var(--teal);
+}
+
+.role-event-divider {
+  width: 1px;
+  height: 32px;
+  background: rgba(29, 23, 17, 0.08);
+}
+
+/* Observer row */
+.role-obs-body {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 16px;
+  align-items: start;
+}
+
+/* Mini event log terminal */
+.role-log {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  padding: 10px 13px;
+  border-radius: 12px;
+  background: linear-gradient(160deg, rgba(9, 24, 34, 0.94), rgba(9, 24, 34, 0.88));
+  min-width: 128px;
+}
+
+.role-log-hdr {
+  display: block;
+  font-size: 0.64rem;
+  text-transform: uppercase;
+  letter-spacing: 0.16em;
+  color: rgba(191, 227, 218, 0.5);
+  font-weight: 700;
+  margin-bottom: 2px;
+}
+
+.role-log-entry {
+  font-family: "SFMono-Regular", "Menlo", monospace;
+  font-size: 0.8rem;
+  color: #bfe3da;
+}
+
+.role-log-idle {
+  font-size: 0.8rem;
+  color: rgba(191, 227, 218, 0.3);
+}
+
+.role-log-directive {
+  font-family: "SFMono-Regular", "Menlo", monospace;
+  font-size: 0.76rem;
+  margin-top: 2px;
+}
+
+.role-log-coral { color: rgba(209, 77, 44, 0.9); }
+.role-log-gold  { color: rgba(210, 163, 58, 0.9); }
+.role-log-teal  { color: rgba(0, 180, 188, 0.9); }
+
+/* ---- Responsive ---- */
 
 @media (max-width: 720px) {
-  .flow-node {
-    min-width: 70px;
-    padding: 10px 8px;
+  .wtl-node {
+    width: 110px;
+    padding: 10px 10px;
   }
 
-  .flow-icon {
-    font-size: 1.1rem;
+  .wtl-role {
+    font-size: 0.82rem;
   }
 
-  .flow-badge {
-    display: none;
+  .wtl-chip {
+    font-size: 0.72rem;
+    padding: 5px 11px;
+    top: 59%;
   }
 
-  .arch-diagram {
-    padding: 20px 16px;
-  }
-
-  .arch-gateway-body {
+  .role-top {
     flex-direction: column;
+    gap: 12px;
   }
 
-  .arch-inner-dash {
-    width: 1.5px;
-    height: 20px;
-    background: repeating-linear-gradient(
-      to bottom,
-      rgba(29, 23, 17, 0.22) 0,
-      rgba(29, 23, 17, 0.22) 4px,
-      transparent 4px,
-      transparent 8px
-    );
+  .role-conn {
+    width: 100%;
+    height: 56px;
+    flex-direction: row;
+    gap: 8px;
+  }
+
+  .role-conn-svg-wrap {
+    width: 100%;
+  }
+
+  .role-obs-body {
+    grid-template-columns: 1fr;
   }
 }

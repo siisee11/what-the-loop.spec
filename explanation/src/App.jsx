@@ -183,114 +183,150 @@ function SectionIntro({ eyebrow, title, body }) {
   );
 }
 
-const flowStepLabels = ["Init", "Turn", "Interpret", "Handle"];
+// Hero: 4 phases — engine runs, outcome travels, policy decides, directive returns
+const HERO_DELAYS = [850, 950, 850, 950];
+const HERO_DIRECTIVES = ["continue", "retry", "wait", "complete"];
 
 function HeroDiagram() {
   const reduceMotion = useReducedMotion();
-  const [step, setStep] = useState(0);
+  const [phase, setPhase] = useState(0);
+  const [cycle, setCycle] = useState(0);
 
   useEffect(() => {
     if (reduceMotion) return;
-    const t = setInterval(() => setStep(s => (s + 1) % 4), 1900);
-    return () => clearInterval(t);
+    let ph = 0, tid;
+    const tick = () => {
+      ph = (ph + 1) % 4;
+      setPhase(ph);
+      if (ph === 0) setCycle(c => c + 1);
+      tid = setTimeout(tick, HERO_DELAYS[ph]);
+    };
+    tid = setTimeout(tick, HERO_DELAYS[0]);
+    return () => clearTimeout(tid);
   }, [reduceMotion]);
+
+  const directive = HERO_DIRECTIVES[cycle % 4];
+  const turnNum = cycle + 1;
+
+  // Ellipse: cx=270, cy=150, rx=163, ry=67
+  // Engine at left point (107, 150), Policy at right (433, 150)
+  // Outcome arc goes above (top ≈ y=83), directive arc goes below (bottom ≈ y=217)
 
   return (
     <div className="hero-diagram">
-      <div className="flow-diagram">
-        <p className="flow-eyebrow">How a WTL run moves</p>
+      {/* SVG: ellipse track + animated dots + observer line */}
+      <svg viewBox="0 0 540 405" className="wtl-track-svg" aria-hidden="true">
+        <ellipse
+          cx="270" cy="150" rx="163" ry="67"
+          fill="none"
+          stroke="rgba(29,23,17,0.12)"
+          strokeWidth="1.5"
+          strokeDasharray="7 9"
+        />
 
-        <div className="flow-row">
-          <div className="flow-node">
-            <span className="flow-icon" aria-hidden="true">🤖</span>
-            <strong>Agent</strong>
-          </div>
+        {/* Arc direction labels */}
+        <text x="270" y="64" textAnchor="middle"
+          fill="rgba(29,23,17,0.34)" fontSize="10"
+          fontFamily="Space Grotesk,sans-serif" fontWeight="700" letterSpacing="1.5">
+          TURN OUTCOME →
+        </text>
+        <text x="270" y="240" textAnchor="middle"
+          fill="rgba(29,23,17,0.34)" fontSize="10"
+          fontFamily="Space Grotesk,sans-serif" fontWeight="700" letterSpacing="1.5">
+          ← DIRECTIVE
+        </text>
 
-          <div className="flow-conn">
-            <svg viewBox="0 0 100 16" preserveAspectRatio="none" className="conn-svg" aria-hidden="true">
-              <line x1="2" y1="8" x2="98" y2="8" className="conn-track" />
-              {!reduceMotion && step === 0 && (
-                <motion.circle
-                  key="dot-a0"
-                  cx="2" cy="8" r="5"
-                  className="conn-dot-coral"
-                  animate={{ cx: 98 }}
-                  transition={{ duration: 0.75, ease: "easeInOut" }}
-                />
-              )}
-            </svg>
-          </div>
+        {/* Observer connector */}
+        <line x1="270" y1="217" x2="270" y2="290"
+          stroke="rgba(29,23,17,0.16)" strokeWidth="1.5" strokeDasharray="5 6" />
 
-          <motion.div
-            className="flow-node flow-node-center"
-            animate={!reduceMotion && (step === 0 || step === 3) ? { scale: [1, 1.05, 1] } : {}}
-            transition={{ duration: 0.5 }}
-          >
-            <span className="flow-icon flow-icon-teal" aria-hidden="true">{">>"}</span>
-            <strong>Engine</strong>
-          </motion.div>
+        {/* Outcome dot: Engine→Policy along top arc */}
+        {!reduceMotion && phase === 1 && (
+          <motion.circle
+            key={`fwd-${cycle}`}
+            r="8" fill="var(--coral)" stroke="rgba(255,255,255,0.7)" strokeWidth="4"
+            initial={{ x: 107, y: 150 }}
+            animate={{
+              x: [107, 152, 270, 388, 433],
+              y: [150,  87,  83,  87, 150]
+            }}
+            transition={{ duration: 0.95, ease: "easeInOut" }}
+          />
+        )}
 
-          <div className="flow-conn">
-            <svg viewBox="0 0 100 16" preserveAspectRatio="none" className="conn-svg" aria-hidden="true">
-              <line x1="2" y1="8" x2="98" y2="8" className="conn-track" />
-              {!reduceMotion && step === 1 && (
-                <motion.circle
-                  key="dot-fwd"
-                  cx="2" cy="8" r="5"
-                  className="conn-dot-gold"
-                  animate={{ cx: 98 }}
-                  transition={{ duration: 0.75, ease: "easeInOut" }}
-                />
-              )}
-              {!reduceMotion && step === 2 && (
-                <motion.circle
-                  key="dot-back"
-                  cx="98" cy="8" r="5"
-                  className="conn-dot-teal"
-                  animate={{ cx: 2 }}
-                  transition={{ duration: 0.75, ease: "easeInOut" }}
-                />
-              )}
-            </svg>
-          </div>
+        {/* Directive dot: Policy→Engine along bottom arc */}
+        {!reduceMotion && phase === 3 && (
+          <motion.circle
+            key={`back-${cycle}`}
+            r="8" fill="var(--teal)" stroke="rgba(255,255,255,0.7)" strokeWidth="4"
+            initial={{ x: 433, y: 150 }}
+            animate={{
+              x: [433, 388, 270, 152, 107],
+              y: [150, 213, 217, 213, 150]
+            }}
+            transition={{ duration: 0.95, ease: "easeInOut" }}
+          />
+        )}
 
-          <motion.div
-            className="flow-node"
-            animate={!reduceMotion && step === 2 ? { scale: [1, 1.05, 1] } : {}}
-            transition={{ duration: 0.5 }}
-          >
-            <span className="flow-icon" aria-hidden="true">⚙</span>
-            <strong>Policy</strong>
-          </motion.div>
-        </div>
+        {/* Event pulse falling to Observer */}
+        {!reduceMotion && (phase === 1 || phase === 3) && (
+          <motion.circle
+            key={`obs-${phase}-${cycle}`}
+            cx="270" cy="217" r="5"
+            fill="rgba(0,109,114,0.75)"
+            animate={{ cy: [217, 290], opacity: [0.9, 0] }}
+            transition={{ duration: 0.7, ease: "easeOut", delay: 0.4 }}
+          />
+        )}
+      </svg>
 
-        <div className="flow-obs-area">
-          <div className="flow-obs-line" />
-          <div className="flow-obs-wrap">
-            <div className="flow-obs-node">
-              <strong>Observer</strong>
-              <span>reads all events</span>
-            </div>
-            <motion.span
-              className="flow-badge"
-              animate={reduceMotion ? undefined : { opacity: step === 2 ? 1 : 0.28, y: step === 2 ? 0 : 4 }}
-              transition={{ duration: 0.35 }}
-            >
-              ✓ directive
-            </motion.span>
-          </div>
-        </div>
+      {/* Engine node — left point of ellipse */}
+      <motion.div
+        className={`wtl-node wtl-node-engine${phase === 0 ? " wtl-node-active" : ""}`}
+        animate={!reduceMotion && phase === 0 ? { scale: [1, 1.04, 1] } : {}}
+        transition={{ duration: 0.65 }}
+      >
+        <span className="wtl-role">Engine</span>
+        <span className="wtl-sub">
+          {phase === 0 ? `Turn ${turnNum} running…`
+            : phase === 1 ? "Sending outcome"
+            : phase === 3 ? "Got directive"
+            : "Idle"}
+        </span>
+      </motion.div>
 
-        <div className="flow-steps">
-          {flowStepLabels.flatMap((label, i) => [
-            i > 0 && <span key={`sep-${i}`} className="flow-step-sep">←</span>,
-            <div key={label} className={`flow-step${step === i ? " flow-step-on" : ""}`}>
-              <span>{i + 1}</span>
-              <strong>{label}</strong>
-            </div>
-          ]).filter(Boolean)}
-        </div>
+      {/* Policy node — right point of ellipse */}
+      <motion.div
+        className={`wtl-node wtl-node-policy${phase === 2 ? " wtl-node-active" : ""}`}
+        animate={!reduceMotion && phase === 2 ? { scale: [1, 1.04, 1] } : {}}
+        transition={{ duration: 0.65 }}
+      >
+        <span className="wtl-role">Policy</span>
+        <span className="wtl-sub">
+          {phase === 2 ? "Interpreting…"
+            : phase === 3 ? `→ ${directive}`
+            : "Waiting"}
+        </span>
+      </motion.div>
+
+      {/* Observer — bottom, outside the loop */}
+      <div className="wtl-node wtl-node-observer">
+        <span className="wtl-role">Observer</span>
+        <span className="wtl-sub">
+          {phase === 1 ? "↗ turn:start"
+            : phase === 3 ? "↗ turn:complete"
+            : "watching…"}
+        </span>
       </div>
+
+      {/* Directive badge — fades in when policy decides */}
+      <motion.span
+        className={`wtl-chip wtl-chip-${directive}`}
+        animate={!reduceMotion ? { opacity: phase >= 2 ? 1 : 0.18 } : undefined}
+        transition={{ duration: 0.3 }}
+      >
+        {directive}
+      </motion.span>
     </div>
   );
 }
@@ -345,11 +381,29 @@ function LifecycleRail() {
   );
 }
 
-const archCallers = ["OpenClaw", "NanoClaw", "IronClaw", "Any Agent"];
-const archDirectives = ["continue", "wait", "retry", "compact", "advance_phase", "complete"];
+const LOOP_DIRECTIVES = ["continue", "retry", "wait", "complete"];
+const LOOP_DELAYS = [900, 1000, 900, 1000];
 
 function LoopMap() {
   const reduceMotion = useReducedMotion();
+  const [phase, setPhase] = useState(0);
+  const [cycle, setCycle] = useState(0);
+
+  useEffect(() => {
+    if (reduceMotion) return;
+    let ph = 0, tid;
+    const tick = () => {
+      ph = (ph + 1) % 4;
+      setPhase(ph);
+      if (ph === 0) setCycle(c => c + 1);
+      tid = setTimeout(tick, LOOP_DELAYS[ph]);
+    };
+    tid = setTimeout(tick, LOOP_DELAYS[0]);
+    return () => clearTimeout(tid);
+  }, [reduceMotion]);
+
+  const directive = LOOP_DIRECTIVES[cycle % 4];
+  const dirColor = { continue: "coral", retry: "gold", wait: "gold", complete: "teal" }[directive];
 
   return (
     <Reveal className="loop-map-shell" amount={0.2}>
@@ -365,80 +419,164 @@ function LoopMap() {
       </div>
 
       <div className="loop-map-stage">
-        <div className="arch-diagram">
-          <p className="arch-tier-label">Callers</p>
-          <div className="arch-tier">
-            {archCallers.map((c, i) => (
-              <motion.div
-                key={c}
-                className="arch-cell arch-cell-plain"
-                animate={reduceMotion ? undefined : { opacity: [0.7, 1, 0.7] }}
-                transition={{ duration: 3.5, repeat: Infinity, delay: i * 0.4 }}
-              >
-                {c}
-              </motion.div>
-            ))}
-          </div>
+        <div className="role-diagram">
 
-          <div className="arch-arrow-row">
-            {archCallers.map((_, i) => (
-              <div key={i} className="arch-arrow-col">
-                <motion.div
-                  className="arch-arrow-stem"
-                  animate={reduceMotion ? undefined : { scaleY: [0.6, 1, 0.6], opacity: [0.45, 1, 0.45] }}
-                  transition={{ duration: 2, repeat: Infinity, delay: i * 0.35 }}
-                />
-                <div className="arch-arrow-head" />
-              </div>
-            ))}
-          </div>
+          {/* ── Top row: Engine ↔ Policy ── */}
+          <div className="role-top">
 
-          <div className="arch-gateway">
-            <p className="arch-gateway-label">WTL LOOP</p>
-            <div className="arch-gateway-body">
-              <div className="arch-cell arch-cell-core arch-cell-coral">
+            {/* Engine */}
+            <motion.div
+              className={`role-card role-card-engine${phase === 0 ? " role-card-active" : ""}`}
+              animate={!reduceMotion && phase === 0 ? { scale: [1, 1.02, 1] } : {}}
+              transition={{ duration: 0.65 }}
+            >
+              <div className="role-header">
                 <strong>Engine</strong>
-                <span>Runs turns · enforces limits</span>
+                <span className="role-tag">Mechanics</span>
               </div>
-              <div className="arch-inner-dash" />
-              <div className="arch-cell arch-cell-core arch-cell-gold arch-cell-focus">
+              <ul className="role-owns">
+                <li>Starts and runs turns</li>
+                <li>Enforces iteration limits</li>
+                <li>Handles retries and waits</li>
+                <li>Owns thread lifecycle</li>
+              </ul>
+              <div className={`role-live${phase === 0 ? " role-live-on role-live-engine" : ""}`}>
+                {phase === 0 ? `Turn ${cycle + 1} running…`
+                  : phase === 3 ? `Acting on: ${directive}`
+                  : "—"}
+              </div>
+            </motion.div>
+
+            {/* Bidirectional connector */}
+            <div className="role-conn">
+              <span className="role-conn-lbl">outcome →</span>
+              <div className="role-conn-svg-wrap">
+                <svg viewBox="0 0 72 64" className="role-conn-svg" aria-hidden="true">
+                  {/* Outcome track top */}
+                  <line x1="2" y1="18" x2="70" y2="18"
+                    stroke="rgba(29,23,17,0.16)" strokeWidth="1.5" strokeDasharray="5 7" />
+                  <polygon points="66,14 72,18 66,22" fill="rgba(209,77,44,0.45)" />
+                  {/* Directive track bottom */}
+                  <line x1="70" y1="46" x2="2" y2="46"
+                    stroke="rgba(29,23,17,0.16)" strokeWidth="1.5" strokeDasharray="5 7" />
+                  <polygon points="6,42 0,46 6,50" fill="rgba(0,109,114,0.45)" />
+
+                  {/* Outcome dot */}
+                  {!reduceMotion && phase === 1 && (
+                    <motion.circle key={`lm-fwd-${cycle}`}
+                      cy="18" r="6"
+                      fill="var(--coral)" stroke="white" strokeWidth="3"
+                      initial={{ cx: 2 }} animate={{ cx: 70 }}
+                      transition={{ duration: 1.0, ease: "easeInOut" }}
+                    />
+                  )}
+                  {/* Directive dot */}
+                  {!reduceMotion && phase === 3 && (
+                    <motion.circle key={`lm-back-${cycle}`}
+                      cy="46" r="6"
+                      fill="var(--teal)" stroke="white" strokeWidth="3"
+                      initial={{ cx: 70 }} animate={{ cx: 2 }}
+                      transition={{ duration: 1.0, ease: "easeInOut" }}
+                    />
+                  )}
+                </svg>
+              </div>
+              <span className="role-conn-lbl">← directive</span>
+            </div>
+
+            {/* Policy */}
+            <motion.div
+              className={`role-card role-card-policy${phase === 2 ? " role-card-active" : ""}`}
+              animate={!reduceMotion && phase === 2 ? { scale: [1, 1.02, 1] } : {}}
+              transition={{ duration: 0.65 }}
+            >
+              <div className="role-header">
                 <strong>Policy</strong>
-                <span>Interprets outcomes · returns directives</span>
+                <span className="role-tag">Meaning</span>
               </div>
-              <div className="arch-inner-dash" />
-              <div className="arch-cell arch-cell-core arch-cell-teal">
-                <strong>Observer</strong>
-                <span>Read-only event visibility</span>
+              <ul className="role-owns">
+                <li>Interprets turn outcomes</li>
+                <li>Returns directives</li>
+                <li>Controls completion gating</li>
+                <li>Owns phase ordering</li>
+              </ul>
+              <div className={`role-live${phase === 2 ? " role-live-on role-live-policy" : ""}`}>
+                {phase === 2 ? "Interpreting…"
+                  : phase === 3 ? `→ ${directive}`
+                  : "—"}
+              </div>
+            </motion.div>
+          </div>
+
+          {/* ── Events flowing down to Observer ── */}
+          <div className="role-event-bridge">
+            <div className="role-event-col">
+              {!reduceMotion && (phase === 1 || phase === 3) && (
+                <motion.span
+                  key={`ev-l-${phase}-${cycle}`}
+                  className="role-event-label"
+                  initial={{ opacity: 0, y: -4 }}
+                  animate={{ opacity: [0, 1, 1, 0], y: [0, 8] }}
+                  transition={{ duration: 0.9 }}
+                >events ↓</motion.span>
+              )}
+            </div>
+            <div className="role-event-divider" />
+            <div className="role-event-col">
+              {!reduceMotion && (phase === 1 || phase === 3) && (
+                <motion.span
+                  key={`ev-r-${phase}-${cycle}`}
+                  className="role-event-label"
+                  initial={{ opacity: 0, y: -4 }}
+                  animate={{ opacity: [0, 1, 1, 0], y: [0, 8] }}
+                  transition={{ duration: 0.9, delay: 0.1 }}
+                >events ↓</motion.span>
+              )}
+            </div>
+          </div>
+
+          {/* ── Observer ── */}
+          <div className="role-card role-card-observer">
+            <div className="role-header">
+              <strong>Observer</strong>
+              <span className="role-tag">Visibility · never controls</span>
+            </div>
+            <div className="role-obs-body">
+              <ul className="role-owns">
+                <li>Receives all lifecycle events</li>
+                <li>Cannot steer execution</li>
+                <li>Logs · traces · UI · audit</li>
+              </ul>
+              <div className="role-log">
+                <span className="role-log-hdr">event log</span>
+                {(phase === 1 || phase === 3) ? (
+                  <motion.span
+                    key={`log-${phase}-${cycle}`}
+                    className="role-log-entry"
+                    initial={{ opacity: 0, y: -4 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.3 }}
+                  >
+                    {phase === 1 ? "turn:start" : "turn:complete"}
+                  </motion.span>
+                ) : (
+                  <span className="role-log-idle">…</span>
+                )}
+                {phase === 3 && (
+                  <motion.span
+                    key={`log-dir-${cycle}`}
+                    className={`role-log-directive role-log-${dirColor}`}
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    transition={{ duration: 0.3, delay: 0.3 }}
+                  >
+                    policy:{directive}
+                  </motion.span>
+                )}
               </div>
             </div>
           </div>
 
-          <div className="arch-arrow-row">
-            {[0, 1, 2, 3].map(i => (
-              <div key={i} className="arch-arrow-col">
-                <motion.div
-                  className="arch-arrow-stem"
-                  animate={reduceMotion ? undefined : { scaleY: [0.6, 1, 0.6], opacity: [0.45, 1, 0.45] }}
-                  transition={{ duration: 2, repeat: Infinity, delay: i * 0.35 + 0.25 }}
-                />
-                <div className="arch-arrow-head" />
-              </div>
-            ))}
-          </div>
-
-          <p className="arch-tier-label">Directives</p>
-          <div className="arch-tier arch-tier-directives">
-            {archDirectives.map((d, i) => (
-              <motion.div
-                key={d}
-                className="arch-cell arch-cell-plain arch-cell-sm"
-                animate={reduceMotion ? undefined : { opacity: [0.65, 1, 0.65] }}
-                transition={{ duration: 3, repeat: Infinity, delay: i * 0.2 }}
-              >
-                {d}
-              </motion.div>
-            ))}
-          </div>
         </div>
       </div>
     </Reveal>
