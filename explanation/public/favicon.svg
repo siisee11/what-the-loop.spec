@@ -1,0 +1,26 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" role="img" aria-label="WhatTheLoop icon">
+  <defs>
+    <linearGradient id="wtl-gradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#d14d2c" />
+      <stop offset="55%" stop-color="#d2a33a" />
+      <stop offset="100%" stop-color="#006d72" />
+    </linearGradient>
+  </defs>
+  <rect width="64" height="64" rx="18" fill="#10232c" />
+  <path
+    d="M18 31c0-8.6 6.7-15 14.8-15 5.4 0 9.8 2.4 12.8 6.7"
+    fill="none"
+    stroke="url(#wtl-gradient)"
+    stroke-linecap="round"
+    stroke-width="6"
+  />
+  <path
+    d="M46 33c0 8.6-6.7 15-14.8 15-5.4 0-9.8-2.4-12.8-6.7"
+    fill="none"
+    stroke="#f6efe3"
+    stroke-linecap="round"
+    stroke-width="6"
+  />
+  <circle cx="46" cy="23" r="4" fill="#f6efe3" />
+  <circle cx="18" cy="41" r="4" fill="#d14d2c" />
+</svg>

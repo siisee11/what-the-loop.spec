@@ -1,3 +1,5 @@
 _apalache-out/
 .DS_Store
 .claude/
+explanation/node_modules/
+explanation/dist/
