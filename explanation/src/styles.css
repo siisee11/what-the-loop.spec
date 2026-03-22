@@ -268,7 +268,7 @@ h3 {
 .hero-diagram {
   position: relative;
   width: min(100%, 540px);
-  aspect-ratio: 4 / 3;
+  aspect-ratio: 1 / 1;
   border-radius: 38px;
   overflow: hidden;
   background:
@@ -1144,27 +1144,25 @@ h3 {
   box-shadow: 0 8px 32px rgba(70, 41, 12, 0.14);
 }
 
-/* Engine: left point of ellipse (cx=107, cy=150 → 5% from left, 29% from top) */
+/* Engine: top-left (left=36, top=70 in 540×540 → 6.7%, 13%) */
 .wtl-node-engine {
-  left: 5%;
-  top: 29%;
-  transform: translateY(-50%);
+  left: 6.7%;
+  top: 13%;
   border-top: 2.5px solid var(--coral);
 }
 
-/* Policy: right point (cx=433, cy=150 → 5% from right, 29% from top) */
+/* Policy: top-right (right=36, top=70 → 6.7%, 13%) */
 .wtl-node-policy {
-  right: 5%;
-  top: 29%;
-  transform: translateY(-50%);
+  right: 6.7%;
+  top: 13%;
   border-top: 2.5px solid var(--gold);
 }
 
-/* Observer: below ellipse, centered (cy≈300 → 74% from top) */
+/* Observer: bottom-center (top=390 in 540 → 72%, centered) */
 .wtl-node-observer {
   left: 50%;
   top: 72%;
-  transform: translate(-50%, -50%);
+  transform: translateX(-50%);
   border-top: 2.5px solid var(--teal);
 }
 
@@ -1183,11 +1181,11 @@ h3 {
   min-height: 1.35em;
 }
 
-/* Directive chip: centered, between ellipse bottom and observer */
+/* Directive chip: bottom-center of the square */
 .wtl-chip {
   position: absolute;
   left: 50%;
-  top: 57%;
+  bottom: 20px;
   transform: translateX(-50%);
   display: inline-flex;
   align-items: center;
@@ -1455,7 +1453,6 @@ h3 {
   .wtl-chip {
     font-size: 0.72rem;
     padding: 5px 11px;
-    top: 59%;
   }
 
   .role-top {

@@ -208,79 +208,108 @@ function HeroDiagram() {
   const directive = HERO_DIRECTIVES[cycle % 4];
   const turnNum = cycle + 1;
 
-  // Ellipse: cx=270, cy=150, rx=163, ry=67
-  // Engine at left point (107, 150), Policy at right (433, 150)
-  // Outcome arc goes above (top ≈ y=83), directive arc goes below (bottom ≈ y=217)
+  // viewBox 540×540 (1:1 square)
+  // Engine card:  left=36  top=70  w=158 h=82  → right=194, center=(115,111)
+  // Policy card:  left=346 top=70  w=158 h=82  → left=346,  center=(425,111)
+  // Horizontal lines at y=98 (outcome →) and y=124 (← directive), x: 194↔346
+  // Observer card: centered x=270, top=390, w=170, h=80 → center=(270,430)
+  // Diagonals: Engine(115,152)→Observer(220,390) and Policy(425,152)→Observer(320,390)
 
   return (
     <div className="hero-diagram">
-      {/* SVG: ellipse track + animated dots + observer line */}
-      <svg viewBox="0 0 540 405" className="wtl-track-svg" aria-hidden="true">
-        <ellipse
-          cx="270" cy="150" rx="163" ry="67"
-          fill="none"
-          stroke="rgba(29,23,17,0.12)"
-          strokeWidth="1.5"
-          strokeDasharray="7 9"
-        />
+      <svg viewBox="0 0 540 540" className="wtl-track-svg" aria-hidden="true">
 
-        {/* Arc direction labels */}
-        <text x="270" y="64" textAnchor="middle"
+        {/* ── Horizontal lines: Engine ↔ Policy ── */}
+        {/* outcome line */}
+        <line x1="194" y1="98" x2="346" y2="98"
+          stroke="rgba(29,23,17,0.16)" strokeWidth="1.5" strokeDasharray="6 9" />
+        <polygon points="341,93 349,98 341,103" fill="rgba(209,77,44,0.45)" />
+
+        {/* directive line */}
+        <line x1="346" y1="124" x2="194" y2="124"
+          stroke="rgba(29,23,17,0.16)" strokeWidth="1.5" strokeDasharray="6 9" />
+        <polygon points="199,119 191,124 199,129" fill="rgba(0,109,114,0.45)" />
+
+        {/* line labels */}
+        <text x="270" y="88" textAnchor="middle"
           fill="rgba(29,23,17,0.34)" fontSize="10"
           fontFamily="Space Grotesk,sans-serif" fontWeight="700" letterSpacing="1.5">
-          TURN OUTCOME →
+          OUTCOME →
         </text>
-        <text x="270" y="240" textAnchor="middle"
+        <text x="270" y="144" textAnchor="middle"
           fill="rgba(29,23,17,0.34)" fontSize="10"
           fontFamily="Space Grotesk,sans-serif" fontWeight="700" letterSpacing="1.5">
           ← DIRECTIVE
         </text>
 
-        {/* Observer connector */}
-        <line x1="270" y1="217" x2="270" y2="290"
-          stroke="rgba(29,23,17,0.16)" strokeWidth="1.5" strokeDasharray="5 6" />
+        {/* ── Diagonal lines: Engine/Policy → Observer ── */}
+        <line x1="115" y1="152" x2="220" y2="390"
+          stroke="rgba(29,23,17,0.1)" strokeWidth="1.5" strokeDasharray="5 7" />
+        <line x1="425" y1="152" x2="320" y2="390"
+          stroke="rgba(29,23,17,0.1)" strokeWidth="1.5" strokeDasharray="5 7" />
 
-        {/* Outcome dot: Engine→Policy along top arc */}
+        {/* "events" labels on diagonals */}
+        <text x="152" y="275" textAnchor="middle"
+          fill="rgba(0,109,114,0.4)" fontSize="9"
+          fontFamily="Space Grotesk,sans-serif" fontWeight="700" letterSpacing="1"
+          transform="rotate(-22,152,275)">
+          events
+        </text>
+        <text x="388" y="275" textAnchor="middle"
+          fill="rgba(0,109,114,0.4)" fontSize="9"
+          fontFamily="Space Grotesk,sans-serif" fontWeight="700" letterSpacing="1"
+          transform="rotate(22,388,275)">
+          events
+        </text>
+
+        {/* ── Animated dots ── */}
+
+        {/* Outcome dot: Engine→Policy */}
         {!reduceMotion && phase === 1 && (
           <motion.circle
             key={`fwd-${cycle}`}
-            r="8" fill="var(--coral)" stroke="rgba(255,255,255,0.7)" strokeWidth="4"
-            initial={{ x: 107, y: 150 }}
-            animate={{
-              x: [107, 152, 270, 388, 433],
-              y: [150,  87,  83,  87, 150]
-            }}
+            r="7" fill="var(--coral)" stroke="rgba(255,255,255,0.7)" strokeWidth="3"
+            initial={{ x: 194, y: 98 }}
+            animate={{ x: 346 }}
             transition={{ duration: 0.95, ease: "easeInOut" }}
           />
         )}
 
-        {/* Directive dot: Policy→Engine along bottom arc */}
+        {/* Directive dot: Policy→Engine */}
         {!reduceMotion && phase === 3 && (
           <motion.circle
             key={`back-${cycle}`}
-            r="8" fill="var(--teal)" stroke="rgba(255,255,255,0.7)" strokeWidth="4"
-            initial={{ x: 433, y: 150 }}
-            animate={{
-              x: [433, 388, 270, 152, 107],
-              y: [150, 213, 217, 213, 150]
-            }}
+            r="7" fill="var(--teal)" stroke="rgba(255,255,255,0.7)" strokeWidth="3"
+            initial={{ x: 346, y: 124 }}
+            animate={{ x: 194 }}
             transition={{ duration: 0.95, ease: "easeInOut" }}
           />
         )}
 
-        {/* Event pulse falling to Observer */}
+        {/* Event pulse: Engine→Observer */}
         {!reduceMotion && (phase === 1 || phase === 3) && (
           <motion.circle
-            key={`obs-${phase}-${cycle}`}
-            cx="270" cy="217" r="5"
-            fill="rgba(0,109,114,0.75)"
-            animate={{ cy: [217, 290], opacity: [0.9, 0] }}
-            transition={{ duration: 0.7, ease: "easeOut", delay: 0.4 }}
+            key={`obs-l-${phase}-${cycle}`}
+            r="4" fill="rgba(0,109,114,0.72)"
+            initial={{ x: 115, y: 152 }}
+            animate={{ x: 220, y: 390, opacity: 0 }}
+            transition={{ duration: 0.8, ease: "easeInOut", delay: 0.35 }}
+          />
+        )}
+
+        {/* Event pulse: Policy→Observer */}
+        {!reduceMotion && (phase === 1 || phase === 3) && (
+          <motion.circle
+            key={`obs-r-${phase}-${cycle}`}
+            r="4" fill="rgba(0,109,114,0.72)"
+            initial={{ x: 425, y: 152 }}
+            animate={{ x: 320, y: 390, opacity: 0 }}
+            transition={{ duration: 0.8, ease: "easeInOut", delay: 0.45 }}
           />
         )}
       </svg>
 
-      {/* Engine node — left point of ellipse */}
+      {/* Engine node — top-left */}
       <motion.div
         className={`wtl-node wtl-node-engine${phase === 0 ? " wtl-node-active" : ""}`}
         animate={!reduceMotion && phase === 0 ? { scale: [1, 1.04, 1] } : {}}
@@ -295,7 +324,7 @@ function HeroDiagram() {
         </span>
       </motion.div>
 
-      {/* Policy node — right point of ellipse */}
+      {/* Policy node — top-right */}
       <motion.div
         className={`wtl-node wtl-node-policy${phase === 2 ? " wtl-node-active" : ""}`}
         animate={!reduceMotion && phase === 2 ? { scale: [1, 1.04, 1] } : {}}
@@ -309,7 +338,7 @@ function HeroDiagram() {
         </span>
       </motion.div>
 
-      {/* Observer — bottom, outside the loop */}
+      {/* Observer — bottom-center */}
       <div className="wtl-node wtl-node-observer">
         <span className="wtl-role">Observer</span>
         <span className="wtl-sub">
@@ -319,7 +348,7 @@ function HeroDiagram() {
         </span>
       </div>
 
-      {/* Directive badge — fades in when policy decides */}
+      {/* Directive chip */}
       <motion.span
         className={`wtl-chip wtl-chip-${directive}`}
         animate={!reduceMotion ? { opacity: phase >= 2 ? 1 : 0.18 } : undefined}
