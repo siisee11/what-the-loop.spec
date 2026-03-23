@@ -2,6 +2,7 @@ export const i18n = {
   en: {
     langToggle: "한국어",
     nav: {
+      problems: "Problems",
       roles: "Roles",
       directives: "Directives",
       lifecycle: "Lifecycle",
@@ -31,6 +32,49 @@ export const i18n = {
         { strong: "3 roles", span: "Engine, Policy, Observer" },
         { strong: "6 directives", span: "Meaning returned to the engine" },
         { strong: "1 rule", span: "The engine never invents semantics" }
+      ]
+    },
+    problems: {
+      eyebrow: "Why WTL exists",
+      h2: "Six problems that break agent loops.",
+      body: "These problems appear in every agent runtime that grows beyond a single script. Each one has a clean solution — once you separate mechanics from meaning.",
+      items: [
+        {
+          id: "P1", accent: "coral",
+          title: "Every loop is written from scratch",
+          body: "No shared interface for agent execution means each workflow reinvents the same mechanics: iteration limits, retry handling, and termination logic.",
+          question: "Can one well-tested engine serve many different workflows?"
+        },
+        {
+          id: "P2", accent: "coral",
+          title: "Loops can't be verified",
+          body: "Without a defined contract, there's no way to test that a loop behaves correctly. Completion conditions, retry semantics, and exhaustion are all undefined.",
+          question: "What invariants must a loop always hold?"
+        },
+        {
+          id: "P3", accent: "gold",
+          title: "Mechanics and meaning bleed together",
+          body: "Engines decide what turn outcomes mean. Policies reach into execution mechanics. Mixed responsibilities make neither component testable in isolation.",
+          question: "What is the complete list of things the engine must not know?"
+        },
+        {
+          id: "P4", accent: "gold",
+          title: "Completion is arbitrary",
+          body: "Runs terminate on string matches, fixed turn counts, or nothing at all. Whether a run truly completed or simply stopped is undetectable from outside.",
+          question: "Who decides completion — the engine or the policy?"
+        },
+        {
+          id: "P5", accent: "teal",
+          title: "Waiting looks like failing",
+          body: "When a workflow needs external input, implementations poll, block, or fail. A paused run is indistinguishable from a broken one.",
+          question: "Can waiting be a first-class, observable state?"
+        },
+        {
+          id: "P6", accent: "teal",
+          title: "Observing breaks correctness",
+          body: "Logging, tracing, and UI updates are woven into execution. When an observer fails, the run fails. What should be invisible becomes a dependency.",
+          question: "Should a run succeed even if all observers are removed?"
+        }
       ]
     },
     band: {
@@ -152,6 +196,7 @@ export const i18n = {
   ko: {
     langToggle: "EN",
     nav: {
+      problems: "문제",
       roles: "역할",
       directives: "지시어",
       lifecycle: "생명주기",
@@ -181,6 +226,49 @@ export const i18n = {
         { strong: "3가지 역할", span: "Engine, Policy, Observer" },
         { strong: "6가지 지시어", span: "엔진에 반환되는 의미" },
         { strong: "1가지 규칙", span: "엔진은 의미를 발명하지 않는다" }
+      ]
+    },
+    problems: {
+      eyebrow: "WTL이 존재하는 이유",
+      h2: "에이전트 루프를 망가뜨리는 여섯 가지 문제.",
+      body: "이 문제들은 단순한 스크립트를 넘어 성장하는 모든 에이전트 런타임에서 나타납니다. 메커니즘과 의미를 분리하면 각각의 문제에 명확한 해답이 있습니다.",
+      items: [
+        {
+          id: "P1", accent: "coral",
+          title: "루프를 매번 처음부터 작성한다",
+          body: "에이전트 실행을 위한 공통 인터페이스가 없어서, 모든 워크플로는 반복 제한·재시도·종료 로직을 각자 다시 구현합니다.",
+          question: "잘 검증된 하나의 엔진이 여러 워크플로를 지원할 수 있는가?"
+        },
+        {
+          id: "P2", accent: "coral",
+          title: "루프의 정합성을 검증할 수 없다",
+          body: "정의된 계약이 없으면 루프가 올바르게 동작하는지 테스트할 방법이 없습니다. 완료 조건, 재시도 의미론, 소진 기준이 모두 미정의 상태입니다.",
+          question: "루프가 반드시 지켜야 할 불변 조건은 무엇인가?"
+        },
+        {
+          id: "P3", accent: "gold",
+          title: "메커니즘과 의미가 뒤섞인다",
+          body: "엔진이 턴 결과의 의미를 직접 판단하고, 정책이 실행 메커니즘에 개입합니다. 책임이 혼재되면 어느 쪽도 독립적으로 테스트할 수 없습니다.",
+          question: "엔진이 반드시 몰라야 하는 것들의 목록은 무엇인가?"
+        },
+        {
+          id: "P4", accent: "gold",
+          title: "완료 조건이 임의적이다",
+          body: "문자열 매칭, 고정된 턴 수, 또는 아무 조건 없이 실행이 종료됩니다. 진정으로 완료된 것인지, 그냥 멈춘 것인지 외부에서 알 수 없습니다.",
+          question: "완료를 결정하는 것은 엔진인가, 정책인가?"
+        },
+        {
+          id: "P5", accent: "teal",
+          title: "대기와 실패가 구분되지 않는다",
+          body: "워크플로가 외부 입력을 기다려야 할 때, 구현체들은 폴링하거나 블록하거나 실패 처리합니다. 일시 중단된 실행과 오류 상태를 구분할 수 없습니다.",
+          question: "대기가 일급 상태로서 관찰 가능한 상태가 될 수 있는가?"
+        },
+        {
+          id: "P6", accent: "teal",
+          title: "관찰이 정확성을 깨뜨린다",
+          body: "로깅·트레이싱·UI 업데이트가 실행 흐름에 직접 엮여 있습니다. 옵저버가 실패하면 실행도 실패합니다. 보이지 않아야 할 것이 의존성이 됩니다.",
+          question: "모든 옵저버가 제거되어도 실행은 성공해야 하는가?"
+        }
       ]
     },
     band: {

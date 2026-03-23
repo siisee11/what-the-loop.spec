@@ -231,6 +231,22 @@ function HeroDiagram({ t }) {
   );
 }
 
+function ProblemCard({ item, index }) {
+  return (
+    <Reveal delay={index * 0.06} amount={0.15}>
+      <div className="problem-card" style={{ "--prob-accent": `var(--${item.accent})` }}>
+        <div className="problem-num">
+          <span className="problem-num-dot" />
+          <span>{item.id}</span>
+        </div>
+        <h3 className="problem-title">{item.title}</h3>
+        <p className="problem-body">{item.body}</p>
+        <div className="problem-q">{item.question}</div>
+      </div>
+    </Reveal>
+  );
+}
+
 function RoleCard({ role, index }) {
   return (
     <Reveal className="panel role-card" delay={index * 0.08}>
@@ -500,6 +516,7 @@ export default function App() {
               <span>WhatTheLoop</span>
             </div>
             <nav>
+              <a href="#problems">{t.nav.problems}</a>
               <a href="#roles">{t.nav.roles}</a>
               <a href="#directives">{t.nav.directives}</a>
               <a href="#lifecycle">{t.nav.lifecycle}</a>
@@ -547,6 +564,19 @@ export default function App() {
         </header>
 
         <main>
+          <section className="section problems-section" id="problems">
+            <SectionIntro
+              eyebrow={t.problems.eyebrow}
+              title={t.problems.h2}
+              body={t.problems.body}
+            />
+            <div className="problems-grid">
+              {t.problems.items.map((item, i) => (
+                <ProblemCard key={item.id} item={item} index={i} />
+              ))}
+            </div>
+          </section>
+
           <section className="section band">
             <Reveal className="band-grid" amount={0.2}>
               <div className="band-lead">
