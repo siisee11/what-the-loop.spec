@@ -483,7 +483,9 @@ export default function App() {
   const heroShift = useTransform(scrollYProgress, [0, 0.25], [0, reduceMotion ? 0 : -84]);
   const heroRotate = useTransform(scrollYProgress, [0, 0.3], [0, reduceMotion ? 0 : -2]);
 
-  const [lang, setLang] = useState("en");
+  const [lang] = useState(() =>
+    window.location.pathname.startsWith("/ko") ? "ko" : "en"
+  );
   const t = i18n[lang];
 
   return (
@@ -504,7 +506,7 @@ export default function App() {
               <a href="#cli">{t.nav.cli}</a>
               <button
                 className="lang-toggle"
-                onClick={() => setLang(l => l === "en" ? "ko" : "en")}
+                onClick={() => { window.location.href = lang === "en" ? "/ko/" : "/"; }}
               >
                 {t.langToggle}
               </button>
