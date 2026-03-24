@@ -1797,6 +1797,7 @@ h3 {
   display: grid;
   gap: 16px;
   height: 100%;
+  padding-top: 56px;
 }
 
 .workflow-top-row,
@@ -2442,6 +2443,10 @@ h3 {
     width: 100%;
     min-height: 640px;
     padding: 92px 14px 14px;
+  }
+
+  .workflow-frame {
+    padding-top: 48px;
   }
 
   .wtl-node {
@@ -3542,10 +3547,7 @@ h2 {
   padding: 18px;
   border: 3px solid var(--ink);
   border-radius: 24px;
-  background:
-    radial-gradient(circle at 12% 18%, rgba(255, 235, 108, 0.24), transparent 30%),
-    radial-gradient(circle at 84% 84%, rgba(125, 188, 255, 0.18), transparent 28%),
-    rgba(255, 252, 246, 0.9);
+  background: rgba(255, 252, 246, 0.92);
   box-shadow: 10px 10px 0 rgba(18, 18, 18, 0.18);
   overflow: hidden;
 }
@@ -3598,6 +3600,14 @@ h2 {
     linear-gradient(var(--grid-line) 3px, transparent 3px),
     linear-gradient(90deg, var(--grid-line) 3px, transparent 3px),
     linear-gradient(135deg, rgba(255, 255, 255, 0.96) 0 56%, rgba(255, 232, 143, 0.92) 56% 100%);
+  background-size: 28px 28px, 28px 28px, 100% 100%;
+}
+
+.diagram-main-visual .workflow-diagram {
+  background:
+    linear-gradient(rgba(29, 23, 17, 0.12) 3px, transparent 3px),
+    linear-gradient(90deg, rgba(29, 23, 17, 0.12) 3px, transparent 3px),
+    #fbf7ef;
   background-size: 28px 28px, 28px 28px, 100% 100%;
 }
 
