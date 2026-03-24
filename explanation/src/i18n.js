@@ -3,6 +3,7 @@ export const i18n = {
     langToggle: "한국어",
     nav: {
       diagram: "Diagram",
+      workflow: "Workflow",
       problems: "Problems",
       roles: "Roles",
       directives: "Directives",
@@ -310,7 +311,7 @@ export const i18n = {
     loopMap: {
       eyebrow: "System diagram",
       h2: "One run, three roles, two kinds of signal.",
-      body: "This is the same loop from the hero, moved into the document so it can be read with the surrounding explanation. Outcomes travel from the engine to policy, directives come back, and observers only watch the traffic.",
+      body: "A WTL run has three roles. The engine produces outcomes, the policy returns meaning as directives, and the observer records what happened without steering the loop.",
       kicker: "How to read it",
       title: "The arrows move, but responsibility stays fixed.",
       lead: "Read the diagram as a contract, not as a UI mock. Each box keeps one job, and each arrow means one kind of handoff.",
@@ -330,6 +331,99 @@ export const i18n = {
       observer: {
         tag: "Visibility only",
         body: "Records what happened for logs, traces, or UI, but never becomes a control dependency."
+      },
+      phase: {
+        label: "What phase means",
+        title: "A phase is a semantically distinct stage within a run.",
+        body: "In WTL, phase is policy-owned workflow meaning. For example, a coding workflow might move through `Discover -> Implement -> Review`. The policy sets that phase identity in the execution plan, and the engine carries out whatever mechanics that phase requires.",
+        points: [
+          "A run may spend several turns inside `Discover` before moving on, because turns count repetitions while phases describe the kind of work.",
+          "`continue` and `retry` stay inside the current phase.",
+          "`advance_phase` means the policy says the current stage is done and installs the next plan.",
+          "A phase may reuse the current thread or start a new one, but that choice still comes from policy."
+        ]
+      },
+      workflow: {
+        eyebrow: "Example workflow",
+        title: "Discover -> Implement -> Review shows how policy drives the loop.",
+        body: "This example policy starts in Discover, moves to Implement, then enters Review. It stays inside a phase with `continue`, installs the next phase with `advance_phase`, and only finishes when Review returns `complete`.",
+        notes: [
+          "`continue` keeps the engine inside the current phase.",
+          "`advance_phase` changes workflow stage without ending the run.",
+          "`complete` appears only after the example reaches Review."
+        ],
+        decisionLabel: "Current decision",
+        followLabel: "Engine follow-through",
+        phaseLabel: "Workflow phases",
+        currentTurn: "Current turn",
+        policyResult: "Policy result",
+        phases: [
+          { id: "discover", name: "Discover" },
+          { id: "implement", name: "Implement" },
+          { id: "review", name: "Review" }
+        ],
+        steps: [
+          {
+            turn: 1,
+            phase: "discover",
+            directive: "continue",
+            engine: "Reading the repo",
+            policy: "More context is still needed",
+            decision: "return continue",
+            follow: "Stay in Discover",
+            result: "Another Discover turn",
+            observerStart: "turn:start / Discover",
+            observerDirective: "directive / continue"
+          },
+          {
+            turn: 2,
+            phase: "discover",
+            directive: "advance_phase",
+            engine: "Framing the problem",
+            policy: "Discover is now sufficient",
+            decision: "return advance_phase",
+            follow: "Install Implement",
+            result: "Move to Implement",
+            observerStart: "turn:start / Discover",
+            observerDirective: "directive / advance_phase"
+          },
+          {
+            turn: 3,
+            phase: "implement",
+            directive: "continue",
+            engine: "Editing the files",
+            policy: "Keep coding in Implement",
+            decision: "return continue",
+            follow: "Stay in Implement",
+            result: "Another Implement turn",
+            observerStart: "turn:start / Implement",
+            observerDirective: "directive / continue"
+          },
+          {
+            turn: 4,
+            phase: "implement",
+            directive: "advance_phase",
+            engine: "Patch is in place",
+            policy: "Implementation is done",
+            decision: "return advance_phase",
+            follow: "Install Review",
+            result: "Move to Review",
+            observerStart: "turn:start / Implement",
+            observerDirective: "directive / advance_phase"
+          },
+          {
+            turn: 5,
+            phase: "review",
+            directive: "complete",
+            engine: "Running checks",
+            policy: "Review approves completion",
+            decision: "return complete",
+            follow: "End run",
+            result: "Run complete",
+            observerStart: "turn:start / Review",
+            observerDirective: "directive / complete"
+          }
+        ]
       },
       connOutcome: "outcome →",
       connDirective: "← directive"
@@ -365,6 +459,7 @@ export const i18n = {
     langToggle: "EN",
     nav: {
       diagram: "다이어그램",
+      workflow: "워크플로",
       problems: "문제",
       roles: "역할",
       directives: "지시어",
@@ -672,7 +767,7 @@ export const i18n = {
     loopMap: {
       eyebrow: "시스템 다이어그램",
       h2: "하나의 실행, 세 가지 역할, 두 종류의 신호.",
-      body: "히어로에 있던 같은 루프를 문서 본문으로 옮겼습니다. 주변 설명과 함께 읽을 수 있도록 배치한 것입니다. outcome은 engine에서 policy로 가고, directive는 다시 돌아오며, observer는 그 흐름만 봅니다.",
+      body: "WTL의 한 run에는 세 가지 역할이 있습니다. Engine은 outcome을 만들고, Policy는 directive로 의미를 돌려주며, Observer는 루프를 조종하지 않고 일어난 일을 기록합니다.",
       kicker: "읽는 방법",
       title: "화살표는 움직여도, 책임은 고정됩니다.",
       lead: "이 그림은 UI 시안이 아니라 계약을 읽는 도식입니다. 각 박스는 하나의 역할만 맡고, 각 화살표는 하나의 핸드오프만 뜻합니다.",
@@ -692,6 +787,99 @@ export const i18n = {
       observer: {
         tag: "가시성 전용",
         body: "로그, 트레이스, UI를 위해 일어난 일을 기록하지만, 제어 의존성은 되지 않습니다."
+      },
+      phase: {
+        label: "Phase란 무엇인가",
+        title: "Phase는 run 안의 의미적으로 구분되는 단계입니다.",
+        body: "WTL에서 phase는 policy가 소유하는 workflow 의미입니다. 예를 들어 코드 작업이라면 `Discover -> Implement -> Review` 같은 흐름을 둘 수 있습니다. Policy가 execution plan 안에 phase identity를 넣어 주고, engine은 그 단계에 필요한 메커니즘을 수행합니다.",
+        points: [
+          "하나의 run은 `Discover` 안에서 여러 turn을 보낼 수 있습니다. Turn은 반복 횟수이고, phase는 어떤 종류의 일을 하는 단계인지 나타냅니다.",
+          "`continue`와 `retry`는 현재 phase 안에 머뭅니다.",
+          "`advance_phase`는 현재 단계가 끝났고 다음 계획을 설치한다는 policy의 판단입니다.",
+          "어떤 phase가 현재 thread를 재사용할지 새 thread를 시작할지도 결국 policy가 정합니다."
+        ]
+      },
+      workflow: {
+        eyebrow: "예시 워크플로",
+        title: "Discover -> Implement -> Review 흐름으로 policy가 루프를 어떻게 운영하는지 보여줍니다.",
+        body: "이 예시 policy는 Discover에서 시작해 Implement로 넘어가고, 마지막에 Review에 들어갑니다. `continue`로 같은 phase 안에 머물고, `advance_phase`로 다음 단계를 설치하며, Review가 `complete`를 반환할 때만 종료합니다.",
+        notes: [
+          "`continue`는 engine을 현재 phase 안에 머물게 합니다.",
+          "`advance_phase`는 run을 끝내지 않고 workflow 단계를 바꿉니다.",
+          "`complete`는 예시가 Review에 도달한 뒤에만 나타납니다."
+        ],
+        decisionLabel: "현재 결정",
+        followLabel: "엔진 후속 동작",
+        phaseLabel: "워크플로 단계",
+        currentTurn: "현재 턴",
+        policyResult: "정책 결과",
+        phases: [
+          { id: "discover", name: "Discover" },
+          { id: "implement", name: "Implement" },
+          { id: "review", name: "Review" }
+        ],
+        steps: [
+          {
+            turn: 1,
+            phase: "discover",
+            directive: "continue",
+            engine: "리포를 읽는 중",
+            policy: "아직 더 많은 맥락이 필요함",
+            decision: "continue 반환",
+            follow: "Discover 유지",
+            result: "Discover 턴 한 번 더",
+            observerStart: "turn:start / Discover",
+            observerDirective: "directive / continue"
+          },
+          {
+            turn: 2,
+            phase: "discover",
+            directive: "advance_phase",
+            engine: "문제를 구조화하는 중",
+            policy: "이제 Discover는 충분함",
+            decision: "advance_phase 반환",
+            follow: "Implement 설치",
+            result: "Implement로 이동",
+            observerStart: "turn:start / Discover",
+            observerDirective: "directive / advance_phase"
+          },
+          {
+            turn: 3,
+            phase: "implement",
+            directive: "continue",
+            engine: "파일을 수정하는 중",
+            policy: "Implement 안에서 계속 진행",
+            decision: "continue 반환",
+            follow: "Implement 유지",
+            result: "Implement 턴 한 번 더",
+            observerStart: "turn:start / Implement",
+            observerDirective: "directive / continue"
+          },
+          {
+            turn: 4,
+            phase: "implement",
+            directive: "advance_phase",
+            engine: "패치 적용 완료",
+            policy: "구현 단계는 끝남",
+            decision: "advance_phase 반환",
+            follow: "Review 설치",
+            result: "Review로 이동",
+            observerStart: "turn:start / Implement",
+            observerDirective: "directive / advance_phase"
+          },
+          {
+            turn: 5,
+            phase: "review",
+            directive: "complete",
+            engine: "검증을 실행하는 중",
+            policy: "Review가 종료를 승인함",
+            decision: "complete 반환",
+            follow: "run 종료",
+            result: "run 완료",
+            observerStart: "turn:start / Review",
+            observerDirective: "directive / complete"
+          }
+        ]
       },
       connOutcome: "결과 →",
       connDirective: "← 지시어"

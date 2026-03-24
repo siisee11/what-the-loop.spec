@@ -50,7 +50,7 @@ function SectionIntro({ eyebrow, title, body }) {
   );
 }
 
-// Hero: start, outcome, policy, directive, final exit
+// Hero: start, outcome, policy, directive, engine follow-through
 const HERO_DELAYS = [850, 950, 850, 950, 900];
 const DEMO_TURN_DIRECTIVES = ["continue", "continue", "complete"];
 
@@ -58,14 +58,14 @@ function HeroDiagram({ t }) {
   const reduceMotion = useReducedMotion();
   const [phase, setPhase] = useState(0);
   const [turnIndex, setTurnIndex] = useState(0);
-  const [completed, setCompleted] = useState(false);
 
   useEffect(() => {
-    if (reduceMotion || completed) return;
+    if (reduceMotion) return;
     const directive = DEMO_TURN_DIRECTIVES[turnIndex];
     const tid = setTimeout(() => {
       if (phase === 4) {
-        setCompleted(true);
+        setTurnIndex(0);
+        setPhase(0);
         return;
       }
 
@@ -78,22 +78,15 @@ function HeroDiagram({ t }) {
         setPhase(0);
         return;
       }
+
       setPhase((current) => current + 1);
     }, HERO_DELAYS[phase]);
     return () => clearTimeout(tid);
-  }, [completed, phase, reduceMotion, turnIndex]);
+  }, [phase, reduceMotion, turnIndex]);
 
   const directive = DEMO_TURN_DIRECTIVES[turnIndex];
   const turnNum = turnIndex + 1;
   const ui = t.ui;
-
-  // viewBox 540×540 (1:1 square)
-  // Engine card:  left=36  top=70  w=158 h=82  → right=194, center=(115,111)
-  // Policy card:  left=346 top=70  w=158 h=82  → left=346,  center=(425,111)
-  // Horizontal lines at y=98 (outcome →) and y=124 (← directive), x: 194↔346
-  // Observer card: centered x=270, top=390, w=170, h=80 → center=(270,430)
-  // Diagonals: Engine(115,152)→Observer(220,390) and Policy(425,152)→Observer(320,390)
-
   const connOutcome = (t.loopMap.connOutcome || "outcome →").toUpperCase();
   const connDirective = (t.loopMap.connDirective || "← directive").toUpperCase();
 
@@ -102,12 +95,10 @@ function HeroDiagram({ t }) {
       <svg viewBox="0 0 540 540" className="wtl-track-svg" aria-hidden="true">
         <rect x="24" y="24" width="492" height="492" className="wtl-loop-frame" />
 
-        {/* Loop start -> engine */}
         <line x1="123" y1="110" x2="123" y2="186" className="wtl-line-backbone" />
         <line x1="123" y1="110" x2="123" y2="186" className="wtl-line-accent wtl-line-start" />
         <polygon points="117,180 123,192 129,180" className="wtl-arrow wtl-arrow-start" />
 
-        {/* Engine -> policy / policy -> engine */}
         <line x1="218" y1="228" x2="322" y2="228" className="wtl-line-backbone" />
         <line x1="218" y1="228" x2="322" y2="228" className="wtl-line-accent wtl-line-outcome" />
         <polygon points="314,221 328,228 314,235" className="wtl-arrow wtl-arrow-outcome" />
@@ -116,102 +107,104 @@ function HeroDiagram({ t }) {
         <line x1="322" y1="252" x2="218" y2="252" className="wtl-line-accent wtl-line-directive" />
         <polygon points="226,245 212,252 226,259" className="wtl-arrow wtl-arrow-directive" />
 
-        {/* Labels */}
-        <text x="270" y="214" textAnchor="middle"
-          className="wtl-track-label wtl-track-label-outcome">
+        <text x="270" y="214" textAnchor="middle" className="wtl-track-label wtl-track-label-outcome">
           {connOutcome}
         </text>
-        <text x="270" y="270" textAnchor="middle"
-          className="wtl-track-label wtl-track-label-directive">
+        <text x="270" y="270" textAnchor="middle" className="wtl-track-label wtl-track-label-directive">
           {connDirective}
         </text>
 
-        {/* Engine -> observer */}
         <polyline points="118,288 118,380 192,380" className="wtl-line-backbone wtl-line-event-backbone" />
         <polyline points="118,288 118,380 192,380" className="wtl-line-accent wtl-line-event" />
         <polygon points="184,375 196,380 184,385" className="wtl-arrow wtl-arrow-event" />
 
-        {/* Policy -> observer */}
         <polyline points="422,288 422,380 348,380" className="wtl-line-backbone wtl-line-event-backbone" />
         <polyline points="422,288 422,380 348,380" className="wtl-line-accent wtl-line-event" />
         <polygon points="356,375 344,380 356,385" className="wtl-arrow wtl-arrow-event" />
 
-        <text x="166" y="366" textAnchor="middle"
-          className="wtl-track-label wtl-track-label-event"
-          transform="rotate(0,166,366)">
+        <text x="166" y="366" textAnchor="middle" className="wtl-track-label wtl-track-label-event">
           events
         </text>
-        <text x="374" y="366" textAnchor="middle"
-          className="wtl-track-label wtl-track-label-event"
-          transform="rotate(0,374,366)">
+        <text x="374" y="366" textAnchor="middle" className="wtl-track-label wtl-track-label-event">
           events
         </text>
 
-        {/* Start dot: Loop Start -> Engine */}
         {!reduceMotion && turnIndex === 0 && phase === 0 && (
           <motion.circle
             key="start-run"
-            r="8" fill="var(--sky)" stroke="var(--ink)" strokeWidth="3"
+            r="8"
+            fill="var(--sky)"
+            stroke="var(--ink)"
+            strokeWidth="3"
             initial={{ x: 123, y: 110 }}
             animate={{ x: 123, y: 186 }}
             transition={{ duration: 0.8, ease: "easeInOut" }}
           />
         )}
 
-        {/* Outcome dot: Engine→Policy */}
         {!reduceMotion && phase === 1 && (
           <motion.circle
             key={`fwd-${turnIndex}`}
-            r="8" fill="var(--coral)" stroke="var(--ink)" strokeWidth="3"
+            r="8"
+            fill="var(--coral)"
+            stroke="var(--ink)"
+            strokeWidth="3"
             initial={{ x: 218, y: 228 }}
             animate={{ x: 322 }}
             transition={{ duration: 0.95, ease: "easeInOut" }}
           />
         )}
 
-        {/* Directive dot: Policy→Engine */}
         {!reduceMotion && phase === 3 && (
           <motion.circle
             key={`back-${turnIndex}`}
-            r="8" fill="var(--teal)" stroke="var(--ink)" strokeWidth="3"
+            r="8"
+            fill="var(--teal)"
+            stroke="var(--ink)"
+            strokeWidth="3"
             initial={{ x: 322, y: 252 }}
             animate={{ x: 218 }}
             transition={{ duration: 0.95, ease: "easeInOut" }}
           />
         )}
 
-        {/* Event pulse: Engine→Observer */}
         {!reduceMotion && (phase === 1 || phase === 3) && (
           <motion.circle
             key={`obs-l-${phase}-${turnIndex}`}
-            r="5" fill="var(--sky)" stroke="var(--ink)" strokeWidth="2.5"
+            r="5"
+            fill="var(--sky)"
+            stroke="var(--ink)"
+            strokeWidth="2.5"
             initial={{ x: 118, y: 288 }}
             animate={{ x: 192, y: 380, opacity: 0 }}
             transition={{ duration: 0.8, ease: "easeInOut", delay: 0.35 }}
           />
         )}
 
-        {/* Event pulse: Policy→Observer */}
         {!reduceMotion && (phase === 1 || phase === 3) && (
           <motion.circle
             key={`obs-r-${phase}-${turnIndex}`}
-            r="5" fill="var(--sky)" stroke="var(--ink)" strokeWidth="2.5"
+            r="5"
+            fill="var(--sky)"
+            stroke="var(--ink)"
+            strokeWidth="2.5"
             initial={{ x: 422, y: 288 }}
             animate={{ x: 348, y: 380, opacity: 0 }}
             transition={{ duration: 0.8, ease: "easeInOut", delay: 0.45 }}
           />
         )}
 
-        {/* Engine -> loop end */}
         <line x1="123" y1="288" x2="123" y2="420" className="wtl-line-backbone" />
         <line x1="123" y1="288" x2="123" y2="420" className="wtl-line-accent wtl-line-end" />
         <polygon points="117,414 123,426 129,414" className="wtl-arrow wtl-arrow-end" />
 
-        {/* Final dot: Engine -> Loop End */}
         {!reduceMotion && phase === 4 && (
           <motion.circle
             key="finish-run"
-            r="8" fill="var(--pink)" stroke="var(--ink)" strokeWidth="3"
+            r="8"
+            fill="var(--pink)"
+            stroke="var(--ink)"
+            strokeWidth="3"
             initial={{ x: 123, y: 288 }}
             animate={{ x: 123, y: 420 }}
             transition={{ duration: 0.82, ease: "easeInOut" }}
@@ -224,14 +217,11 @@ function HeroDiagram({ t }) {
         <strong>{ui.turnBadge.replace("{n}", turnNum)}</strong>
       </div>
 
-      <div
-        className={`wtl-flow-box wtl-flow-box-end${directive === "complete" ? " wtl-flow-box-active" : ""}`}
-      >
+      <div className={`wtl-flow-box wtl-flow-box-end${directive === "complete" ? " wtl-flow-box-active" : ""}`}>
         <span className="wtl-flow-label">Loop End</span>
         <strong>{directive === "complete" ? "policy: complete" : "await policy: complete"}</strong>
       </div>
 
-      {/* Engine node — top-left */}
       <motion.div
         className={`wtl-node wtl-node-engine${phase === 0 ? " wtl-node-active" : ""}`}
         animate={!reduceMotion && phase === 0 ? { scale: [1, 1.04, 1] } : {}}
@@ -247,7 +237,6 @@ function HeroDiagram({ t }) {
         </span>
       </motion.div>
 
-      {/* Policy node — top-right */}
       <motion.div
         className={`wtl-node wtl-node-policy${phase === 2 ? " wtl-node-active" : ""}`}
         animate={!reduceMotion && phase === 2 ? { scale: [1, 1.04, 1] } : {}}
@@ -268,7 +257,6 @@ function HeroDiagram({ t }) {
         </motion.span>
       </motion.div>
 
-      {/* Observer — bottom-center */}
       <div className="wtl-node wtl-node-observer">
         <span className="wtl-role">Observer</span>
         <span className="wtl-sub">
@@ -277,7 +265,124 @@ function HeroDiagram({ t }) {
             : ui.observing}
         </span>
       </div>
+    </div>
+  );
+}
 
+function WorkflowDiagram({ t }) {
+  const reduceMotion = useReducedMotion();
+  const [phase, setPhase] = useState(0);
+  const [stepIndex, setStepIndex] = useState(0);
+  const steps = t.loopMap.workflow.steps;
+  const workflowPhases = t.loopMap.workflow.phases;
+  const step = steps[stepIndex];
+  const currentPhaseIndex = workflowPhases.findIndex((item) => item.id === step.phase);
+
+  useEffect(() => {
+    if (reduceMotion) return;
+    const tid = setTimeout(() => {
+      if (phase === 4) {
+        setStepIndex((index) => (index + 1) % steps.length);
+        setPhase(0);
+        return;
+      }
+      setPhase((current) => current + 1);
+    }, HERO_DELAYS[phase]);
+    return () => clearTimeout(tid);
+  }, [phase, reduceMotion, steps.length]);
+
+  const directive = step.directive;
+  const turnNum = step.turn;
+  const ui = t.ui;
+  const engineState =
+    phase === 0 ? step.engine
+      : phase === 1 ? ui.sendingOutcome
+      : phase === 3 ? ui.gotDirective
+      : phase === 4 ? step.follow
+      : ui.idle;
+  const policyState =
+    phase === 2 ? step.policy
+      : phase >= 3 ? step.decision
+      : ui.waiting;
+
+  return (
+    <div className="hero-diagram workflow-diagram">
+      <div className="wtl-phase-rail">
+        <span className="wtl-phase-label">{t.loopMap.workflow.phaseLabel}</span>
+        <div className="wtl-phase-list">
+          {workflowPhases.map((item, index) => {
+            const state =
+              index === currentPhaseIndex ? "active" : index < currentPhaseIndex ? "done" : "idle";
+
+            return (
+              <motion.span
+                key={item.id}
+                className={`wtl-phase-pill wtl-phase-pill-${state}`}
+                animate={!reduceMotion && state === "active" ? { y: [0, -2, 0] } : undefined}
+                transition={{ duration: 1.2, repeat: Infinity, ease: "easeInOut" }}
+              >
+                {item.name}
+              </motion.span>
+            );
+          })}
+        </div>
+      </div>
+
+      <div className="workflow-frame">
+        <div className="workflow-exchange">
+          <motion.div
+            className={`workflow-node workflow-node-engine${phase === 0 || phase === 4 ? " workflow-node-active" : ""}`}
+            animate={!reduceMotion && (phase === 0 || phase === 4) ? { scale: [1, 1.03, 1] } : {}}
+            transition={{ duration: 0.65 }}
+          >
+            <span className="workflow-node-label">Engine</span>
+            <strong>{workflowPhases[currentPhaseIndex]?.name}</strong>
+            <p>{engineState}</p>
+          </motion.div>
+
+          <div className="workflow-lines" aria-hidden="true">
+            <div className="workflow-line workflow-line-outcome" />
+            <div className="workflow-line workflow-line-directive" />
+
+            {!reduceMotion && phase === 1 ? (
+              <motion.span
+                key={`workflow-outcome-${stepIndex}`}
+                className="workflow-dot workflow-dot-outcome"
+                initial={{ top: "8%" }}
+                animate={{ top: "84%" }}
+                transition={{ duration: 0.95, ease: "easeInOut" }}
+              />
+            ) : null}
+
+            {!reduceMotion && phase === 3 ? (
+              <motion.span
+                key={`workflow-directive-${stepIndex}`}
+                className="workflow-dot workflow-dot-directive"
+                initial={{ top: "84%" }}
+                animate={{ top: "8%" }}
+                transition={{ duration: 0.95, ease: "easeInOut" }}
+              />
+            ) : null}
+          </div>
+
+          <motion.div
+            className={`workflow-node workflow-node-policy${phase === 2 || phase === 3 ? " workflow-node-active" : ""}`}
+            animate={!reduceMotion && (phase === 2 || phase === 3) ? { scale: [1, 1.03, 1] } : {}}
+            transition={{ duration: 0.65 }}
+          >
+            <span className="workflow-node-label">Policy</span>
+            <strong>{directive}</strong>
+            <p>{policyState}</p>
+            <motion.span
+              className={`wtl-chip wtl-chip-inline wtl-chip-${directive}`}
+              animate={!reduceMotion ? { opacity: phase >= 2 ? 1 : 0.18 } : undefined}
+              transition={{ duration: 0.3 }}
+            >
+              {directive}
+            </motion.span>
+          </motion.div>
+        </div>
+      </div>
     </div>
   );
 }
@@ -401,6 +506,43 @@ function DiagramSection({ t }) {
             </div>
           ))}
         </div>
+
+        <div className="diagram-phase-card">
+          <p className="diagram-phase-kicker">{t.loopMap.phase.label}</p>
+          <strong>{t.loopMap.phase.title}</strong>
+          <p>{t.loopMap.phase.body}</p>
+          <ul className="diagram-phase-list">
+            {t.loopMap.phase.points.map((item) => (
+              <li key={item}>{item}</li>
+            ))}
+          </ul>
+        </div>
+      </Reveal>
+    </section>
+  );
+}
+
+function ExampleWorkflowSection({ t }) {
+  return (
+    <section className="section workflow-section" id="workflow">
+      <Reveal className="workflow-bento" amount={0.12}>
+        <div className="workflow-main-card">
+          <div className="workflow-copy">
+            <p className="diagram-kicker">{t.loopMap.workflow.eyebrow}</p>
+            <h2>{t.loopMap.workflow.title}</h2>
+            <p className="diagram-lead">{t.loopMap.workflow.body}</p>
+
+            <ul className="diagram-note-list">
+              {t.loopMap.workflow.notes.map((item) => (
+                <li key={item}>{item}</li>
+              ))}
+            </ul>
+          </div>
+
+          <div className="diagram-main-visual">
+            <WorkflowDiagram t={t} />
+          </div>
+        </div>
       </Reveal>
     </section>
   );
@@ -434,6 +576,7 @@ export default function App() {
             </div>
             <nav>
               <a href="#diagram">{t.nav.diagram}</a>
+              <a href="#workflow">{t.nav.workflow}</a>
               <a href="#problems">{t.nav.problems}</a>
               <a href="#roles">{t.nav.roles}</a>
               <a href="#directives">{t.nav.directives}</a>
@@ -469,6 +612,7 @@ export default function App() {
 
         <main>
           <DiagramSection t={t} />
+          <ExampleWorkflowSection t={t} />
 
           <section className="section problems-section" id="problems">
             <SectionIntro

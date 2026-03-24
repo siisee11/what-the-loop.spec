@@ -1726,9 +1726,264 @@ h3 {
   box-shadow: 4px 4px 0 var(--ink);
 }
 
+.wtl-phase-rail {
+  position: absolute;
+  z-index: 2;
+  top: 6%;
+  left: 50%;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  align-items: center;
+  transform: translateX(-50%);
+}
+
+.wtl-phase-label {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 6px 12px;
+  border: 3px solid var(--ink);
+  border-radius: 999px;
+  background: rgba(255, 250, 238, 0.96);
+  box-shadow: 4px 4px 0 rgba(18, 18, 18, 0.16);
+  font-size: 0.62rem;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+.wtl-phase-list {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+
+.wtl-phase-pill {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 88px;
+  padding: 8px 12px;
+  border: 3px solid var(--ink);
+  border-radius: 999px;
+  box-shadow: 4px 4px 0 rgba(18, 18, 18, 0.16);
+  font-size: 0.76rem;
+  font-weight: 700;
+  line-height: 1;
+}
+
+.wtl-phase-pill-active {
+  background: #fff0a5;
+}
+
+.wtl-phase-pill-done {
+  background: rgba(216, 255, 232, 0.96);
+}
+
+.wtl-phase-pill-idle {
+  background: rgba(255, 255, 255, 0.86);
+  color: rgba(18, 18, 18, 0.58);
+}
+
+.workflow-diagram {
+  width: min(100%, 520px);
+  aspect-ratio: auto;
+  min-height: 720px;
+  padding: 98px 18px 18px;
+}
+
+.workflow-frame {
+  display: grid;
+  gap: 16px;
+  height: 100%;
+}
+
+.workflow-top-row,
+.workflow-bottom-row {
+  display: grid;
+  gap: 14px;
+}
+
+.workflow-status-card,
+.workflow-summary-card {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: 10px 12px;
+  border: 3px solid var(--ink);
+  border-radius: 18px;
+  background: rgba(255, 252, 246, 0.94);
+  box-shadow: 6px 6px 0 rgba(18, 18, 18, 0.14);
+}
+
+.workflow-status-card-active {
+  transform: translate(-2px, -2px);
+  box-shadow: 8px 8px 0 rgba(18, 18, 18, 0.18);
+}
+
+.workflow-status-label {
+  display: block;
+  font-size: 0.62rem;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: rgba(18, 18, 18, 0.66);
+}
+
+.workflow-status-card strong,
+.workflow-summary-card strong {
+  display: block;
+  font-size: 0.9rem;
+  line-height: 1.2;
+}
+
+.workflow-status-meta {
+  display: block;
+  font-size: 0.72rem;
+  line-height: 1.45;
+  color: rgba(18, 18, 18, 0.7);
+}
+
+.workflow-exchange {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 14px;
+  justify-items: center;
+  min-height: 0;
+}
+
+.workflow-node {
+  display: flex;
+  width: min(100%, 260px);
+  min-height: 126px;
+  flex-direction: column;
+  justify-content: center;
+  gap: 7px;
+  padding: 18px 16px;
+  border: 3px solid var(--ink);
+  border-radius: 22px;
+  box-shadow: 8px 8px 0 rgba(18, 18, 18, 0.16);
+  text-align: center;
+}
+
+.workflow-node-engine {
+  background: #ffe1d7;
+}
+
+.workflow-node-policy {
+  background: #fff0a5;
+}
+
+.workflow-node-active {
+  transform: translate(-2px, -2px);
+  box-shadow: 10px 10px 0 rgba(18, 18, 18, 0.18);
+}
+
+.workflow-node-label {
+  display: block;
+  font-size: 0.78rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: rgba(18, 18, 18, 0.62);
+}
+
+.workflow-node strong {
+  display: block;
+  font-family: "Space Grotesk", sans-serif;
+  font-size: clamp(1.2rem, 4vw, 1.75rem);
+  line-height: 1.05;
+  letter-spacing: -0.04em;
+  overflow-wrap: anywhere;
+}
+
+.workflow-node p {
+  margin: 0;
+  min-height: 0;
+  font-size: 0.85rem;
+  line-height: 1.45;
+  color: rgba(18, 18, 18, 0.74);
+}
+
+.workflow-lines {
+  position: relative;
+  width: 120px;
+  min-height: 110px;
+}
+
+.workflow-line {
+  position: absolute;
+  top: 6%;
+  bottom: 6%;
+  width: 0;
+  border-left: 5px solid var(--ink);
+  border-radius: 999px;
+}
+
+.workflow-line::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: -2px;
+  border-left: 3px dashed currentColor;
+}
+
+.workflow-line-outcome {
+  left: 38px;
+  color: var(--coral);
+}
+
+.workflow-line-directive {
+  left: 76px;
+  color: var(--teal);
+}
+
+.workflow-line-outcome::before,
+.workflow-line-directive::before {
+  content: "";
+  position: absolute;
+  left: -8px;
+  width: 0;
+  height: 0;
+  border-left: 8px solid transparent;
+  border-right: 8px solid transparent;
+}
+
+.workflow-line-outcome::before {
+  bottom: -4px;
+  border-top: 14px solid var(--ink);
+}
+
+.workflow-line-directive::before {
+  top: -4px;
+  border-bottom: 14px solid var(--ink);
+}
+
+.workflow-dot {
+  position: absolute;
+  z-index: 2;
+  width: 14px;
+  height: 14px;
+  margin-top: -7px;
+  border: 3px solid var(--ink);
+  border-radius: 999px;
+}
+
+.workflow-dot-outcome {
+  left: 31px;
+  background: var(--coral);
+}
+
+.workflow-dot-directive {
+  left: 69px;
+  background: var(--teal);
+}
+
 .wtl-flow-box-start {
   left: 9%;
-  top: 8%;
+  top: 17%;
   background: #fff0a5;
 }
 
@@ -1756,6 +2011,13 @@ h3 {
   display: block;
   font-size: 0.86rem;
   line-height: 1.2;
+}
+
+.wtl-flow-meta {
+  display: block;
+  font-size: 0.72rem;
+  line-height: 1.35;
+  color: rgba(18, 18, 18, 0.68);
 }
 
 .wtl-line-backbone {
@@ -1942,6 +2204,12 @@ h3 {
   background: rgba(210, 163, 58, 0.12);
   border: 1px solid rgba(210, 163, 58, 0.35);
   color: #9f6c00;
+}
+
+.wtl-chip-advance_phase {
+  background: rgba(71, 131, 255, 0.12);
+  border: 1px solid rgba(71, 131, 255, 0.35);
+  color: #264fc9;
 }
 
 .wtl-chip-complete {
@@ -2170,6 +2438,12 @@ h3 {
 /* ---- Responsive ---- */
 
 @media (max-width: 720px) {
+  .workflow-diagram {
+    width: 100%;
+    min-height: 640px;
+    padding: 92px 14px 14px;
+  }
+
   .wtl-node {
     width: 110px;
     padding: 10px 10px;
@@ -2184,8 +2458,43 @@ h3 {
     padding: 8px 10px;
   }
 
+  .wtl-phase-rail {
+    top: 4%;
+    gap: 8px;
+  }
+
+  .wtl-phase-list {
+    gap: 6px;
+  }
+
+  .wtl-phase-pill {
+    min-width: 0;
+    padding: 7px 9px;
+    font-size: 0.68rem;
+  }
+
+  .workflow-top-row,
+  .workflow-bottom-row,
+  .workflow-exchange {
+    grid-template-columns: 1fr;
+  }
+
+  .workflow-exchange {
+    gap: 14px;
+    min-height: 0;
+  }
+
+  .workflow-lines {
+    width: 108px;
+    min-height: 92px;
+  }
+
+  .workflow-node {
+    min-height: 0;
+  }
+
   .wtl-flow-box-start {
-    top: 10%;
+    top: 16%;
     left: 4%;
   }
 
@@ -2242,34 +2551,15 @@ h3 {
 
 body {
   font-family: "Space Grotesk", sans-serif;
-  background:
-    radial-gradient(circle at 12% 14%, rgba(255, 136, 203, 0.42), transparent 18%),
-    radial-gradient(circle at 87% 12%, rgba(121, 168, 255, 0.38), transparent 19%),
-    linear-gradient(135deg, #fff06f 0 32%, #ffb84d 32% 38%, #fffdf7 38% 100%);
+  background: #f5efe2;
 }
 
 .site-shell::before {
-  background-image:
-    linear-gradient(var(--grid-line) 2px, transparent 2px),
-    linear-gradient(90deg, var(--grid-line) 2px, transparent 2px);
-  background-size: 44px 44px;
-  opacity: 0.7;
-  mask-image: none;
+  display: none;
 }
 
 .site-shell::after {
-  content: "";
-  position: fixed;
-  width: 180px;
-  height: 180px;
-  right: -36px;
-  bottom: 32px;
-  border: 3px solid var(--ink);
-  background:
-    linear-gradient(135deg, var(--pink) 0 48%, var(--sky) 48% 100%);
-  box-shadow: var(--shadow);
-  transform: rotate(11deg);
-  z-index: -1;
+  display: none;
 }
 
 .scroll-progress {
@@ -2559,6 +2849,11 @@ h2 {
 .explore-directive-chip-retry,
 .explore-directive-chip-wait {
   background: var(--gold);
+  color: var(--ink);
+}
+
+.wtl-chip-advance_phase {
+  background: var(--sky);
   color: var(--ink);
 }
 
@@ -3221,6 +3516,10 @@ h2 {
   gap: 16px;
 }
 
+.workflow-bento {
+  display: grid;
+}
+
 .diagram-main-card {
   display: grid;
   grid-template-columns: minmax(0, 1.02fr) minmax(360px, 0.98fr);
@@ -3236,7 +3535,27 @@ h2 {
   overflow: hidden;
 }
 
+.workflow-main-card {
+  display: grid;
+  grid-template-columns: minmax(0, 0.92fr) minmax(360px, 1.08fr);
+  gap: 18px;
+  padding: 18px;
+  border: 3px solid var(--ink);
+  border-radius: 24px;
+  background:
+    radial-gradient(circle at 12% 18%, rgba(255, 235, 108, 0.24), transparent 30%),
+    radial-gradient(circle at 84% 84%, rgba(125, 188, 255, 0.18), transparent 28%),
+    rgba(255, 252, 246, 0.9);
+  box-shadow: 10px 10px 0 rgba(18, 18, 18, 0.18);
+  overflow: hidden;
+}
+
 .diagram-main-copy {
+  padding: 18px 18px 18px 20px;
+  min-width: 0;
+}
+
+.workflow-copy {
   padding: 18px 18px 18px 20px;
   min-width: 0;
 }
@@ -3247,6 +3566,17 @@ h2 {
   font-family: "Space Grotesk", sans-serif;
   font-size: clamp(3rem, 6vw, 5.5rem);
   line-height: 0.92;
+  letter-spacing: -0.06em;
+  text-transform: none;
+  overflow-wrap: anywhere;
+}
+
+.workflow-copy h2 {
+  max-width: 13ch;
+  margin-bottom: 18px;
+  font-family: "Space Grotesk", sans-serif;
+  font-size: clamp(2.4rem, 4.8vw, 4.4rem);
+  line-height: 0.96;
   letter-spacing: -0.06em;
   text-transform: none;
   overflow-wrap: anywhere;
@@ -3366,12 +3696,57 @@ h2 {
   background: #f1cef7;
 }
 
+.diagram-phase-card {
+  padding: 22px 24px;
+  border: 3px solid var(--ink);
+  border-radius: 20px;
+  background: rgba(255, 252, 246, 0.92);
+  box-shadow: 8px 8px 0 rgba(18, 18, 18, 0.18);
+}
+
+.diagram-phase-kicker {
+  margin: 0 0 10px;
+  color: rgba(18, 18, 18, 0.56);
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  font-size: 0.74rem;
+  font-weight: 700;
+}
+
+.diagram-phase-card strong {
+  display: block;
+  margin-bottom: 10px;
+  font-size: 1.4rem;
+  line-height: 1.15;
+}
+
+.diagram-phase-card p,
+.diagram-phase-list {
+  color: rgba(18, 18, 18, 0.74);
+  line-height: 1.72;
+}
+
+.diagram-phase-card p {
+  margin: 0;
+}
+
+.diagram-phase-list {
+  margin: 14px 0 0;
+  padding-left: 20px;
+}
+
+.diagram-phase-list li + li {
+  margin-top: 8px;
+}
+
 @media (max-width: 1024px) {
+  .workflow-main-card,
   .diagram-main-card,
   .diagram-card-grid {
     grid-template-columns: 1fr;
   }
 
+  .workflow-copy h2,
   .diagram-main-copy h2 {
     max-width: none;
   }
@@ -3382,14 +3757,17 @@ h2 {
 }
 
 @media (max-width: 720px) {
+  .workflow-main-card,
   .diagram-main-card {
     padding: 14px;
   }
 
+  .workflow-copy,
   .diagram-main-copy {
     padding: 10px 8px 4px;
   }
 
+  .workflow-copy h2,
   .diagram-main-copy h2 {
     font-size: clamp(1.95rem, 10vw, 3rem);
   }
