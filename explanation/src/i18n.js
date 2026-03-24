@@ -451,7 +451,28 @@ export const i18n = {
     cli: {
       eyebrow: "Minimal implementation",
       title: "The spec also defines a tiny CLI contract.",
-      body: "The first implementation is intentionally small: a single prompt, turn logs, streamed runtime output, and a completion marker protocol."
+      body: "The first implementation is intentionally small: one root request, turn logs, streamed runtime output, and a control marker protocol for `complete`, `wait`, and `compact`.",
+      snippet: `$ wtl run
+> Enter your request: review the repo and stop if you need approval
+
+[turn 1] running...
+assistant: I need confirmation before publishing.
+##WTL_WAIT##
+
+[wait] blocked on external input
+> Additional input: approval granted
+
+[turn 2] running...
+assistant: compacting context before the final pass.
+##WTL_COMPACT##
+
+[compact] context compressed
+
+[turn 3] running...
+assistant: task complete.
+##WTL_DONE##
+
+Done: your request was completed successfully.`
     }
   },
 
@@ -907,7 +928,28 @@ export const i18n = {
     cli: {
       eyebrow: "최소 구현",
       title: "스펙은 작은 CLI 계약도 정의합니다.",
-      body: "첫 번째 구현은 의도적으로 작게: 단일 프롬프트, 턴 로그, 스트리밍 런타임 출력, 완료 마커 프로토콜."
+      body: "첫 번째 구현은 의도적으로 작게 유지됩니다. 하나의 루트 요청, 턴 로그, 스트리밍 런타임 출력, 그리고 `complete`, `wait`, `compact`를 위한 control marker 프로토콜만 포함합니다.",
+      snippet: `$ wtl run
+> 요청을 입력하세요: 리포를 검토하고 승인 필요 시 멈춰줘
+
+[turn 1] running...
+assistant: 배포 전에 확인이 필요합니다.
+##WTL_WAIT##
+
+[wait] 외부 입력 대기 중
+> 추가 입력: 승인됨
+
+[turn 2] running...
+assistant: 마지막 응답 전에 컨텍스트를 압축합니다.
+##WTL_COMPACT##
+
+[compact] 컨텍스트 압축 완료
+
+[turn 3] running...
+assistant: 작업이 완료되었습니다.
+##WTL_DONE##
+
+Done: your request was completed successfully.`
     }
   }
 };

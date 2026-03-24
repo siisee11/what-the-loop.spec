@@ -418,8 +418,9 @@ Done: your request was completed successfully.
 ### Input
 
 - The prompt is read from stdin at startup
-- The initial user request is held constant for the entire run in the minimal CLI
-- Policies may still derive a different per-turn instruction or prompt wrapper from that same user request
+- The initial user request is held constant as the root task for the entire run in the minimal CLI
+- If the policy issues `wait`, the CLI must prompt for additional external input and deliver that input back to the policy before resuming
+- Policies may still derive a different per-turn instruction or prompt wrapper from the root request plus any wait-resolution input that arrived later
 
 ### Log Output
 
@@ -435,25 +436,35 @@ Done: your request was completed successfully.
 | Limit reached | `Stopped: maximum iterations reached.` | 1 |
 | Interrupt (Ctrl+C) | `Stopped: user interrupt.` | 130 |
 
----
-
-## Completion Marker Protocol
+## Control Marker Protocol
 
 ### Overview
 
-The policy detects a completion marker in the agent runtime's response to issue
-a `complete` directive. The agent runtime must include the marker in its response
-when it determines the user's request is fully complete.
+The policy detects control markers in the agent runtime's response to issue
+directives. The agent runtime must include a marker when it determines that the
+run should complete, wait for external input, or compact context before
+continuing.
 
-### Marker Format
+### Marker Formats
 
 ```
 ##WTL_DONE##
+##WTL_WAIT##
+##WTL_COMPACT##
 ```
 
 - Position within the response does not matter (beginning, middle, or end)
 - Case-sensitive
+- At most one control marker may appear in a single turn response
 - When detected, the remainder of the turn's response is still printed normally
+
+Marker meanings:
+
+| Marker | Directive |
+|--------|-----------|
+| `##WTL_DONE##` | `complete` |
+| `##WTL_WAIT##` | `wait` |
+| `##WTL_COMPACT##` | `compact` |
 
 ### Agent Runtime Instruction Requirement
 
@@ -461,8 +472,13 @@ The system prompt or instruction passed to the agent runtime must include:
 
 ```
 When you determine that the task is fully complete, include ##WTL_DONE## at the
-end of your response. Do not include it if the task is still in progress or
-requires additional steps.
+end of your response.
+
+If you cannot continue until new external input arrives, include ##WTL_WAIT##.
+
+If context should be compacted before the next turn, include ##WTL_COMPACT##.
+
+Do not emit more than one control marker in the same response.
 ```
 
 ---
@@ -474,6 +490,9 @@ The policy used by this CLI. Operates as a single loop with no phase distinction
 | Condition | Directive |
 |-----------|-----------|
 | Response contains `##WTL_DONE##` | `complete` |
+| Response contains `##WTL_WAIT##` | `wait` |
+| Response contains `##WTL_COMPACT##` | `compact` |
+| Response contains multiple control markers | `retry` |
 | Turn failed (error occurred) | `retry` |
 | Otherwise | `continue` |
 
@@ -487,6 +506,9 @@ The CLI registers an observer that handles the following events:
 |-------|--------|
 | `TurnStarted` | Print `[turn N] running...` |
 | `TurnFinished` | Print agent response |
+| `WaitEntered` | Print wait message, prompt for additional input, deliver input to policy |
+| `CompactionStarted` | Print compaction message |
+| `CompactionFinished` | Continue the run with compacted context |
 | `RunCompleted` | Print completion message, exit 0 |
 | `RunExhausted` | Print limit-reached message, exit 1 |
 
@@ -496,7 +518,7 @@ The CLI registers an observer that handles the following events:
 
 Items not covered by this CLI implementation:
 
-- wait/resume (external input handling) — future extension
 - phase-based execution — future extension
-- multi-turn conversation history — delegated to agent runtime implementation
+- phase-scoped thread reuse — future extension
+- rich multi-turn conversation UI/history presentation — delegated to agent runtime implementation
 - authentication, config files — delegated to agent runtime implementation

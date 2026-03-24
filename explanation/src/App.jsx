@@ -9,17 +9,6 @@ import {
 } from "motion/react";
 import { i18n } from "./i18n.js";
 
-const terminalSnippet = `$ wtl run
-> Enter your request: explain the repo contract
-
-[turn 1] running...
-policy returns continue
-
-[turn 2] running...
-policy returns complete
-
-Done: your request was completed successfully.`;
-
 function Reveal({ children, className = "", delay = 0, amount = 0.25 }) {
   const reduceMotion = useReducedMotion();
 
@@ -715,7 +704,7 @@ export default function App() {
                 <span />
                 <span />
               </div>
-              <pre>{terminalSnippet}</pre>
+              <pre>{t.cli.snippet}</pre>
             </Reveal>
           </section>
         </main>
