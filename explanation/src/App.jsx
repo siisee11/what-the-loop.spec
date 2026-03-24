@@ -1,5 +1,6 @@
-import { useState, useEffect } from "react";
+import { useEffect, useState } from "react";
 import {
+  AnimatePresence,
   MotionConfig,
   motion,
   useReducedMotion,
@@ -50,30 +51,41 @@ function SectionIntro({ eyebrow, title, body }) {
   );
 }
 
-// Hero: 4 phases — engine runs, outcome travels, policy decides, directive returns
-const HERO_DELAYS = [850, 950, 850, 950];
-const HERO_DIRECTIVES = ["continue", "retry", "wait", "complete"];
+// Hero: start, outcome, policy, directive, final exit
+const HERO_DELAYS = [850, 950, 850, 950, 900];
+const DEMO_TURN_DIRECTIVES = ["continue", "continue", "complete"];
 
 function HeroDiagram({ t }) {
   const reduceMotion = useReducedMotion();
   const [phase, setPhase] = useState(0);
-  const [cycle, setCycle] = useState(0);
+  const [turnIndex, setTurnIndex] = useState(0);
+  const [completed, setCompleted] = useState(false);
 
   useEffect(() => {
-    if (reduceMotion) return;
-    let ph = 0, tid;
-    const tick = () => {
-      ph = (ph + 1) % 4;
-      setPhase(ph);
-      if (ph === 0) setCycle(c => c + 1);
-      tid = setTimeout(tick, HERO_DELAYS[ph]);
-    };
-    tid = setTimeout(tick, HERO_DELAYS[0]);
-    return () => clearTimeout(tid);
-  }, [reduceMotion]);
+    if (reduceMotion || completed) return;
+    const directive = DEMO_TURN_DIRECTIVES[turnIndex];
+    const tid = setTimeout(() => {
+      if (phase === 4) {
+        setCompleted(true);
+        return;
+      }
 
-  const directive = HERO_DIRECTIVES[cycle % 4];
-  const turnNum = cycle + 1;
+      if (phase === 3) {
+        if (directive === "complete") {
+          setPhase(4);
+          return;
+        }
+        setTurnIndex((index) => Math.min(index + 1, DEMO_TURN_DIRECTIVES.length - 1));
+        setPhase(0);
+        return;
+      }
+      setPhase((current) => current + 1);
+    }, HERO_DELAYS[phase]);
+    return () => clearTimeout(tid);
+  }, [completed, phase, reduceMotion, turnIndex]);
+
+  const directive = DEMO_TURN_DIRECTIVES[turnIndex];
+  const turnNum = turnIndex + 1;
   const ui = t.ui;
 
   // viewBox 540×540 (1:1 square)
@@ -89,59 +101,71 @@ function HeroDiagram({ t }) {
   return (
     <div className="hero-diagram">
       <svg viewBox="0 0 540 540" className="wtl-track-svg" aria-hidden="true">
+        <rect x="24" y="24" width="492" height="492" className="wtl-loop-frame" />
 
-        {/* ── Horizontal lines: Engine ↔ Policy ── */}
-        {/* outcome line */}
-        <line x1="194" y1="98" x2="346" y2="98"
-          stroke="rgba(29,23,17,0.16)" strokeWidth="1.5" strokeDasharray="6 9" />
-        <polygon points="341,93 349,98 341,103" fill="rgba(209,77,44,0.45)" />
+        {/* Loop start -> engine */}
+        <line x1="123" y1="110" x2="123" y2="186" className="wtl-line-backbone" />
+        <line x1="123" y1="110" x2="123" y2="186" className="wtl-line-accent wtl-line-start" />
+        <polygon points="117,180 123,192 129,180" className="wtl-arrow wtl-arrow-start" />
 
-        {/* directive line */}
-        <line x1="346" y1="124" x2="194" y2="124"
-          stroke="rgba(29,23,17,0.16)" strokeWidth="1.5" strokeDasharray="6 9" />
-        <polygon points="199,119 191,124 199,129" fill="rgba(0,109,114,0.45)" />
+        {/* Engine -> policy / policy -> engine */}
+        <line x1="218" y1="228" x2="322" y2="228" className="wtl-line-backbone" />
+        <line x1="218" y1="228" x2="322" y2="228" className="wtl-line-accent wtl-line-outcome" />
+        <polygon points="314,221 328,228 314,235" className="wtl-arrow wtl-arrow-outcome" />
 
-        {/* line labels */}
-        <text x="270" y="88" textAnchor="middle"
-          fill="rgba(29,23,17,0.34)" fontSize="10"
-          fontFamily="Space Grotesk,sans-serif" fontWeight="700" letterSpacing="1.5">
+        <line x1="322" y1="252" x2="218" y2="252" className="wtl-line-backbone" />
+        <line x1="322" y1="252" x2="218" y2="252" className="wtl-line-accent wtl-line-directive" />
+        <polygon points="226,245 212,252 226,259" className="wtl-arrow wtl-arrow-directive" />
+
+        {/* Labels */}
+        <text x="270" y="214" textAnchor="middle"
+          className="wtl-track-label wtl-track-label-outcome">
           {connOutcome}
         </text>
-        <text x="270" y="144" textAnchor="middle"
-          fill="rgba(29,23,17,0.34)" fontSize="10"
-          fontFamily="Space Grotesk,sans-serif" fontWeight="700" letterSpacing="1.5">
+        <text x="270" y="270" textAnchor="middle"
+          className="wtl-track-label wtl-track-label-directive">
           {connDirective}
         </text>
 
-        {/* ── Diagonal lines: Engine/Policy → Observer ── */}
-        <line x1="115" y1="152" x2="220" y2="390"
-          stroke="rgba(29,23,17,0.1)" strokeWidth="1.5" strokeDasharray="5 7" />
-        <line x1="425" y1="152" x2="320" y2="390"
-          stroke="rgba(29,23,17,0.1)" strokeWidth="1.5" strokeDasharray="5 7" />
+        {/* Engine -> observer */}
+        <polyline points="118,288 118,380 192,380" className="wtl-line-backbone wtl-line-event-backbone" />
+        <polyline points="118,288 118,380 192,380" className="wtl-line-accent wtl-line-event" />
+        <polygon points="184,375 196,380 184,385" className="wtl-arrow wtl-arrow-event" />
 
-        {/* "events" labels on diagonals */}
-        <text x="152" y="275" textAnchor="middle"
-          fill="rgba(0,109,114,0.4)" fontSize="9"
-          fontFamily="Space Grotesk,sans-serif" fontWeight="700" letterSpacing="1"
-          transform="rotate(-22,152,275)">
+        {/* Policy -> observer */}
+        <polyline points="422,288 422,380 348,380" className="wtl-line-backbone wtl-line-event-backbone" />
+        <polyline points="422,288 422,380 348,380" className="wtl-line-accent wtl-line-event" />
+        <polygon points="356,375 344,380 356,385" className="wtl-arrow wtl-arrow-event" />
+
+        <text x="166" y="366" textAnchor="middle"
+          className="wtl-track-label wtl-track-label-event"
+          transform="rotate(0,166,366)">
           events
         </text>
-        <text x="388" y="275" textAnchor="middle"
-          fill="rgba(0,109,114,0.4)" fontSize="9"
-          fontFamily="Space Grotesk,sans-serif" fontWeight="700" letterSpacing="1"
-          transform="rotate(22,388,275)">
+        <text x="374" y="366" textAnchor="middle"
+          className="wtl-track-label wtl-track-label-event"
+          transform="rotate(0,374,366)">
           events
         </text>
 
-        {/* ── Animated dots ── */}
+        {/* Start dot: Loop Start -> Engine */}
+        {!reduceMotion && turnIndex === 0 && phase === 0 && (
+          <motion.circle
+            key="start-run"
+            r="8" fill="var(--sky)" stroke="var(--ink)" strokeWidth="3"
+            initial={{ x: 123, y: 110 }}
+            animate={{ x: 123, y: 186 }}
+            transition={{ duration: 0.8, ease: "easeInOut" }}
+          />
+        )}
 
         {/* Outcome dot: Engine→Policy */}
         {!reduceMotion && phase === 1 && (
           <motion.circle
-            key={`fwd-${cycle}`}
-            r="7" fill="var(--coral)" stroke="rgba(255,255,255,0.7)" strokeWidth="3"
-            initial={{ x: 194, y: 98 }}
-            animate={{ x: 346 }}
+            key={`fwd-${turnIndex}`}
+            r="8" fill="var(--coral)" stroke="var(--ink)" strokeWidth="3"
+            initial={{ x: 218, y: 228 }}
+            animate={{ x: 322 }}
             transition={{ duration: 0.95, ease: "easeInOut" }}
           />
         )}
@@ -149,10 +173,10 @@ function HeroDiagram({ t }) {
         {/* Directive dot: Policy→Engine */}
         {!reduceMotion && phase === 3 && (
           <motion.circle
-            key={`back-${cycle}`}
-            r="7" fill="var(--teal)" stroke="rgba(255,255,255,0.7)" strokeWidth="3"
-            initial={{ x: 346, y: 124 }}
-            animate={{ x: 194 }}
+            key={`back-${turnIndex}`}
+            r="8" fill="var(--teal)" stroke="var(--ink)" strokeWidth="3"
+            initial={{ x: 322, y: 252 }}
+            animate={{ x: 218 }}
             transition={{ duration: 0.95, ease: "easeInOut" }}
           />
         )}
@@ -160,10 +184,10 @@ function HeroDiagram({ t }) {
         {/* Event pulse: Engine→Observer */}
         {!reduceMotion && (phase === 1 || phase === 3) && (
           <motion.circle
-            key={`obs-l-${phase}-${cycle}`}
-            r="4" fill="rgba(0,109,114,0.72)"
-            initial={{ x: 115, y: 152 }}
-            animate={{ x: 220, y: 390, opacity: 0 }}
+            key={`obs-l-${phase}-${turnIndex}`}
+            r="5" fill="var(--sky)" stroke="var(--ink)" strokeWidth="2.5"
+            initial={{ x: 118, y: 288 }}
+            animate={{ x: 192, y: 380, opacity: 0 }}
             transition={{ duration: 0.8, ease: "easeInOut", delay: 0.35 }}
           />
         )}
@@ -171,14 +195,42 @@ function HeroDiagram({ t }) {
         {/* Event pulse: Policy→Observer */}
         {!reduceMotion && (phase === 1 || phase === 3) && (
           <motion.circle
-            key={`obs-r-${phase}-${cycle}`}
-            r="4" fill="rgba(0,109,114,0.72)"
-            initial={{ x: 425, y: 152 }}
-            animate={{ x: 320, y: 390, opacity: 0 }}
+            key={`obs-r-${phase}-${turnIndex}`}
+            r="5" fill="var(--sky)" stroke="var(--ink)" strokeWidth="2.5"
+            initial={{ x: 422, y: 288 }}
+            animate={{ x: 348, y: 380, opacity: 0 }}
             transition={{ duration: 0.8, ease: "easeInOut", delay: 0.45 }}
           />
         )}
+
+        {/* Engine -> loop end */}
+        <line x1="123" y1="288" x2="123" y2="420" className="wtl-line-backbone" />
+        <line x1="123" y1="288" x2="123" y2="420" className="wtl-line-accent wtl-line-end" />
+        <polygon points="117,414 123,426 129,414" className="wtl-arrow wtl-arrow-end" />
+
+        {/* Final dot: Engine -> Loop End */}
+        {!reduceMotion && phase === 4 && (
+          <motion.circle
+            key="finish-run"
+            r="8" fill="var(--pink)" stroke="var(--ink)" strokeWidth="3"
+            initial={{ x: 123, y: 288 }}
+            animate={{ x: 123, y: 420 }}
+            transition={{ duration: 0.82, ease: "easeInOut" }}
+          />
+        )}
       </svg>
+
+      <div className={`wtl-flow-box wtl-flow-box-start${phase === 0 ? " wtl-flow-box-active" : ""}`}>
+        <span className="wtl-flow-label">Loop Start</span>
+        <strong>{ui.turnBadge.replace("{n}", turnNum)}</strong>
+      </div>
+
+      <div
+        className={`wtl-flow-box wtl-flow-box-end${directive === "complete" ? " wtl-flow-box-active" : ""}`}
+      >
+        <span className="wtl-flow-label">Loop End</span>
+        <strong>{directive === "complete" ? "policy: complete" : "await policy: complete"}</strong>
+      </div>
 
       {/* Engine node — top-left */}
       <motion.div
@@ -188,9 +240,10 @@ function HeroDiagram({ t }) {
       >
         <span className="wtl-role">Engine</span>
         <span className="wtl-sub">
-          {phase === 0 ? ui.turnRunning.replace("{n}", turnNum)
+          {phase === 0 ? ui.engineRunning
             : phase === 1 ? ui.sendingOutcome
             : phase === 3 ? ui.gotDirective
+            : phase === 4 ? ui.endingRun
             : ui.idle}
         </span>
       </motion.div>
@@ -204,9 +257,16 @@ function HeroDiagram({ t }) {
         <span className="wtl-role">Policy</span>
         <span className="wtl-sub">
           {phase === 2 ? ui.interpreting
-            : phase === 3 ? `→ ${directive}`
+            : phase === 3 ? ui.gotDirective
             : ui.waiting}
         </span>
+        <motion.span
+          className={`wtl-chip wtl-chip-inline wtl-chip-${directive}`}
+          animate={!reduceMotion ? { opacity: phase >= 2 ? 1 : 0.18 } : undefined}
+          transition={{ duration: 0.3 }}
+        >
+          {directive}
+        </motion.span>
       </motion.div>
 
       {/* Observer — bottom-center */}
@@ -214,19 +274,11 @@ function HeroDiagram({ t }) {
         <span className="wtl-role">Observer</span>
         <span className="wtl-sub">
           {phase === 1 ? `↗ ${ui.logStart}`
-            : phase === 3 ? `↗ ${ui.logComplete}`
-            : "watching…"}
+            : phase >= 3 ? `↗ ${ui.logComplete}`
+            : ui.observing}
         </span>
       </div>
 
-      {/* Directive chip */}
-      <motion.span
-        className={`wtl-chip wtl-chip-${directive}`}
-        animate={!reduceMotion ? { opacity: phase >= 2 ? 1 : 0.18 } : undefined}
-        transition={{ duration: 0.3 }}
-      >
-        {directive}
-      </motion.span>
     </div>
   );
 }
@@ -297,194 +349,477 @@ function LifecycleRail({ steps }) {
   );
 }
 
-const LOOP_DIRECTIVES = ["continue", "retry", "wait", "complete"];
-const LOOP_DELAYS = [900, 1000, 900, 1000];
+let explorerLogId = 0;
+const EXPLORER_DEFAULT_CONTROLS = {
+  needsInput: false,
+  recoverableFailure: false,
+  contextOverflow: false,
+  phaseGoalMet: false,
+  completionApproved: false,
+  observerOnline: true
+};
+const EXPLORER_SCENARIOS = [
+  { id: "continue", phaseIndex: 0, accent: "coral", controls: {} },
+  { id: "wait", phaseIndex: 1, accent: "gold", controls: { needsInput: true } },
+  { id: "retry", phaseIndex: 1, accent: "gold", controls: { recoverableFailure: true } },
+  { id: "compact", phaseIndex: 1, accent: "coral", controls: { contextOverflow: true } },
+  { id: "advance_phase", phaseIndex: 0, accent: "teal", controls: { phaseGoalMet: true } },
+  {
+    id: "complete",
+    phaseIndex: 2,
+    accent: "teal",
+    controls: { phaseGoalMet: true, completionApproved: true }
+  }
+];
 
-function LoopMap({ t }) {
+function nextExplorerLogId() {
+  explorerLogId += 1;
+  return explorerLogId;
+}
+
+function getExplorerScenarioState(scenarioId, observerOnline = true) {
+  const scenario = EXPLORER_SCENARIOS.find((item) => item.id === scenarioId) || EXPLORER_SCENARIOS[0];
+
+  return {
+    phaseIndex: scenario.phaseIndex,
+    controls: {
+      ...EXPLORER_DEFAULT_CONTROLS,
+      ...scenario.controls,
+      observerOnline
+    }
+  };
+}
+
+function getExplorerDecision({
+  needsInput,
+  recoverableFailure,
+  contextOverflow,
+  phaseGoalMet,
+  completionApproved,
+  phaseIndex,
+  phaseCount
+}) {
+  const inFinalPhase = phaseIndex === phaseCount - 1;
+
+  if (needsInput) {
+    return { directive: "wait", tone: "gold", reasonKey: "wait" };
+  }
+
+  if (recoverableFailure) {
+    return { directive: "retry", tone: "gold", reasonKey: "retry" };
+  }
+
+  if (contextOverflow) {
+    return { directive: "compact", tone: "coral", reasonKey: "compact" };
+  }
+
+  if (phaseGoalMet && !inFinalPhase) {
+    return { directive: "advance_phase", tone: "teal", reasonKey: "advance_phase" };
+  }
+
+  if (phaseGoalMet && inFinalPhase && completionApproved) {
+    return { directive: "complete", tone: "teal", reasonKey: "complete" };
+  }
+
+  if (phaseGoalMet && inFinalPhase && !completionApproved) {
+    return { directive: "continue", tone: "coral", reasonKey: "gate_closed" };
+  }
+
+  return { directive: "continue", tone: "coral", reasonKey: "continue" };
+}
+
+function ExploreScenarioButton({ label, body, directive, active, accent, onClick }) {
+  return (
+    <button
+      type="button"
+      className={`explore-scenario explore-toggle-${accent}${active ? " is-active" : ""}`}
+      aria-pressed={active}
+      onClick={onClick}
+    >
+      <div className="explore-scenario-top">
+        <strong>{label}</strong>
+        <span className={`explore-directive-chip explore-directive-chip-${directive}`}>{directive}</span>
+      </div>
+      <span>{body}</span>
+    </button>
+  );
+}
+
+function ExplorableLoop({ t }) {
   const reduceMotion = useReducedMotion();
-  const [phase, setPhase] = useState(0);
-  const [cycle, setCycle] = useState(0);
+  const explore = t.explore;
+  const phaseNames = explore.phaseNames;
+  const initialState = getExplorerScenarioState("continue");
+  const [selectedScenario, setSelectedScenario] = useState("continue");
+  const [phaseIndex, setPhaseIndex] = useState(initialState.phaseIndex);
+  const [turnCount, setTurnCount] = useState(1);
+  const [retryCount, setRetryCount] = useState(0);
+  const [compactCount, setCompactCount] = useState(0);
+  const [completed, setCompleted] = useState(false);
+  const [pulseCount, setPulseCount] = useState(0);
+  const [lastDirective, setLastDirective] = useState("continue");
+  const [logEntries, setLogEntries] = useState(() => [
+    {
+      id: nextExplorerLogId(),
+      actor: "observer",
+      tone: "teal",
+      text: explore.log.boot
+    }
+  ]);
+  const [controls, setControls] = useState({
+    ...initialState.controls
+  });
 
-  useEffect(() => {
-    if (reduceMotion) return;
-    let ph = 0, tid;
-    const tick = () => {
-      ph = (ph + 1) % 4;
-      setPhase(ph);
-      if (ph === 0) setCycle(c => c + 1);
-      tid = setTimeout(tick, LOOP_DELAYS[ph]);
-    };
-    tid = setTimeout(tick, LOOP_DELAYS[0]);
-    return () => clearTimeout(tid);
-  }, [reduceMotion]);
+  const decision = getExplorerDecision({
+    ...controls,
+    phaseIndex,
+    phaseCount: phaseNames.length
+  });
+  const isFinalPhase = phaseIndex === phaseNames.length - 1;
+  const activeScenario = explore.scenarios[selectedScenario];
+  const runState = completed
+    ? explore.runStates.completed
+    : decision.directive === "wait"
+      ? explore.runStates.waiting
+      : explore.runStates.live;
+  const engineStatus = completed
+    ? explore.engineStatus.completed
+    : controls.needsInput
+      ? explore.engineStatus.waiting
+      : explore.engineStatus.ready;
+  const observerStatus = controls.observerOnline
+    ? explore.status.online
+    : explore.status.offline;
 
-  const directive = LOOP_DIRECTIVES[cycle % 4];
-  const dirColor = { continue: "coral", retry: "gold", wait: "gold", complete: "teal" }[directive];
-  const ui = t.ui;
-  const lm = t.loopMap;
+  function selectScenario(scenarioId) {
+    const nextState = getExplorerScenarioState(scenarioId, controls.observerOnline);
+    setSelectedScenario(scenarioId);
+    setPhaseIndex(nextState.phaseIndex);
+    setControls(nextState.controls);
+    setCompleted(false);
+  }
+
+  function toggleObserver() {
+    setControls((current) => ({ ...current, observerOnline: !current.observerOnline }));
+  }
+
+  function resetExplorer() {
+    const nextState = getExplorerScenarioState("continue");
+    setSelectedScenario("continue");
+    setPhaseIndex(nextState.phaseIndex);
+    setTurnCount(1);
+    setRetryCount(0);
+    setCompactCount(0);
+    setCompleted(false);
+    setPulseCount(0);
+    setLastDirective("continue");
+    setControls(nextState.controls);
+    setLogEntries([
+      {
+        id: nextExplorerLogId(),
+        actor: "observer",
+        tone: "teal",
+        text: explore.log.boot
+      }
+    ]);
+  }
+
+  function pushLogBatch(items) {
+    setLogEntries((current) => [...items, ...current].slice(0, 8));
+  }
+
+  function applyDirective() {
+    if (completed) {
+      return;
+    }
+
+    const logs = [];
+    const currentTurn = turnCount;
+    const currentPhase = phaseNames[phaseIndex];
+
+    logs.push({
+      id: nextExplorerLogId(),
+      actor: "policy",
+      tone: decision.tone,
+      text: explore.log[`policy_${decision.directive}`]
+    });
+
+    switch (decision.directive) {
+      case "wait":
+        logs.push({
+          id: nextExplorerLogId(),
+          actor: "engine",
+          tone: "gold",
+          text: explore.log.engine_wait
+        });
+        break;
+      case "retry":
+        logs.push({
+          id: nextExplorerLogId(),
+          actor: "engine",
+          tone: "gold",
+          text: explore.log.engine_retry.replace("{n}", currentTurn)
+        });
+        setRetryCount((count) => count + 1);
+        setControls((current) => ({ ...current, recoverableFailure: false }));
+        setSelectedScenario("continue");
+        break;
+      case "compact":
+        logs.push({
+          id: nextExplorerLogId(),
+          actor: "engine",
+          tone: "coral",
+          text: explore.log.engine_compact
+        });
+        setCompactCount((count) => count + 1);
+        setControls((current) => ({ ...current, contextOverflow: false }));
+        setSelectedScenario("continue");
+        break;
+      case "advance_phase":
+        logs.push({
+          id: nextExplorerLogId(),
+          actor: "engine",
+          tone: "teal",
+          text: explore.log.engine_advance
+            .replace("{from}", currentPhase)
+            .replace("{to}", phaseNames[Math.min(phaseIndex + 1, phaseNames.length - 1)])
+        });
+        setPhaseIndex((index) => Math.min(index + 1, phaseNames.length - 1));
+        setControls((current) => ({
+          ...current,
+          phaseGoalMet: false,
+          completionApproved: false
+        }));
+        setSelectedScenario("continue");
+        break;
+      case "complete":
+        logs.push({
+          id: nextExplorerLogId(),
+          actor: "engine",
+          tone: "teal",
+          text: explore.log.engine_complete
+        });
+        setCompleted(true);
+        break;
+      default:
+        logs.push({
+          id: nextExplorerLogId(),
+          actor: "engine",
+          tone: "coral",
+          text: explore.log.engine_continue.replace("{n}", currentTurn + 1)
+        });
+        setTurnCount((count) => count + 1);
+        break;
+    }
+
+    logs.push({
+      id: nextExplorerLogId(),
+      actor: "observer",
+      tone: controls.observerOnline ? "teal" : "muted",
+      text: controls.observerOnline
+        ? explore.log.observer_seen.replace("{directive}", decision.directive)
+        : explore.log.observer_dropped
+    });
+
+    setLastDirective(decision.directive);
+    setPulseCount((count) => count + 1);
+    pushLogBatch(logs);
+  }
 
   return (
-    <Reveal className="loop-map-shell" amount={0.2}>
-      <div className="loop-map-copy">
-        <p className="eyebrow">{lm.eyebrow}</p>
-        <h2>{lm.h2}</h2>
-        <p className="section-copy">{lm.body}</p>
-      </div>
+    <section className="section explore-section" id="explore">
+      <SectionIntro
+        eyebrow={explore.eyebrow}
+        title={explore.title}
+        body={explore.body}
+      />
 
-      <div className="loop-map-stage">
-        <div className="role-diagram">
+      <div className="explore-shell">
+        <Reveal className="panel explore-controls" amount={0.15}>
+          <div className="explore-block">
+            <div className="explore-block-head">
+              <h3>{explore.controlsTitle}</h3>
+              <p>{explore.controlsBody}</p>
+            </div>
 
-          {/* ── Top row: Engine ↔ Policy ── */}
-          <div className="role-top">
+            <div className="explore-step-strip">
+              {explore.steps.map((step) => (
+                <div key={step} className="explore-step-card">
+                  {step}
+                </div>
+              ))}
+            </div>
 
-            {/* Engine */}
-            <motion.div
-              className={`role-card role-card-engine${phase === 0 ? " role-card-active" : ""}`}
-              animate={!reduceMotion && phase === 0 ? { scale: [1, 1.02, 1] } : {}}
-              transition={{ duration: 0.65 }}
-            >
-              <div className="role-header">
-                <strong>Engine</strong>
-                <span className="role-tag">{lm.engine.tag}</span>
+            <div className="explore-scenario-grid">
+              {EXPLORER_SCENARIOS.map((scenario) => (
+                <ExploreScenarioButton
+                  key={scenario.id}
+                  label={explore.scenarios[scenario.id].label}
+                  body={explore.scenarios[scenario.id].body}
+                  directive={scenario.id}
+                  active={selectedScenario === scenario.id}
+                  accent={scenario.accent}
+                  onClick={() => selectScenario(scenario.id)}
+                />
+              ))}
+            </div>
+
+            <div className="explore-helper-row">
+              <div className="explore-helper-card">
+                <span>{explore.phaseLabel}</span>
+                <strong>
+                  {phaseNames[phaseIndex]}
+                  {isFinalPhase ? ` · ${explore.finalPhase}` : ""}
+                </strong>
               </div>
-              <ul className="role-owns">
-                {lm.engine.owns.map(item => <li key={item}>{item}</li>)}
+              <button
+                type="button"
+                className={`explore-mini-toggle${controls.observerOnline ? " is-active" : ""}`}
+                aria-pressed={controls.observerOnline}
+                onClick={toggleObserver}
+              >
+                <span>{explore.observerTitle}</span>
+                <strong>
+                  {controls.observerOnline ? explore.observerBodyOn : explore.observerBodyOff}
+                </strong>
+              </button>
+            </div>
+
+            <div className="explore-phase-guide">
+              <p className="explore-subhead">{explore.phaseGuide.label}</p>
+              <strong>{explore.phaseGuide.title}</strong>
+              <p>{explore.phaseGuide.body}</p>
+              <ul className="explore-phase-list">
+                {explore.phaseGuide.points.map((item) => (
+                  <li key={item}>{item}</li>
+                ))}
               </ul>
-              <div className={`role-live${phase === 0 ? " role-live-on role-live-engine" : ""}`}>
-                {phase === 0 ? ui.turnRunning.replace("{n}", cycle + 1)
-                  : phase === 3 ? `${ui.actingOn} ${directive}`
-                  : ui.liveIdle || "—"}
+            </div>
+          </div>
+
+          <div className="explore-action-row">
+            <button
+              type="button"
+              className="button button-primary"
+              onClick={applyDirective}
+              disabled={completed}
+            >
+              {completed ? explore.buttons.completed : explore.buttons.apply}
+            </button>
+            <button
+              type="button"
+              className="button button-secondary"
+              onClick={resetExplorer}
+            >
+              {explore.buttons.reset}
+            </button>
+          </div>
+        </Reveal>
+
+        <Reveal className="explore-stage" amount={0.12} delay={0.06}>
+          <div className="explore-status-grid">
+            <div className="explore-stat">
+              <span>{explore.status.phase}</span>
+              <strong>{phaseNames[phaseIndex]}</strong>
+            </div>
+            <div className="explore-stat">
+              <span>{explore.status.turn}</span>
+              <strong>{turnCount}</strong>
+            </div>
+            <div className="explore-stat">
+              <span>{explore.status.retries}</span>
+              <strong>{retryCount}</strong>
+            </div>
+            <div className="explore-stat">
+              <span>{explore.status.compactions}</span>
+              <strong>{compactCount}</strong>
+            </div>
+            <div className="explore-stat">
+              <span>{explore.status.observer}</span>
+              <strong>{observerStatus}</strong>
+            </div>
+            <div className="explore-stat">
+              <span>{explore.status.run}</span>
+              <strong>{runState}</strong>
+            </div>
+          </div>
+
+          <div className="explore-main-grid">
+            <motion.div
+              className={`explore-preview explore-preview-${decision.tone}`}
+              animate={reduceMotion ? undefined : { scale: pulseCount ? [1, 1.02, 1] : 1 }}
+              transition={{ duration: 0.45, ease: "easeOut" }}
+            >
+              <div className="explore-preview-top">
+                <p>{explore.preview.policy}</p>
+                <span className={`explore-directive-chip explore-directive-chip-${decision.directive}`}>
+                  {decision.directive}
+                </span>
+              </div>
+              <h3>{explore.reasonTitles[decision.reasonKey]}</h3>
+              <p className="explore-preview-body">{explore.preview.help}</p>
+
+              <div className="explore-summary-grid">
+                <div className="explore-role-card">
+                  <span className="explore-role-name">{explore.preview.situation}</span>
+                  <strong>{activeScenario.label}</strong>
+                  <p>{activeScenario.body}</p>
+                </div>
+                <div className="explore-role-card explore-role-policy">
+                  <span className="explore-role-name">{explore.preview.policy}</span>
+                  <strong>{decision.directive}</strong>
+                  <p>{explore.engineActions[decision.directive]}</p>
+                </div>
+                <div className="explore-role-card explore-role-engine">
+                  <span className="explore-role-name">{explore.preview.engine}</span>
+                  <strong>{engineStatus}</strong>
+                  <p>{explore.engineDetails[decision.directive]}</p>
+                </div>
+                <div className="explore-role-card explore-role-observer">
+                  <span className="explore-role-name">{explore.preview.observer}</span>
+                  <strong>{observerStatus}</strong>
+                  <p>
+                    {controls.observerOnline
+                      ? explore.observerStates.online
+                      : explore.observerStates.offline}
+                  </p>
+                </div>
+              </div>
+
+              <div className="explore-rule-box">
+                <p className="explore-subhead">{explore.preview.why}</p>
+                <strong>{explore.ruleTitles[decision.reasonKey]}</strong>
+                <p className="explore-preview-body">{explore.ruleBodies[decision.reasonKey]}</p>
               </div>
             </motion.div>
 
-            {/* Bidirectional connector */}
-            <div className="role-conn">
-              <span className="role-conn-lbl">{lm.connOutcome}</span>
-              <div className="role-conn-svg-wrap">
-                <svg viewBox="0 0 72 64" className="role-conn-svg" aria-hidden="true">
-                  {/* Outcome track top */}
-                  <line x1="2" y1="18" x2="70" y2="18"
-                    stroke="rgba(29,23,17,0.16)" strokeWidth="1.5" strokeDasharray="5 7" />
-                  <polygon points="66,14 72,18 66,22" fill="rgba(209,77,44,0.45)" />
-                  {/* Directive track bottom */}
-                  <line x1="70" y1="46" x2="2" y2="46"
-                    stroke="rgba(29,23,17,0.16)" strokeWidth="1.5" strokeDasharray="5 7" />
-                  <polygon points="6,42 0,46 6,50" fill="rgba(0,109,114,0.45)" />
-
-                  {/* Outcome dot */}
-                  {!reduceMotion && phase === 1 && (
-                    <motion.circle key={`lm-fwd-${cycle}`}
-                      cy="18" r="6"
-                      fill="var(--coral)" stroke="white" strokeWidth="3"
-                      initial={{ cx: 2 }} animate={{ cx: 70 }}
-                      transition={{ duration: 1.0, ease: "easeInOut" }}
-                    />
-                  )}
-                  {/* Directive dot */}
-                  {!reduceMotion && phase === 3 && (
-                    <motion.circle key={`lm-back-${cycle}`}
-                      cy="46" r="6"
-                      fill="var(--teal)" stroke="white" strokeWidth="3"
-                      initial={{ cx: 70 }} animate={{ cx: 2 }}
-                      transition={{ duration: 1.0, ease: "easeInOut" }}
-                    />
-                  )}
-                </svg>
+            <div className="explore-log-shell">
+              <div className="explore-log-head">
+                <p>{explore.preview.eventLog}</p>
+                <span>{explore.status.lastDirective}: {lastDirective}</span>
               </div>
-              <span className="role-conn-lbl">{lm.connDirective}</span>
-            </div>
-
-            {/* Policy */}
-            <motion.div
-              className={`role-card role-card-policy${phase === 2 ? " role-card-active" : ""}`}
-              animate={!reduceMotion && phase === 2 ? { scale: [1, 1.02, 1] } : {}}
-              transition={{ duration: 0.65 }}
-            >
-              <div className="role-header">
-                <strong>Policy</strong>
-                <span className="role-tag">{lm.policy.tag}</span>
-              </div>
-              <ul className="role-owns">
-                {lm.policy.owns.map(item => <li key={item}>{item}</li>)}
-              </ul>
-              <div className={`role-live${phase === 2 ? " role-live-on role-live-policy" : ""}`}>
-                {phase === 2 ? ui.interpreting
-                  : phase === 3 ? `→ ${directive}`
-                  : ui.liveIdle || "—"}
-              </div>
-            </motion.div>
-          </div>
-
-          {/* ── Events flowing down to Observer ── */}
-          <div className="role-event-bridge">
-            <div className="role-event-col">
-              {!reduceMotion && (phase === 1 || phase === 3) && (
-                <motion.span
-                  key={`ev-l-${phase}-${cycle}`}
-                  className="role-event-label"
-                  initial={{ opacity: 0, y: -4 }}
-                  animate={{ opacity: [0, 1, 1, 0], y: [0, 8] }}
-                  transition={{ duration: 0.9 }}
-                >{ui.eventsDown}</motion.span>
-              )}
-            </div>
-            <div className="role-event-divider" />
-            <div className="role-event-col">
-              {!reduceMotion && (phase === 1 || phase === 3) && (
-                <motion.span
-                  key={`ev-r-${phase}-${cycle}`}
-                  className="role-event-label"
-                  initial={{ opacity: 0, y: -4 }}
-                  animate={{ opacity: [0, 1, 1, 0], y: [0, 8] }}
-                  transition={{ duration: 0.9, delay: 0.1 }}
-                >{ui.eventsDown}</motion.span>
-              )}
-            </div>
-          </div>
-
-          {/* ── Observer ── */}
-          <div className="role-card role-card-observer">
-            <div className="role-header">
-              <strong>Observer</strong>
-              <span className="role-tag">{lm.observer.tag}</span>
-            </div>
-            <div className="role-obs-body">
-              <ul className="role-owns">
-                {lm.observer.owns.map(item => <li key={item}>{item}</li>)}
-              </ul>
-              <div className="role-log">
-                <span className="role-log-hdr">{ui.logHdr}</span>
-                {(phase === 1 || phase === 3) ? (
-                  <motion.span
-                    key={`log-${phase}-${cycle}`}
-                    className="role-log-entry"
-                    initial={{ opacity: 0, y: -4 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ duration: 0.3 }}
-                  >
-                    {phase === 1 ? ui.logStart : ui.logComplete}
-                  </motion.span>
-                ) : (
-                  <span className="role-log-idle">{ui.logIdle}</span>
-                )}
-                {phase === 3 && (
-                  <motion.span
-                    key={`log-dir-${cycle}`}
-                    className={`role-log-directive role-log-${dirColor}`}
-                    initial={{ opacity: 0 }}
-                    animate={{ opacity: 1 }}
-                    transition={{ duration: 0.3, delay: 0.3 }}
-                  >
-                    policy:{directive}
-                  </motion.span>
-                )}
+              <div className="explore-log-list" role="log" aria-live="polite">
+                <AnimatePresence initial={false}>
+                  {logEntries.map((entry) => (
+                    <motion.div
+                      key={entry.id}
+                      className={`explore-log-entry explore-log-${entry.tone}`}
+                      initial={reduceMotion ? false : { opacity: 0, y: -10 }}
+                      animate={reduceMotion ? { opacity: 1 } : { opacity: 1, y: 0 }}
+                      exit={reduceMotion ? { opacity: 0 } : { opacity: 0, y: 10 }}
+                      transition={{ duration: 0.24 }}
+                    >
+                      <span>{entry.actor}</span>
+                      <strong>{entry.text}</strong>
+                    </motion.div>
+                  ))}
+                </AnimatePresence>
               </div>
             </div>
           </div>
-
-        </div>
+        </Reveal>
       </div>
-    </Reveal>
+    </section>
   );
 }
 
@@ -516,6 +851,7 @@ export default function App() {
               <span>WhatTheLoop</span>
             </div>
             <nav>
+              <a href="#explore">{t.nav.explore}</a>
               <a href="#problems">{t.nav.problems}</a>
               <a href="#roles">{t.nav.roles}</a>
               <a href="#directives">{t.nav.directives}</a>
@@ -564,6 +900,8 @@ export default function App() {
         </header>
 
         <main>
+          <ExplorableLoop t={t} />
+
           <section className="section problems-section" id="problems">
             <SectionIntro
               eyebrow={t.problems.eyebrow}
@@ -625,10 +963,6 @@ export default function App() {
             />
 
             <LifecycleRail steps={t.lifecycle.steps} />
-          </section>
-
-          <section className="section diagram-section">
-            <LoopMap t={t} />
           </section>
 
           <section className="section split-section">

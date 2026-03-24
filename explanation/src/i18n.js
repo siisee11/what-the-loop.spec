@@ -2,6 +2,7 @@ export const i18n = {
   en: {
     langToggle: "한국어",
     nav: {
+      explore: "Explore",
       problems: "Problems",
       roles: "Roles",
       directives: "Directives",
@@ -10,9 +11,13 @@ export const i18n = {
     },
     ui: {
       turnRunning: "Turn {n} running…",
+      turnBadge: "Turn {n}",
+      engineRunning: "Running",
+      endingRun: "Ending run",
       sendingOutcome: "Sending outcome",
       gotDirective: "Got directive",
       idle: "Idle",
+      observing: "Watching…",
       interpreting: "Interpreting…",
       waiting: "Waiting",
       eventsDown: "events ↓",
@@ -33,6 +38,158 @@ export const i18n = {
         { strong: "6 directives", span: "Meaning returned to the engine" },
         { strong: "1 rule", span: "The engine never invents semantics" }
       ]
+    },
+    explore: {
+      eyebrow: "Explorable explanation",
+      title: "Pick a simple situation and watch the next step.",
+      body: "Choose the situation the run is in. Policy returns one directive, the engine follows it, and the observer only records what happened.",
+      controlsTitle: "1. Pick a situation",
+      controlsBody: "Each card is a plain-language situation. You do not need to think about internal flags first.",
+      steps: [
+        "1. Choose a situation",
+        "2. Read the policy decision",
+        "3. Run one legal step"
+      ],
+      phaseLabel: "Current phase",
+      finalPhase: "final",
+      phaseNames: ["Discover", "Draft", "Finalize"],
+      phaseGuide: {
+        label: "What phase means",
+        title: "A phase is a workflow stage, not a turn counter.",
+        body: "Turns count repetitions. Phases describe what kind of work the run is doing right now, so policy can tell the difference between continuing, moving forward, and legally ending.",
+        points: [
+          "`Discover`, `Draft`, and `Finalize` here are examples, not fixed WTL keywords.",
+          "A real workflow could use names like `Plan / Execute / Review` or `Collect / Analyze / Answer`."
+        ]
+      },
+      observerTitle: "Observer visibility",
+      observerBodyOn: "Observer online",
+      observerBodyOff: "Observer offline",
+      scenarios: {
+        continue: {
+          label: "Keep working",
+          body: "Nothing is blocked. The run should take another turn in the current phase."
+        },
+        wait: {
+          label: "Need outside input",
+          body: "The run is waiting on the user or a tool result."
+        },
+        retry: {
+          label: "Temporary failure",
+          body: "The last turn failed in a way that can be retried."
+        },
+        compact: {
+          label: "Context is too full",
+          body: "The next turn should compact context before continuing."
+        },
+        advance_phase: {
+          label: "This phase is done",
+          body: "The current phase reached its goal, but the run is not finished."
+        },
+        complete: {
+          label: "Ready to finish",
+          body: "The final phase is done and policy explicitly approves ending the run."
+        }
+      },
+      buttons: {
+        apply: "Run This Step",
+        reset: "Start Over",
+        completed: "Run Completed"
+      },
+      status: {
+        phase: "Phase",
+        turn: "Turn",
+        retries: "Retries",
+        compactions: "Compactions",
+        run: "Run",
+        observer: "Observer",
+        lastDirective: "Last directive",
+        online: "online",
+        offline: "offline"
+      },
+      runStates: {
+        live: "runnable",
+        waiting: "waiting",
+        completed: "completed"
+      },
+      engineStatus: {
+        ready: "Ready for the next legal step",
+        waiting: "Blocked until external input arrives",
+        completed: "Terminated by explicit policy approval"
+      },
+      preview: {
+        situation: "Situation",
+        policy: "Policy says",
+        engine: "Engine does",
+        observer: "Observer sees",
+        help: "Read the four boxes once from top-left to bottom-right. That is one loop decision.",
+        why: "Rule being protected",
+        eventLog: "Event log"
+      },
+      engineActions: {
+        continue: "Return `continue`.",
+        retry: "Return `retry`.",
+        wait: "Return `wait`.",
+        compact: "Return `compact`.",
+        advance_phase: "Return `advance_phase`.",
+        complete: "Return `complete`."
+      },
+      engineDetails: {
+        continue: "Start the next turn in the same phase.",
+        retry: "Run the same turn again instead of inventing a new meaning.",
+        wait: "Do not start a new turn until the missing input arrives.",
+        compact: "Compact context first, then continue later.",
+        advance_phase: "Install the next phase plan and keep the run alive.",
+        complete: "End the run now."
+      },
+      reasonTitles: {
+        continue: "Nothing is blocking progress.",
+        gate_closed: "It may look done, but stopping is still illegal.",
+        retry: "A temporary failure should be retried first.",
+        wait: "The run is blocked on outside input.",
+        compact: "Context cleanup must happen before the next turn.",
+        advance_phase: "This phase is done, but the whole run is not.",
+        complete: "The final phase is approved, so the run may end."
+      },
+      ruleTitles: {
+        continue: "The engine cannot invent a stop condition.",
+        gate_closed: "Completion is gated by policy.",
+        retry: "Retry is a meaning decision, not an engine guess.",
+        wait: "Waiting must be visible and must stop new turns.",
+        compact: "Compaction must be explicit.",
+        advance_phase: "Finishing a phase is not the same as finishing the run.",
+        complete: "Completion needs final-phase approval."
+      },
+      ruleBodies: {
+        continue: "If nothing higher priority is true, policy may keep the loop moving. The engine still does not decide on its own.",
+        gate_closed: "Even in the final phase, the engine may not stop unless policy explicitly opens the completion gate.",
+        retry: "Policy decides that the failure is retryable. The engine only carries out that retry.",
+        wait: "While input is unresolved, the engine must not silently continue. It waits, and observers can see that state.",
+        compact: "Context maintenance is a real step in the contract, not a hidden side effect.",
+        advance_phase: "Policy can say this phase is done while keeping the run alive for the next phase.",
+        complete: "A run becomes legally complete only when policy says so in the final phase."
+      },
+      observerStates: {
+        online: "The observer records the event, but does not control the loop.",
+        offline: "The observer misses the event, but the loop must still stay correct."
+      },
+      log: {
+        boot: "observer: run initialized",
+        policy_continue: "return continue",
+        policy_retry: "return retry",
+        policy_wait: "return wait",
+        policy_compact: "return compact",
+        policy_advance_phase: "return advance_phase",
+        policy_complete: "return complete",
+        engine_continue: "turn {n} 시작",
+        engine_retry: "turn {n} 재시도",
+        engine_wait: "외부 입력이 해결될 때까지 대기",
+        engine_compact: "다음 턴 전에 컨텍스트 압축",
+        engine_advance: "단계 전환 {from} -> {to}",
+        engine_complete: "실행 완료로 표시",
+        observer_seen: "directive {directive} 관찰됨",
+        observer_dropped: "observer 오프라인, 이벤트 유실"
+      }
     },
     problems: {
       eyebrow: "Why WTL exists",
@@ -196,6 +353,7 @@ export const i18n = {
   ko: {
     langToggle: "EN",
     nav: {
+      explore: "탐색",
       problems: "문제",
       roles: "역할",
       directives: "지시어",
@@ -204,9 +362,13 @@ export const i18n = {
     },
     ui: {
       turnRunning: "턴 {n} 실행 중…",
+      turnBadge: "턴 {n}",
+      engineRunning: "실행 중",
+      endingRun: "종료 처리 중",
       sendingOutcome: "결과 전송 중",
       gotDirective: "지시어 수신",
       idle: "대기",
+      observing: "관찰 중…",
       interpreting: "해석 중…",
       waiting: "대기",
       eventsDown: "이벤트 ↓",
@@ -227,6 +389,158 @@ export const i18n = {
         { strong: "6가지 지시어", span: "엔진에 반환되는 의미" },
         { strong: "1가지 규칙", span: "엔진은 의미를 발명하지 않는다" }
       ]
+    },
+    explore: {
+      eyebrow: "탐색형 설명",
+      title: "간단한 상황을 고르고, 다음 한 걸음을 보세요.",
+      body: "실행이 어떤 상황에 있는지만 고르면 됩니다. Policy가 지시어 하나를 고르고, Engine이 그대로 따르며, Observer는 그 사실만 기록합니다.",
+      controlsTitle: "1. 상황 고르기",
+      controlsBody: "각 카드는 내부 플래그 묶음이 아니라 사람이 이해하기 쉬운 상황 하나를 뜻합니다.",
+      steps: [
+        "1. 상황 선택",
+        "2. Policy 결정 읽기",
+        "3. 합법적인 한 단계 실행"
+      ],
+      phaseLabel: "현재 단계",
+      finalPhase: "최종",
+      phaseNames: ["탐색", "작성", "마무리"],
+      phaseGuide: {
+        label: "Phase란 무엇인가",
+        title: "Phase는 턴 수가 아니라 작업 단계입니다.",
+        body: "턴은 반복 횟수를 세고, phase는 지금 어떤 종류의 일을 하는지 보여줍니다. 이 구분이 있어야 Policy가 계속 진행할지, 다음 단계로 넘어갈지, 합법적으로 종료할지를 나눠 판단할 수 있습니다.",
+        points: [
+          "여기서 `탐색 / 작성 / 마무리`는 설명용 예시일 뿐, WTL의 고정 키워드는 아닙니다.",
+          "실제 워크플로에서는 `계획 / 실행 / 검토`나 `수집 / 분석 / 답변`처럼 다른 단계 이름을 써도 됩니다."
+        ]
+      },
+      observerTitle: "Observer 가시성",
+      observerBodyOn: "Observer 연결됨",
+      observerBodyOff: "Observer 오프라인",
+      scenarios: {
+        continue: {
+          label: "계속 작업 중",
+          body: "막힌 것은 없습니다. 현재 단계에서 다음 턴을 시작하면 됩니다."
+        },
+        wait: {
+          label: "외부 입력이 필요함",
+          body: "사용자 응답이나 도구 결과를 기다리고 있습니다."
+        },
+        retry: {
+          label: "일시적인 실패",
+          body: "마지막 턴은 재시도로 복구할 수 있는 실패였습니다."
+        },
+        compact: {
+          label: "컨텍스트가 너무 큼",
+          body: "다음 턴 전에 컨텍스트를 먼저 압축해야 합니다."
+        },
+        advance_phase: {
+          label: "이 단계는 끝남",
+          body: "현재 단계 목표는 달성했지만 실행 전체는 아직 끝나지 않았습니다."
+        },
+        complete: {
+          label: "이제 종료 가능",
+          body: "최종 단계가 끝났고, Policy도 종료를 명시적으로 승인했습니다."
+        }
+      },
+      buttons: {
+        apply: "이 단계 실행",
+        reset: "처음부터 보기",
+        completed: "실행 완료"
+      },
+      status: {
+        phase: "단계",
+        turn: "턴",
+        retries: "재시도",
+        compactions: "압축",
+        run: "실행",
+        observer: "옵저버",
+        lastDirective: "마지막 지시어",
+        online: "연결됨",
+        offline: "오프라인"
+      },
+      runStates: {
+        live: "실행 가능",
+        waiting: "대기 중",
+        completed: "완료됨"
+      },
+      engineStatus: {
+        ready: "다음 합법적 단계를 실행할 준비가 됨",
+        waiting: "외부 입력이 올 때까지 차단됨",
+        completed: "정책의 명시적 승인으로 종료됨"
+      },
+      preview: {
+        situation: "상황",
+        policy: "Policy의 판단",
+        engine: "Engine의 동작",
+        observer: "Observer가 보는 것",
+        help: "왼쪽 위에서 오른쪽 아래까지 네 칸만 읽으면, 그 순간의 루프 결정이 보입니다.",
+        why: "지키는 규칙",
+        eventLog: "이벤트 로그"
+      },
+      engineActions: {
+        continue: "`continue`를 반환합니다.",
+        retry: "`retry`를 반환합니다.",
+        wait: "`wait`를 반환합니다.",
+        compact: "`compact`를 반환합니다.",
+        advance_phase: "`advance_phase`를 반환합니다.",
+        complete: "`complete`를 반환합니다."
+      },
+      engineDetails: {
+        continue: "같은 단계에서 다음 턴을 시작합니다.",
+        retry: "새 의미를 만들지 않고 같은 턴을 다시 실행합니다.",
+        wait: "빠진 입력이 올 때까지 새 턴을 시작하지 않습니다.",
+        compact: "먼저 컨텍스트를 압축하고 나중에 이어서 진행합니다.",
+        advance_phase: "다음 단계 계획으로 넘어가되 실행은 계속 유지합니다.",
+        complete: "지금 실행을 종료합니다."
+      },
+      reasonTitles: {
+        continue: "진행을 막는 조건이 없습니다.",
+        gate_closed: "끝나 보이더라도, 지금 멈추는 것은 아직 불법입니다.",
+        retry: "일시적 실패는 먼저 재시도해야 합니다.",
+        wait: "실행이 외부 입력에 막혀 있습니다.",
+        compact: "다음 턴 전에 컨텍스트 정리가 필요합니다.",
+        advance_phase: "이 단계는 끝났지만 실행 전체는 아닙니다.",
+        complete: "최종 단계가 승인되었으므로 실행을 끝낼 수 있습니다."
+      },
+      ruleTitles: {
+        continue: "엔진은 스스로 멈춤을 결정할 수 없습니다.",
+        gate_closed: "완료는 Policy가 여는 게이트입니다.",
+        retry: "재시도는 엔진 추측이 아니라 의미 판단입니다.",
+        wait: "대기는 보여야 하고, 새 턴을 막아야 합니다.",
+        compact: "컴팩션은 명시적으로 보여야 합니다.",
+        advance_phase: "단계 완료와 실행 완료는 다릅니다.",
+        complete: "완료에는 최종 단계 승인 이 필요합니다."
+      },
+      ruleBodies: {
+        continue: "더 높은 우선순위의 차단 조건이 없으면 Policy는 계속 진행을 허용할 수 있습니다. 그래도 결정권은 여전히 Policy에 있습니다.",
+        gate_closed: "최종 단계처럼 보여도, Policy가 완료 게이트를 열지 않으면 Engine은 멈출 수 없습니다.",
+        retry: "실패가 재시도 가능한지 판단하는 쪽은 Policy이고, Engine은 그 결정을 수행만 합니다.",
+        wait: "입력이 해결되지 않았을 때 Engine은 몰래 진행하면 안 됩니다. 기다려야 하고, 그 상태는 밖에서도 보여야 합니다.",
+        compact: "컨텍스트 정리는 숨어 있는 부작용이 아니라 계약에 드러나는 한 단계입니다.",
+        advance_phase: "현재 단계 목표를 달성했더라도, 다음 단계가 남아 있다면 실행은 계속 살아 있어야 합니다.",
+        complete: "실행은 최종 단계이면서 Policy가 명시적으로 승인했을 때만 합법적으로 끝날 수 있습니다."
+      },
+      observerStates: {
+        online: "Observer는 이벤트를 기록하지만 루프를 제어하지는 못합니다.",
+        offline: "Observer가 이벤트를 놓쳐도 루프 정합성은 그대로 유지되어야 합니다."
+      },
+      log: {
+        boot: "observer: 실행 초기화",
+        policy_continue: "return continue",
+        policy_retry: "return retry",
+        policy_wait: "return wait",
+        policy_compact: "return compact",
+        policy_advance_phase: "return advance_phase",
+        policy_complete: "return complete",
+        engine_continue: "start turn {n}",
+        engine_retry: "retry turn {n}",
+        engine_wait: "pause until external input resolves",
+        engine_compact: "compact context before the next turn",
+        engine_advance: "switch phase {from} -> {to}",
+        engine_complete: "mark run complete",
+        observer_seen: "observed directive {directive}",
+        observer_dropped: "observer offline, event dropped"
+      }
     },
     problems: {
       eyebrow: "WTL이 존재하는 이유",
