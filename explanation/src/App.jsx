@@ -1,6 +1,5 @@
 import { useEffect, useState } from "react";
 import {
-  AnimatePresence,
   MotionConfig,
   motion,
   useReducedMotion,
@@ -349,476 +348,60 @@ function LifecycleRail({ steps }) {
   );
 }
 
-let explorerLogId = 0;
-const EXPLORER_DEFAULT_CONTROLS = {
-  needsInput: false,
-  recoverableFailure: false,
-  contextOverflow: false,
-  phaseGoalMet: false,
-  completionApproved: false,
-  observerOnline: true
-};
-const EXPLORER_SCENARIOS = [
-  { id: "continue", phaseIndex: 0, accent: "coral", controls: {} },
-  { id: "wait", phaseIndex: 1, accent: "gold", controls: { needsInput: true } },
-  { id: "retry", phaseIndex: 1, accent: "gold", controls: { recoverableFailure: true } },
-  { id: "compact", phaseIndex: 1, accent: "coral", controls: { contextOverflow: true } },
-  { id: "advance_phase", phaseIndex: 0, accent: "teal", controls: { phaseGoalMet: true } },
-  {
-    id: "complete",
-    phaseIndex: 2,
-    accent: "teal",
-    controls: { phaseGoalMet: true, completionApproved: true }
-  }
-];
-
-function nextExplorerLogId() {
-  explorerLogId += 1;
-  return explorerLogId;
-}
-
-function getExplorerScenarioState(scenarioId, observerOnline = true) {
-  const scenario = EXPLORER_SCENARIOS.find((item) => item.id === scenarioId) || EXPLORER_SCENARIOS[0];
-
-  return {
-    phaseIndex: scenario.phaseIndex,
-    controls: {
-      ...EXPLORER_DEFAULT_CONTROLS,
-      ...scenario.controls,
-      observerOnline
-    }
-  };
-}
-
-function getExplorerDecision({
-  needsInput,
-  recoverableFailure,
-  contextOverflow,
-  phaseGoalMet,
-  completionApproved,
-  phaseIndex,
-  phaseCount
-}) {
-  const inFinalPhase = phaseIndex === phaseCount - 1;
-
-  if (needsInput) {
-    return { directive: "wait", tone: "gold", reasonKey: "wait" };
-  }
-
-  if (recoverableFailure) {
-    return { directive: "retry", tone: "gold", reasonKey: "retry" };
-  }
-
-  if (contextOverflow) {
-    return { directive: "compact", tone: "coral", reasonKey: "compact" };
-  }
-
-  if (phaseGoalMet && !inFinalPhase) {
-    return { directive: "advance_phase", tone: "teal", reasonKey: "advance_phase" };
-  }
-
-  if (phaseGoalMet && inFinalPhase && completionApproved) {
-    return { directive: "complete", tone: "teal", reasonKey: "complete" };
-  }
-
-  if (phaseGoalMet && inFinalPhase && !completionApproved) {
-    return { directive: "continue", tone: "coral", reasonKey: "gate_closed" };
-  }
-
-  return { directive: "continue", tone: "coral", reasonKey: "continue" };
-}
-
-function ExploreScenarioButton({ label, body, directive, active, accent, onClick }) {
-  return (
-    <button
-      type="button"
-      className={`explore-scenario explore-toggle-${accent}${active ? " is-active" : ""}`}
-      aria-pressed={active}
-      onClick={onClick}
-    >
-      <div className="explore-scenario-top">
-        <strong>{label}</strong>
-        <span className={`explore-directive-chip explore-directive-chip-${directive}`}>{directive}</span>
-      </div>
-      <span>{body}</span>
-    </button>
-  );
-}
-
-function ExplorableLoop({ t }) {
-  const reduceMotion = useReducedMotion();
-  const explore = t.explore;
-  const phaseNames = explore.phaseNames;
-  const initialState = getExplorerScenarioState("continue");
-  const [selectedScenario, setSelectedScenario] = useState("continue");
-  const [phaseIndex, setPhaseIndex] = useState(initialState.phaseIndex);
-  const [turnCount, setTurnCount] = useState(1);
-  const [retryCount, setRetryCount] = useState(0);
-  const [compactCount, setCompactCount] = useState(0);
-  const [completed, setCompleted] = useState(false);
-  const [pulseCount, setPulseCount] = useState(0);
-  const [lastDirective, setLastDirective] = useState("continue");
-  const [logEntries, setLogEntries] = useState(() => [
+function DiagramSection({ t }) {
+  const items = [
     {
-      id: nextExplorerLogId(),
-      actor: "observer",
-      tone: "teal",
-      text: explore.log.boot
+      key: "engine",
+      title: "Engine",
+      tag: t.loopMap.engine.tag,
+      body: t.loopMap.engine.body
+    },
+    {
+      key: "policy",
+      title: "Policy",
+      tag: t.loopMap.policy.tag,
+      body: t.loopMap.policy.body
+    },
+    {
+      key: "observer",
+      title: "Observer",
+      tag: t.loopMap.observer.tag,
+      body: t.loopMap.observer.body
     }
-  ]);
-  const [controls, setControls] = useState({
-    ...initialState.controls
-  });
-
-  const decision = getExplorerDecision({
-    ...controls,
-    phaseIndex,
-    phaseCount: phaseNames.length
-  });
-  const isFinalPhase = phaseIndex === phaseNames.length - 1;
-  const activeScenario = explore.scenarios[selectedScenario];
-  const runState = completed
-    ? explore.runStates.completed
-    : decision.directive === "wait"
-      ? explore.runStates.waiting
-      : explore.runStates.live;
-  const engineStatus = completed
-    ? explore.engineStatus.completed
-    : controls.needsInput
-      ? explore.engineStatus.waiting
-      : explore.engineStatus.ready;
-  const observerStatus = controls.observerOnline
-    ? explore.status.online
-    : explore.status.offline;
-
-  function selectScenario(scenarioId) {
-    const nextState = getExplorerScenarioState(scenarioId, controls.observerOnline);
-    setSelectedScenario(scenarioId);
-    setPhaseIndex(nextState.phaseIndex);
-    setControls(nextState.controls);
-    setCompleted(false);
-  }
-
-  function toggleObserver() {
-    setControls((current) => ({ ...current, observerOnline: !current.observerOnline }));
-  }
-
-  function resetExplorer() {
-    const nextState = getExplorerScenarioState("continue");
-    setSelectedScenario("continue");
-    setPhaseIndex(nextState.phaseIndex);
-    setTurnCount(1);
-    setRetryCount(0);
-    setCompactCount(0);
-    setCompleted(false);
-    setPulseCount(0);
-    setLastDirective("continue");
-    setControls(nextState.controls);
-    setLogEntries([
-      {
-        id: nextExplorerLogId(),
-        actor: "observer",
-        tone: "teal",
-        text: explore.log.boot
-      }
-    ]);
-  }
-
-  function pushLogBatch(items) {
-    setLogEntries((current) => [...items, ...current].slice(0, 8));
-  }
-
-  function applyDirective() {
-    if (completed) {
-      return;
-    }
-
-    const logs = [];
-    const currentTurn = turnCount;
-    const currentPhase = phaseNames[phaseIndex];
-
-    logs.push({
-      id: nextExplorerLogId(),
-      actor: "policy",
-      tone: decision.tone,
-      text: explore.log[`policy_${decision.directive}`]
-    });
-
-    switch (decision.directive) {
-      case "wait":
-        logs.push({
-          id: nextExplorerLogId(),
-          actor: "engine",
-          tone: "gold",
-          text: explore.log.engine_wait
-        });
-        break;
-      case "retry":
-        logs.push({
-          id: nextExplorerLogId(),
-          actor: "engine",
-          tone: "gold",
-          text: explore.log.engine_retry.replace("{n}", currentTurn)
-        });
-        setRetryCount((count) => count + 1);
-        setControls((current) => ({ ...current, recoverableFailure: false }));
-        setSelectedScenario("continue");
-        break;
-      case "compact":
-        logs.push({
-          id: nextExplorerLogId(),
-          actor: "engine",
-          tone: "coral",
-          text: explore.log.engine_compact
-        });
-        setCompactCount((count) => count + 1);
-        setControls((current) => ({ ...current, contextOverflow: false }));
-        setSelectedScenario("continue");
-        break;
-      case "advance_phase":
-        logs.push({
-          id: nextExplorerLogId(),
-          actor: "engine",
-          tone: "teal",
-          text: explore.log.engine_advance
-            .replace("{from}", currentPhase)
-            .replace("{to}", phaseNames[Math.min(phaseIndex + 1, phaseNames.length - 1)])
-        });
-        setPhaseIndex((index) => Math.min(index + 1, phaseNames.length - 1));
-        setControls((current) => ({
-          ...current,
-          phaseGoalMet: false,
-          completionApproved: false
-        }));
-        setSelectedScenario("continue");
-        break;
-      case "complete":
-        logs.push({
-          id: nextExplorerLogId(),
-          actor: "engine",
-          tone: "teal",
-          text: explore.log.engine_complete
-        });
-        setCompleted(true);
-        break;
-      default:
-        logs.push({
-          id: nextExplorerLogId(),
-          actor: "engine",
-          tone: "coral",
-          text: explore.log.engine_continue.replace("{n}", currentTurn + 1)
-        });
-        setTurnCount((count) => count + 1);
-        break;
-    }
-
-    logs.push({
-      id: nextExplorerLogId(),
-      actor: "observer",
-      tone: controls.observerOnline ? "teal" : "muted",
-      text: controls.observerOnline
-        ? explore.log.observer_seen.replace("{directive}", decision.directive)
-        : explore.log.observer_dropped
-    });
-
-    setLastDirective(decision.directive);
-    setPulseCount((count) => count + 1);
-    pushLogBatch(logs);
-  }
+  ];
 
   return (
-    <section className="section explore-section" id="explore">
-      <SectionIntro
-        eyebrow={explore.eyebrow}
-        title={explore.title}
-        body={explore.body}
-      />
+    <section className="section diagram-section" id="diagram">
+      <Reveal className="diagram-bento" amount={0.12}>
+        <div className="diagram-main-card">
+          <div className="diagram-main-copy">
+            <p className="diagram-kicker">{t.loopMap.eyebrow}</p>
+            <h2>{t.loopMap.h2}</h2>
+            <p className="diagram-lead">{t.loopMap.body}</p>
+            <p className="diagram-summary">{t.loopMap.lead}</p>
 
-      <div className="explore-shell">
-        <Reveal className="panel explore-controls" amount={0.15}>
-          <div className="explore-block">
-            <div className="explore-block-head">
-              <h3>{explore.controlsTitle}</h3>
-              <p>{explore.controlsBody}</p>
-            </div>
-
-            <div className="explore-step-strip">
-              {explore.steps.map((step) => (
-                <div key={step} className="explore-step-card">
-                  {step}
-                </div>
+            <ul className="diagram-note-list">
+              {t.loopMap.notes.map((item) => (
+                <li key={item}>{item}</li>
               ))}
-            </div>
-
-            <div className="explore-scenario-grid">
-              {EXPLORER_SCENARIOS.map((scenario) => (
-                <ExploreScenarioButton
-                  key={scenario.id}
-                  label={explore.scenarios[scenario.id].label}
-                  body={explore.scenarios[scenario.id].body}
-                  directive={scenario.id}
-                  active={selectedScenario === scenario.id}
-                  accent={scenario.accent}
-                  onClick={() => selectScenario(scenario.id)}
-                />
-              ))}
-            </div>
-
-            <div className="explore-helper-row">
-              <div className="explore-helper-card">
-                <span>{explore.phaseLabel}</span>
-                <strong>
-                  {phaseNames[phaseIndex]}
-                  {isFinalPhase ? ` · ${explore.finalPhase}` : ""}
-                </strong>
-              </div>
-              <button
-                type="button"
-                className={`explore-mini-toggle${controls.observerOnline ? " is-active" : ""}`}
-                aria-pressed={controls.observerOnline}
-                onClick={toggleObserver}
-              >
-                <span>{explore.observerTitle}</span>
-                <strong>
-                  {controls.observerOnline ? explore.observerBodyOn : explore.observerBodyOff}
-                </strong>
-              </button>
-            </div>
-
-            <div className="explore-phase-guide">
-              <p className="explore-subhead">{explore.phaseGuide.label}</p>
-              <strong>{explore.phaseGuide.title}</strong>
-              <p>{explore.phaseGuide.body}</p>
-              <ul className="explore-phase-list">
-                {explore.phaseGuide.points.map((item) => (
-                  <li key={item}>{item}</li>
-                ))}
-              </ul>
-            </div>
+            </ul>
           </div>
 
-          <div className="explore-action-row">
-            <button
-              type="button"
-              className="button button-primary"
-              onClick={applyDirective}
-              disabled={completed}
-            >
-              {completed ? explore.buttons.completed : explore.buttons.apply}
-            </button>
-            <button
-              type="button"
-              className="button button-secondary"
-              onClick={resetExplorer}
-            >
-              {explore.buttons.reset}
-            </button>
+          <div className="diagram-main-visual">
+            <HeroDiagram t={t} />
           </div>
-        </Reveal>
+        </div>
 
-        <Reveal className="explore-stage" amount={0.12} delay={0.06}>
-          <div className="explore-status-grid">
-            <div className="explore-stat">
-              <span>{explore.status.phase}</span>
-              <strong>{phaseNames[phaseIndex]}</strong>
+        <div className="diagram-card-grid">
+          {items.map((item) => (
+            <div key={item.key} className={`diagram-copy-card diagram-copy-${item.key}`}>
+              <span>{item.title}</span>
+              <strong>{item.tag}</strong>
+              <p>{item.body}</p>
             </div>
-            <div className="explore-stat">
-              <span>{explore.status.turn}</span>
-              <strong>{turnCount}</strong>
-            </div>
-            <div className="explore-stat">
-              <span>{explore.status.retries}</span>
-              <strong>{retryCount}</strong>
-            </div>
-            <div className="explore-stat">
-              <span>{explore.status.compactions}</span>
-              <strong>{compactCount}</strong>
-            </div>
-            <div className="explore-stat">
-              <span>{explore.status.observer}</span>
-              <strong>{observerStatus}</strong>
-            </div>
-            <div className="explore-stat">
-              <span>{explore.status.run}</span>
-              <strong>{runState}</strong>
-            </div>
-          </div>
-
-          <div className="explore-main-grid">
-            <motion.div
-              className={`explore-preview explore-preview-${decision.tone}`}
-              animate={reduceMotion ? undefined : { scale: pulseCount ? [1, 1.02, 1] : 1 }}
-              transition={{ duration: 0.45, ease: "easeOut" }}
-            >
-              <div className="explore-preview-top">
-                <p>{explore.preview.policy}</p>
-                <span className={`explore-directive-chip explore-directive-chip-${decision.directive}`}>
-                  {decision.directive}
-                </span>
-              </div>
-              <h3>{explore.reasonTitles[decision.reasonKey]}</h3>
-              <p className="explore-preview-body">{explore.preview.help}</p>
-
-              <div className="explore-summary-grid">
-                <div className="explore-role-card">
-                  <span className="explore-role-name">{explore.preview.situation}</span>
-                  <strong>{activeScenario.label}</strong>
-                  <p>{activeScenario.body}</p>
-                </div>
-                <div className="explore-role-card explore-role-policy">
-                  <span className="explore-role-name">{explore.preview.policy}</span>
-                  <strong>{decision.directive}</strong>
-                  <p>{explore.engineActions[decision.directive]}</p>
-                </div>
-                <div className="explore-role-card explore-role-engine">
-                  <span className="explore-role-name">{explore.preview.engine}</span>
-                  <strong>{engineStatus}</strong>
-                  <p>{explore.engineDetails[decision.directive]}</p>
-                </div>
-                <div className="explore-role-card explore-role-observer">
-                  <span className="explore-role-name">{explore.preview.observer}</span>
-                  <strong>{observerStatus}</strong>
-                  <p>
-                    {controls.observerOnline
-                      ? explore.observerStates.online
-                      : explore.observerStates.offline}
-                  </p>
-                </div>
-              </div>
-
-              <div className="explore-rule-box">
-                <p className="explore-subhead">{explore.preview.why}</p>
-                <strong>{explore.ruleTitles[decision.reasonKey]}</strong>
-                <p className="explore-preview-body">{explore.ruleBodies[decision.reasonKey]}</p>
-              </div>
-            </motion.div>
-
-            <div className="explore-log-shell">
-              <div className="explore-log-head">
-                <p>{explore.preview.eventLog}</p>
-                <span>{explore.status.lastDirective}: {lastDirective}</span>
-              </div>
-              <div className="explore-log-list" role="log" aria-live="polite">
-                <AnimatePresence initial={false}>
-                  {logEntries.map((entry) => (
-                    <motion.div
-                      key={entry.id}
-                      className={`explore-log-entry explore-log-${entry.tone}`}
-                      initial={reduceMotion ? false : { opacity: 0, y: -10 }}
-                      animate={reduceMotion ? { opacity: 1 } : { opacity: 1, y: 0 }}
-                      exit={reduceMotion ? { opacity: 0 } : { opacity: 0, y: 10 }}
-                      transition={{ duration: 0.24 }}
-                    >
-                      <span>{entry.actor}</span>
-                      <strong>{entry.text}</strong>
-                    </motion.div>
-                  ))}
-                </AnimatePresence>
-              </div>
-            </div>
-          </div>
-        </Reveal>
-      </div>
+          ))}
+        </div>
+      </Reveal>
     </section>
   );
 }
@@ -832,7 +415,6 @@ export default function App() {
     mass: 0.22
   });
   const heroShift = useTransform(scrollYProgress, [0, 0.25], [0, reduceMotion ? 0 : -84]);
-  const heroRotate = useTransform(scrollYProgress, [0, 0.3], [0, reduceMotion ? 0 : -2]);
 
   const [lang] = useState(() =>
     window.location.pathname.startsWith("/ko") ? "ko" : "en"
@@ -851,7 +433,7 @@ export default function App() {
               <span>WhatTheLoop</span>
             </div>
             <nav>
-              <a href="#explore">{t.nav.explore}</a>
+              <a href="#diagram">{t.nav.diagram}</a>
               <a href="#problems">{t.nav.problems}</a>
               <a href="#roles">{t.nav.roles}</a>
               <a href="#directives">{t.nav.directives}</a>
@@ -873,34 +455,20 @@ export default function App() {
                 <h1>{t.hero.h1}</h1>
                 <p className="hero-text">{t.hero.body}</p>
                 <div className="hero-actions">
-                  <a href="#roles" className="button button-primary">
+                  <a href="#diagram" className="button button-primary">
                     {t.hero.btnSplit}
                   </a>
                   <a href="#lifecycle" className="button button-secondary">
                     {t.hero.btnLoop}
                   </a>
                 </div>
-                <div className="hero-facts">
-                  {t.hero.facts.map(f => (
-                    <div key={f.strong}>
-                      <strong>{f.strong}</strong>
-                      <span>{f.span}</span>
-                    </div>
-                  ))}
-                </div>
-              </Reveal>
-            </motion.div>
-
-            <motion.div className="hero-visual" style={{ rotate: heroRotate }}>
-              <Reveal className="hero-visual-inner" amount={0.1} delay={0.15}>
-                <HeroDiagram t={t} />
               </Reveal>
             </motion.div>
           </div>
         </header>
 
         <main>
-          <ExplorableLoop t={t} />
+          <DiagramSection t={t} />
 
           <section className="section problems-section" id="problems">
             <SectionIntro

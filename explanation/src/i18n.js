@@ -2,7 +2,7 @@ export const i18n = {
   en: {
     langToggle: "한국어",
     nav: {
-      explore: "Explore",
+      diagram: "Diagram",
       problems: "Problems",
       roles: "Roles",
       directives: "Directives",
@@ -118,13 +118,16 @@ export const i18n = {
         completed: "Terminated by explicit policy approval"
       },
       preview: {
+        kicker: "Current decision",
         situation: "Situation",
         policy: "Policy says",
         engine: "Engine does",
         observer: "Observer sees",
         help: "Read the four boxes once from top-left to bottom-right. That is one loop decision.",
         why: "Rule being protected",
-        eventLog: "Event log"
+        eventLog: "Event log",
+        detailSummary: "Run details",
+        logSummary: "Event log"
       },
       engineActions: {
         continue: "Return `continue`.",
@@ -181,14 +184,14 @@ export const i18n = {
         policy_compact: "return compact",
         policy_advance_phase: "return advance_phase",
         policy_complete: "return complete",
-        engine_continue: "turn {n} 시작",
-        engine_retry: "turn {n} 재시도",
-        engine_wait: "외부 입력이 해결될 때까지 대기",
-        engine_compact: "다음 턴 전에 컨텍스트 압축",
-        engine_advance: "단계 전환 {from} -> {to}",
-        engine_complete: "실행 완료로 표시",
-        observer_seen: "directive {directive} 관찰됨",
-        observer_dropped: "observer 오프라인, 이벤트 유실"
+        engine_continue: "start turn {n}",
+        engine_retry: "retry turn {n}",
+        engine_wait: "pause until external input resolves",
+        engine_compact: "compact context before the next turn",
+        engine_advance: "switch phase {from} -> {to}",
+        engine_complete: "mark run complete",
+        observer_seen: "observed directive {directive}",
+        observer_dropped: "observer offline, event dropped"
       }
     },
     problems: {
@@ -305,20 +308,28 @@ export const i18n = {
       ]
     },
     loopMap: {
-      eyebrow: "Animated system map",
-      h2: "Signals move, responsibilities stay fixed.",
-      body: "The point of WTL is not that nothing moves. It is that movement has a contract. The engine cycles, the policy interprets, the observer listens, and the run stays legible even while directives branch into waiting or completion.",
+      eyebrow: "System diagram",
+      h2: "One run, three roles, two kinds of signal.",
+      body: "This is the same loop from the hero, moved into the document so it can be read with the surrounding explanation. Outcomes travel from the engine to policy, directives come back, and observers only watch the traffic.",
+      kicker: "How to read it",
+      title: "The arrows move, but responsibility stays fixed.",
+      lead: "Read the diagram as a contract, not as a UI mock. Each box keeps one job, and each arrow means one kind of handoff.",
+      notes: [
+        "Engine sends an outcome upward after a turn and waits for meaning to come back.",
+        "Policy returns a directive, but never performs the mechanics itself.",
+        "Observer receives events from the side and can disappear without breaking the run."
+      ],
       engine: {
         tag: "Mechanics",
-        owns: ["Starts and runs turns", "Enforces iteration limits", "Handles retries and waits", "Owns thread lifecycle"]
+        body: "Starts turns, applies limits, and carries out retries, waits, and termination."
       },
       policy: {
         tag: "Meaning",
-        owns: ["Interprets turn outcomes", "Returns directives", "Controls completion gating", "Owns phase ordering"]
+        body: "Interprets outcomes, returns directives, and decides whether a run may continue or end."
       },
       observer: {
-        tag: "Visibility · never controls",
-        owns: ["Receives all lifecycle events", "Cannot steer execution", "Logs · traces · UI · audit"]
+        tag: "Visibility only",
+        body: "Records what happened for logs, traces, or UI, but never becomes a control dependency."
       },
       connOutcome: "outcome →",
       connDirective: "← directive"
@@ -353,7 +364,7 @@ export const i18n = {
   ko: {
     langToggle: "EN",
     nav: {
-      explore: "탐색",
+      diagram: "다이어그램",
       problems: "문제",
       roles: "역할",
       directives: "지시어",
@@ -469,13 +480,16 @@ export const i18n = {
         completed: "정책의 명시적 승인으로 종료됨"
       },
       preview: {
+        kicker: "현재 결정",
         situation: "상황",
         policy: "Policy의 판단",
         engine: "Engine의 동작",
         observer: "Observer가 보는 것",
         help: "왼쪽 위에서 오른쪽 아래까지 네 칸만 읽으면, 그 순간의 루프 결정이 보입니다.",
         why: "지키는 규칙",
-        eventLog: "이벤트 로그"
+        eventLog: "이벤트 로그",
+        detailSummary: "실행 상태 보기",
+        logSummary: "이벤트 로그 보기"
       },
       engineActions: {
         continue: "`continue`를 반환합니다.",
@@ -532,14 +546,14 @@ export const i18n = {
         policy_compact: "return compact",
         policy_advance_phase: "return advance_phase",
         policy_complete: "return complete",
-        engine_continue: "start turn {n}",
-        engine_retry: "retry turn {n}",
-        engine_wait: "pause until external input resolves",
-        engine_compact: "compact context before the next turn",
-        engine_advance: "switch phase {from} -> {to}",
-        engine_complete: "mark run complete",
-        observer_seen: "observed directive {directive}",
-        observer_dropped: "observer offline, event dropped"
+        engine_continue: "{n}번 턴 시작",
+        engine_retry: "{n}번 턴 재시도",
+        engine_wait: "외부 입력이 해결될 때까지 대기",
+        engine_compact: "다음 턴 전에 컨텍스트 압축",
+        engine_advance: "단계 전환 {from} -> {to}",
+        engine_complete: "실행 완료로 표시",
+        observer_seen: "directive {directive} 관찰됨",
+        observer_dropped: "observer 오프라인, 이벤트 유실"
       }
     },
     problems: {
@@ -656,20 +670,28 @@ export const i18n = {
       ]
     },
     loopMap: {
-      eyebrow: "애니메이션 시스템 맵",
-      h2: "신호는 움직이고, 책임은 고정됩니다.",
-      body: "WTL의 핵심은 아무것도 움직이지 않는다는 것이 아닙니다. 움직임에 계약이 있다는 것입니다. 엔진은 순환하고, 정책은 해석하며, 옵저버는 듣습니다. 지시어가 대기나 완료로 분기되더라도 실행은 명확하게 유지됩니다.",
+      eyebrow: "시스템 다이어그램",
+      h2: "하나의 실행, 세 가지 역할, 두 종류의 신호.",
+      body: "히어로에 있던 같은 루프를 문서 본문으로 옮겼습니다. 주변 설명과 함께 읽을 수 있도록 배치한 것입니다. outcome은 engine에서 policy로 가고, directive는 다시 돌아오며, observer는 그 흐름만 봅니다.",
+      kicker: "읽는 방법",
+      title: "화살표는 움직여도, 책임은 고정됩니다.",
+      lead: "이 그림은 UI 시안이 아니라 계약을 읽는 도식입니다. 각 박스는 하나의 역할만 맡고, 각 화살표는 하나의 핸드오프만 뜻합니다.",
+      notes: [
+        "Engine은 턴이 끝난 뒤 outcome을 보내고, 의미가 돌아올 때까지 기다립니다.",
+        "Policy는 directive를 반환하지만, 실행 메커니즘 자체를 수행하지는 않습니다.",
+        "Observer는 옆에서 이벤트를 기록할 뿐이며, 사라져도 실행 정합성은 깨지지 않습니다."
+      ],
       engine: {
         tag: "메커니즘",
-        owns: ["턴 시작 및 실행", "반복 제한 강제", "재시도 및 대기 처리", "스레드 생명주기 소유"]
+        body: "턴을 시작하고, 제한을 적용하며, 재시도·대기·종료 같은 메커니즘을 수행합니다."
       },
       policy: {
         tag: "의미",
-        owns: ["턴 결과 해석", "지시어 반환", "완료 게이팅 제어", "단계 순서 소유"]
+        body: "결과를 해석하고 지시어를 반환하며, 실행이 계속될지 끝날지를 판단합니다."
       },
       observer: {
-        tag: "가시성 · 제어 불가",
-        owns: ["모든 생명주기 이벤트 수신", "실행 조종 불가", "로그 · 트레이스 · UI · 감사"]
+        tag: "가시성 전용",
+        body: "로그, 트레이스, UI를 위해 일어난 일을 기록하지만, 제어 의존성은 되지 않습니다."
       },
       connOutcome: "결과 →",
       connDirective: "← 지시어"
