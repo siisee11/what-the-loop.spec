@@ -376,6 +376,182 @@ function WorkflowDiagram({ t }) {
   );
 }
 
+// ── Policy Examples ──────────────────────────────────────────────────────────
+
+const POLICY_STEPS = {
+  phased_delivery: [
+    { phase: "planning",     directive: "advance_phase", isLoopBack: false },
+    { phase: "implementing", directive: "continue",      isLoopBack: false },
+    { phase: "implementing", directive: "advance_phase", isLoopBack: false },
+    { phase: "review",       directive: "complete",      isLoopBack: false },
+  ],
+  gan: [
+    { phase: "planning",   directive: "advance_phase", isLoopBack: false },
+    { phase: "generating", directive: "advance_phase", isLoopBack: false },
+    { phase: "evaluating", directive: "advance_phase", isLoopBack: true  },
+    { phase: "generating", directive: "advance_phase", isLoopBack: false },
+    { phase: "evaluating", directive: "complete",      isLoopBack: false },
+  ],
+};
+
+const POLICY_STEP_DELAY = 1700;
+
+// Node centers (cx, cy) for 3-phase SVG layout
+const PHASE_NODES = [
+  { cx: 55,  cy: 30 },
+  { cx: 180, cy: 30 },
+  { cx: 305, cy: 30 },
+];
+const NODE_W = 88, NODE_H = 32, NODE_R = 7;
+
+function PolicyFlowCard({ item, index }) {
+  const reduceMotion = useReducedMotion();
+  const [stepIdx, setStepIdx] = useState(0);
+  const steps = POLICY_STEPS[item.id];
+  const step = steps[stepIdx];
+  const activePhaseIdx = item.phases.findIndex(p => p.id === step.phase);
+  const isGAN = item.id === "gan";
+
+  useEffect(() => {
+    if (reduceMotion) return;
+    const tid = setTimeout(() => {
+      setStepIdx(i => (i + 1) % steps.length);
+    }, POLICY_STEP_DELAY);
+    return () => clearTimeout(tid);
+  }, [stepIdx, reduceMotion, steps.length]);
+
+  return (
+    <Reveal className="policy-flow-card" delay={index * 0.1}>
+      <div className="policy-card-top">
+        <div className="policy-card-header">
+          <span className="policy-name">{item.name}</span>
+          <span className="policy-tag">{item.tag}</span>
+        </div>
+        <p className="policy-body">{item.body}</p>
+      </div>
+
+      <div className="policy-diagram-area">
+        <svg
+          viewBox={`0 0 360 ${isGAN ? 92 : 56}`}
+          className="policy-svg"
+          aria-hidden="true"
+        >
+          {/* Phase nodes */}
+          {item.phases.map((phase, i) => {
+            const { cx, cy } = PHASE_NODES[i];
+            const isActive = i === activePhaseIdx;
+            const isDone = i < activePhaseIdx;
+            return (
+              <g key={phase.id}>
+                <rect
+                  x={cx - NODE_W / 2} y={cy - NODE_H / 2}
+                  width={NODE_W} height={NODE_H} rx={NODE_R}
+                  fill={isActive ? "var(--gold)" : isDone ? "var(--teal)" : "var(--surface)"}
+                  stroke={isActive ? "var(--ink)" : "color-mix(in srgb, var(--ink) 28%, transparent)"}
+                  strokeWidth={isActive ? 2.5 : 1.5}
+                  opacity={isDone ? 0.7 : 1}
+                />
+                <text
+                  x={cx} y={cy + 5}
+                  textAnchor="middle"
+                  fontSize="10.5"
+                  fontWeight={isActive ? "700" : "500"}
+                  fontFamily="Space Grotesk, sans-serif"
+                  fill={isActive || isDone ? "var(--ink)" : "var(--text)"}
+                >
+                  {phase.name}
+                </text>
+              </g>
+            );
+          })}
+
+          {/* Forward arrows between nodes */}
+          {item.phases.slice(0, -1).map((_, i) => {
+            const x1 = PHASE_NODES[i].cx + NODE_W / 2 + 3;
+            const x2 = PHASE_NODES[i + 1].cx - NODE_W / 2 - 3;
+            const y = PHASE_NODES[i].cy;
+            return (
+              <g key={`fw-${i}`} opacity="0.38">
+                <line x1={x1} y1={y} x2={x2 - 5} y2={y}
+                  stroke="var(--ink)" strokeWidth="1.5" />
+                <polygon
+                  points={`${x2 - 6},${y - 3.5} ${x2},${y} ${x2 - 6},${y + 3.5}`}
+                  fill="var(--ink)" />
+              </g>
+            );
+          })}
+
+          {/* GAN adversarial loop-back arc */}
+          {isGAN && (
+            <motion.g
+              animate={!reduceMotion ? { opacity: step.isLoopBack ? 1 : 0.15 } : {}}
+              transition={{ duration: 0.4 }}
+            >
+              {/* U-shaped path from Evaluating ↓ → ↑ Generating */}
+              <path
+                d={`M ${PHASE_NODES[2].cx} ${PHASE_NODES[2].cy + NODE_H / 2 + 1}
+                    L ${PHASE_NODES[2].cx} 71
+                    L ${PHASE_NODES[1].cx} 71
+                    L ${PHASE_NODES[1].cx} ${PHASE_NODES[1].cy + NODE_H / 2 + 1}`}
+                fill="none"
+                stroke="var(--coral)"
+                strokeWidth="1.5"
+                strokeDasharray="4 3"
+              />
+              {/* Arrowhead pointing up into Generating */}
+              <polygon
+                points={`${PHASE_NODES[1].cx - 4},${PHASE_NODES[1].cy + NODE_H / 2 + 8} ${PHASE_NODES[1].cx},${PHASE_NODES[1].cy + NODE_H / 2} ${PHASE_NODES[1].cx + 4},${PHASE_NODES[1].cy + NODE_H / 2 + 8}`}
+                fill="var(--coral)"
+              />
+              {/* Loop label */}
+              <text
+                x={(PHASE_NODES[1].cx + PHASE_NODES[2].cx) / 2}
+                y="85"
+                textAnchor="middle"
+                fontSize="9"
+                fontFamily="Space Grotesk, sans-serif"
+                fill="var(--coral)"
+              >
+                {item.loopNote}
+              </text>
+            </motion.g>
+          )}
+        </svg>
+
+        {/* Current directive badge */}
+        <div className="policy-directive-row">
+          <motion.span
+            key={`${item.id}-${stepIdx}`}
+            className={`wtl-chip wtl-chip-inline wtl-chip-${step.directive}`}
+            initial={reduceMotion ? {} : { opacity: 0, y: 4 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.28 }}
+          >
+            {step.directive}
+          </motion.span>
+        </div>
+      </div>
+    </Reveal>
+  );
+}
+
+function PoliciesSection({ t }) {
+  return (
+    <section className="section policies-section" id="policies">
+      <SectionIntro
+        eyebrow={t.policies.eyebrow}
+        title={t.policies.title}
+        body={t.policies.body}
+      />
+      <div className="policies-grid">
+        {t.policies.items.map((item, i) => (
+          <PolicyFlowCard key={item.id} item={item} index={i} />
+        ))}
+      </div>
+    </section>
+  );
+}
+
 function ProblemCard({ item, index }) {
   return (
     <Reveal delay={index * 0.06} amount={0.15}>
@@ -566,6 +742,7 @@ export default function App() {
             <nav>
               <a href="#diagram">{t.nav.diagram}</a>
               <a href="#workflow">{t.nav.workflow}</a>
+              <a href="#policies">{t.nav.policies}</a>
               <a href="#problems">{t.nav.problems}</a>
               <a href="#roles">{t.nav.roles}</a>
               <a href="#directives">{t.nav.directives}</a>
@@ -602,6 +779,7 @@ export default function App() {
         <main>
           <DiagramSection t={t} />
           <ExampleWorkflowSection t={t} />
+          <PoliciesSection t={t} />
 
           <section className="section problems-section" id="problems">
             <SectionIntro

@@ -4,6 +4,7 @@ export const i18n = {
     nav: {
       diagram: "Diagram",
       workflow: "Workflow",
+      policies: "Policies",
       problems: "Problems",
       roles: "Roles",
       directives: "Directives",
@@ -428,6 +429,37 @@ export const i18n = {
       connOutcome: "outcome →",
       connDirective: "← directive"
     },
+    policies: {
+      eyebrow: "Policy examples",
+      title: "Every policy shapes the loop differently.",
+      body: "WTL separates mechanics from meaning so the same engine can run radically different workflows. Here are two example policies — a linear phased delivery and an adversarial GAN loop.",
+      items: [
+        {
+          id: "phased_delivery",
+          name: "Phased Delivery",
+          tag: "Linear three-phase progression",
+          body: "A policy that drives the run through Planning, Implementing, and Review in strict sequence. `advance_phase` installs each next stage. `complete` only appears in Review after delivery is confirmed.",
+          loopNote: null,
+          phases: [
+            { id: "planning", name: "Planning" },
+            { id: "implementing", name: "Implementing" },
+            { id: "review", name: "Review" }
+          ]
+        },
+        {
+          id: "gan",
+          name: "GAN Policy",
+          tag: "Adversarial generation loop",
+          body: "Inspired by Generative Adversarial Networks. Planner writes the spec once. Then Generator and Evaluator run in opposition: if the score is below threshold, `advance_phase` sends the Generator back with the critique injected into the next prompt. When the Evaluator approves, `complete` ends the run.",
+          loopNote: "critique injected on retry",
+          phases: [
+            { id: "planning", name: "Planning" },
+            { id: "generating", name: "Generating" },
+            { id: "evaluating", name: "Evaluating" }
+          ]
+        }
+      ]
+    },
     guarantees: {
       eyebrow: "Hard guarantees",
       h2: "The spec defines what must stay true.",
@@ -481,6 +513,7 @@ Done: your request was completed successfully.`
     nav: {
       diagram: "다이어그램",
       workflow: "워크플로",
+      policies: "Policy 예시",
       problems: "문제",
       roles: "역할",
       directives: "지시어",
@@ -904,6 +937,37 @@ Done: your request was completed successfully.`
       },
       connOutcome: "결과 →",
       connDirective: "← 지시어"
+    },
+    policies: {
+      eyebrow: "Policy 예시",
+      title: "Policy마다 루프의 형태가 달라집니다.",
+      body: "WTL은 메커니즘과 의미를 분리하기 때문에 같은 Engine으로 전혀 다른 워크플로를 실행할 수 있습니다. 선형 단계 진행과 대립적 GAN 루프, 두 가지 Policy 예시를 소개합니다.",
+      items: [
+        {
+          id: "phased_delivery",
+          name: "Phased Delivery",
+          tag: "선형 3단계 진행",
+          body: "Planning, Implementing, Review를 순서대로 진행하는 Policy입니다. `advance_phase`로 다음 단계를 설치하고, Review에서 검증이 완료될 때만 `complete`를 반환합니다.",
+          loopNote: null,
+          phases: [
+            { id: "planning", name: "Planning" },
+            { id: "implementing", name: "Implementing" },
+            { id: "review", name: "Review" }
+          ]
+        },
+        {
+          id: "gan",
+          name: "GAN Policy",
+          tag: "대립적 생성 루프",
+          body: "생성적 적대 신경망(GAN)에서 영감을 받은 Policy입니다. Planner가 스펙을 작성하고, Generator와 Evaluator가 대립적으로 동작합니다. 점수가 기준 미달이면 `advance_phase`로 Generator에게 critique를 주입해 재생성을 요청합니다. Evaluator가 승인하면 `complete`로 종료합니다.",
+          loopNote: "critique 주입 후 재시도",
+          phases: [
+            { id: "planning", name: "Planning" },
+            { id: "generating", name: "Generating" },
+            { id: "evaluating", name: "Evaluating" }
+          ]
+        }
+      ]
     },
     guarantees: {
       eyebrow: "강력한 보장",
