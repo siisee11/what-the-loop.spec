@@ -322,25 +322,25 @@ function SwimLaneDiagram({ t }) {
     <div className="swimlane-wrap">
       <svg viewBox={`0 0 ${VW} ${VH}`} className="swimlane-svg" aria-hidden="true">
 
-        {/* Column header — sharp rect, solid border */}
+        {/* Column header — outlined, ink border */}
         <rect x={EX} y={2} width={COL_W} height={HDR - 6} rx={0}
-          fill="var(--coral)" stroke="var(--ink)" strokeWidth={2} />
+          fill="rgba(209,77,44,0.10)" stroke="var(--ink)" strokeWidth={2} />
         <text x={EX + COL_W / 2} y={HDR - 7} textAnchor="middle"
           fontSize={10} fontWeight="900" fontFamily="Archivo Black, sans-serif"
-          fill="#fff">Engine</text>
+          fill="var(--coral)">Engine</text>
 
         <rect x={PX} y={2} width={COL_W} height={HDR - 6} rx={0}
-          fill="var(--gold)" stroke="var(--ink)" strokeWidth={2} />
+          fill="rgba(210,163,58,0.12)" stroke="var(--ink)" strokeWidth={2} />
         <text x={PX + COL_W / 2} y={HDR - 7} textAnchor="middle"
           fontSize={10} fontWeight="900" fontFamily="Archivo Black, sans-serif"
           fill="var(--ink)">Policy</text>
 
-        {/* Column background stripes — flat fill, solid border */}
+        {/* Column background stripes — subtle fill, solid border */}
         <rect x={EX} y={HDR} width={COL_W} height={VH - HDR}
-          fill="rgba(209,77,44,0.05)" rx={0}
+          fill="rgba(209,77,44,0.03)" rx={0}
           stroke="var(--ink)" strokeWidth={2} />
         <rect x={PX} y={HDR} width={COL_W} height={VH - HDR}
-          fill="rgba(210,163,58,0.07)" rx={0}
+          fill="rgba(210,163,58,0.04)" rx={0}
           stroke="var(--ink)" strokeWidth={2} />
 
         {/* Dashed row guide lines across middle zone */}
@@ -406,37 +406,35 @@ function SwimLaneDiagram({ t }) {
           );
         })}
 
-        {/* Outcome arrow line: Engine → Policy */}
-        {animPhase >= 1 && (
-          <line x1={MID_L + 2} y1={rowCY(stepIdx)} x2={MID_R - 2} y2={rowCY(stepIdx)}
-            stroke="var(--coral)" strokeWidth={2} opacity={0.5} />
-        )}
-        {/* Directive arrow line: Policy → Engine */}
-        {animPhase >= 3 && (
-          <line x1={MID_R - 2} y1={rowCY(stepIdx) + 4} x2={MID_L + 2} y2={rowCY(stepIdx) + 4}
-            stroke="var(--teal)" strokeWidth={2} opacity={0.5} />
-        )}
+        {/* Track lines in middle zone — backbone + dashed accent (hero style) */}
+        <line x1={MID_L} y1={rowCY(stepIdx)} x2={MID_R} y2={rowCY(stepIdx)}
+          stroke="var(--ink)" strokeWidth={5} strokeLinecap="round" opacity={0.18} />
+        <line x1={MID_L} y1={rowCY(stepIdx)} x2={MID_R} y2={rowCY(stepIdx)}
+          stroke="var(--coral)" strokeWidth={2.5} strokeLinecap="round"
+          strokeDasharray="8 8" opacity={animPhase >= 1 ? 0.7 : 0.15} />
 
-        {/* Outcome diamond: Engine → Policy (rightward) */}
+        <line x1={MID_R} y1={rowCY(stepIdx) + 6} x2={MID_L} y2={rowCY(stepIdx) + 6}
+          stroke="var(--ink)" strokeWidth={5} strokeLinecap="round" opacity={0.18} />
+        <line x1={MID_R} y1={rowCY(stepIdx) + 6} x2={MID_L} y2={rowCY(stepIdx) + 6}
+          stroke="var(--teal)" strokeWidth={2.5} strokeLinecap="round"
+          strokeDasharray="8 8" opacity={animPhase >= 3 ? 0.7 : 0.15} />
+
+        {/* Outcome circle: Engine → Policy (rightward) — matches hero circle style */}
         {!reduceMotion && animPhase === 1 && (
-          <motion.rect key={`out-${stepIdx}`}
-            width={9} height={9}
-            fill="var(--coral)" stroke="var(--ink)" strokeWidth={1.5}
-            style={{ rotate: "45deg", transformOrigin: "center" }}
-            initial={{ x: MID_L - 4.5, y: rowCY(stepIdx) - 4.5 }}
-            animate={{ x: MID_R - 12, y: rowCY(stepIdx) - 4.5 }}
-            transition={{ duration: 0.48, ease: "easeInOut" }} />
+          <motion.circle key={`out-${stepIdx}`}
+            r={7} fill="var(--coral)" stroke="var(--ink)" strokeWidth={2.5}
+            initial={{ cx: MID_L + 7, cy: rowCY(stepIdx) }}
+            animate={{ cx: MID_R - 7, cy: rowCY(stepIdx) }}
+            transition={{ duration: 0.5, ease: "easeInOut" }} />
         )}
 
-        {/* Directive diamond: Policy → Engine (leftward) */}
+        {/* Directive circle: Policy → Engine (leftward) — matches hero circle style */}
         {!reduceMotion && animPhase === 3 && (
-          <motion.rect key={`dir-${stepIdx}`}
-            width={9} height={9}
-            fill="var(--teal)" stroke="var(--ink)" strokeWidth={1.5}
-            style={{ rotate: "45deg", transformOrigin: "center" }}
-            initial={{ x: MID_R - 12, y: rowCY(stepIdx) - 4.5 + 4 }}
-            animate={{ x: MID_L - 4.5, y: rowCY(stepIdx) - 4.5 + 4 }}
-            transition={{ duration: 0.48, ease: "easeInOut" }} />
+          <motion.circle key={`dir-${stepIdx}`}
+            r={7} fill="var(--teal)" stroke="var(--ink)" strokeWidth={2.5}
+            initial={{ cx: MID_R - 7, cy: rowCY(stepIdx) + 6 }}
+            animate={{ cx: MID_L + 7, cy: rowCY(stepIdx) + 6 }}
+            transition={{ duration: 0.5, ease: "easeInOut" }} />
         )}
 
         {/* Directive badge in middle zone — sharp, thick border */}
@@ -532,19 +530,17 @@ function PolicyFlowCard({ item, index }) {
                 <rect
                   x={cx - NODE_W / 2} y={cy - NODE_H / 2}
                   width={NODE_W} height={NODE_H} rx={0}
-                  fill={isActive ? "var(--gold)" : isDone ? "var(--teal)" : "rgba(255,251,245,0.8)"}
+                  fill={isActive ? "var(--gold)" : isDone ? "rgba(0,109,114,0.18)" : "var(--surface)"}
                   stroke="var(--ink)"
                   strokeWidth={isActive ? 2.5 : 1.5}
-                  opacity={isDone ? 0.75 : 1}
                 />
                 <text
                   x={cx} y={cy + 5}
                   textAnchor="middle"
                   fontSize="10"
-                  fontWeight="900"
-                  fontFamily="Archivo Black, sans-serif"
-                  fill="var(--ink)"
-                  opacity={isDone ? 0.75 : isActive ? 1 : 0.4}
+                  fontWeight="700"
+                  fontFamily="Space Grotesk, sans-serif"
+                  fill={isActive ? "var(--ink)" : isDone ? "var(--teal)" : "var(--muted)"}
                 >
                   {phase.name}
                 </text>
@@ -552,18 +548,20 @@ function PolicyFlowCard({ item, index }) {
             );
           })}
 
-          {/* Forward arrows between nodes */}
+          {/* Forward arrows — backbone + dashed accent (hero style) */}
           {item.phases.slice(0, -1).map((_, i) => {
             const x1 = PHASE_NODES[i].cx + NODE_W / 2 + 2;
             const x2 = PHASE_NODES[i + 1].cx - NODE_W / 2 - 2;
             const y = PHASE_NODES[i].cy;
             return (
-              <g key={`fw-${i}`} opacity="0.55">
+              <g key={`fw-${i}`}>
+                <line x1={x1} y1={y} x2={x2} y2={y}
+                  stroke="var(--ink)" strokeWidth="4" strokeLinecap="round" opacity={0.15} />
                 <line x1={x1} y1={y} x2={x2 - 6} y2={y}
-                  stroke="var(--ink)" strokeWidth="2" />
+                  stroke="var(--ink)" strokeWidth="1.5" strokeDasharray="5 4" opacity={0.45} />
                 <polygon
-                  points={`${x2 - 7},${y - 4} ${x2},${y} ${x2 - 7},${y + 4}`}
-                  fill="var(--ink)" />
+                  points={`${x2 - 6},${y - 3.5} ${x2},${y} ${x2 - 6},${y + 3.5}`}
+                  fill="var(--ink)" opacity={0.55} />
               </g>
             );
           })}
