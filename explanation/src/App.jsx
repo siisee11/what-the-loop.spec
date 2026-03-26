@@ -285,7 +285,7 @@ function SwimLaneDiagram({ t }) {
 
   // Layout: Engine=left column, Policy=right column, time flows top→bottom
   const VW    = 520;
-  const HDR   = 26;   // header row height
+  const HDR   = 36;   // header row height
   const ROW_H = 50;   // height per turn row
   const BOX_H = 34;   // turn / phase box height
   const COL_W = 185;  // column width
@@ -336,15 +336,15 @@ function SwimLaneDiagram({ t }) {
       <svg viewBox={`0 0 ${VW} ${VH}`} className="swimlane-svg" aria-hidden="true">
 
         {/* Column headers — wtl-flow-box style */}
-        <ShadowBox x={EX} y={2} w={COL_W} h={HDR - 6} fill="rgba(209,77,44,0.12)" sdx={3} sdy={3}>
-          <text x={EX + COL_W / 2} y={HDR - 7} textAnchor="middle"
-            fontSize={10} fontWeight="900" fontFamily="Archivo Black, sans-serif"
-            fill="var(--coral)">Engine</text>
+        <ShadowBox x={EX} y={2} w={COL_W} h={HDR - 6} fill="var(--coral)" sdx={3} sdy={3}>
+          <text x={EX + COL_W / 2} y={2 + (HDR - 6) / 2} textAnchor="middle" dominantBaseline="central"
+            fontSize={11} fontWeight="900" fontFamily="Archivo Black, sans-serif"
+            fill="var(--ink)">Engine</text>
         </ShadowBox>
 
-        <ShadowBox x={PX} y={2} w={COL_W} h={HDR - 6} fill="rgba(210,163,58,0.14)" sdx={3} sdy={3}>
-          <text x={PX + COL_W / 2} y={HDR - 7} textAnchor="middle"
-            fontSize={10} fontWeight="900" fontFamily="Archivo Black, sans-serif"
+        <ShadowBox x={PX} y={2} w={COL_W} h={HDR - 6} fill="var(--gold)" sdx={3} sdy={3}>
+          <text x={PX + COL_W / 2} y={2 + (HDR - 6) / 2} textAnchor="middle" dominantBaseline="central"
+            fontSize={11} fontWeight="900" fontFamily="Archivo Black, sans-serif"
             fill="var(--ink)">Policy</text>
         </ShadowBox>
 
