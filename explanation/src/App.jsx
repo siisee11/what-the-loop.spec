@@ -815,12 +815,21 @@ function DiagramSection({ t }) {
 }
 
 function ExampleWorkflowSection({ t }) {
+  const phases = t.loopMap.workflow.phases;
   return (
     <section className="section workflow-section" id="workflow">
       <Reveal className="workflow-bento" amount={0.12}>
         <div className="workflow-main-card">
           <div className="workflow-copy">
             <p className="diagram-kicker">{t.loopMap.workflow.eyebrow}</p>
+            <div className="workflow-phase-trail">
+              {phases.map((ph, i) => (
+                <span key={ph.id} className="workflow-phase-trail-row">
+                  <span className={`workflow-phase-pill workflow-phase-pill-${ph.id}`}>{ph.name}</span>
+                  {i < phases.length - 1 && <span className="workflow-phase-arrow">→</span>}
+                </span>
+              ))}
+            </div>
             <h2>{t.loopMap.workflow.title}</h2>
             <p className="diagram-lead">{t.loopMap.workflow.body}</p>
 

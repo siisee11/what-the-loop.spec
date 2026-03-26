@@ -3894,6 +3894,57 @@ h2 {
   }
 }
 
+/* ── Workflow phase trail ───────────────────────────────────────────────── */
+
+.workflow-phase-trail {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-bottom: 18px;
+}
+
+.workflow-phase-trail-row {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.workflow-phase-pill {
+  display: inline-block;
+  padding: 4px 12px;
+  border-radius: 20px;
+  font-size: 0.78rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  border: 1.5px solid transparent;
+}
+
+.workflow-phase-pill-discover {
+  background: rgba(0, 109, 114, 0.12);
+  color: var(--teal);
+  border-color: rgba(0, 109, 114, 0.25);
+}
+
+.workflow-phase-pill-implement {
+  background: rgba(209, 77, 44, 0.11);
+  color: var(--coral);
+  border-color: rgba(209, 77, 44, 0.25);
+}
+
+.workflow-phase-pill-review {
+  background: rgba(210, 163, 58, 0.14);
+  color: color-mix(in srgb, var(--gold) 80%, var(--ink));
+  border-color: rgba(210, 163, 58, 0.3);
+}
+
+.workflow-phase-arrow {
+  font-size: 0.82rem;
+  color: var(--muted);
+  opacity: 0.55;
+}
+
 /* ── Swim Lane diagram ──────────────────────────────────────────────────── */
 
 .swimlane-wrap {

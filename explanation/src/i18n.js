@@ -347,8 +347,8 @@ export const i18n = {
       },
       workflow: {
         eyebrow: "Example workflow",
-        title: "Discover -> Implement -> Review shows how policy drives the loop.",
-        body: "This example policy starts in Discover, moves to Implement, then enters Review. It stays inside a phase with `continue`, installs the next phase with `advance_phase`, and only finishes when Review returns `complete`.",
+        title: "How policy drives a multi-phase run.",
+        body: "The policy moves through three phases. It stays inside a phase with `continue`, installs the next with `advance_phase`, and only finishes when Review returns `complete`.",
         notes: [
           "`continue` keeps the engine inside the current phase.",
           "`advance_phase` changes workflow stage without ending the run.",
@@ -896,8 +896,8 @@ Done: your request was completed successfully.`
       },
       workflow: {
         eyebrow: "예시 워크플로",
-        title: "Discover -> Implement -> Review 흐름으로 policy가 루프를 어떻게 운영하는지 보여줍니다.",
-        body: "이 예시 policy는 Discover에서 시작해 Implement로 넘어가고, 마지막에 Review에 들어갑니다. `continue`로 같은 phase 안에 머물고, `advance_phase`로 다음 단계를 설치하며, Review가 `complete`를 반환할 때만 종료합니다.",
+        title: "Policy가 멀티 Phase 실행을 어떻게 이끄는가.",
+        body: "Policy는 세 단계를 거칩니다. `continue`로 현재 phase 안에 머물고, `advance_phase`로 다음 단계를 설치하며, Review가 `complete`를 반환할 때만 종료합니다.",
         notes: [
           "`continue`는 engine을 현재 phase 안에 머물게 합니다.",
           "`advance_phase`는 run을 끝내지 않고 workflow 단계를 바꿉니다.",
