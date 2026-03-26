@@ -322,36 +322,36 @@ function SwimLaneDiagram({ t }) {
     <div className="swimlane-wrap">
       <svg viewBox={`0 0 ${VW} ${VH}`} className="swimlane-svg" aria-hidden="true">
 
-        {/* Column header pills */}
-        <rect x={EX} y={2} width={COL_W} height={HDR - 6} rx={7}
-          fill="rgba(209,77,44,0.13)" />
+        {/* Column header — sharp rect, solid border */}
+        <rect x={EX} y={2} width={COL_W} height={HDR - 6} rx={0}
+          fill="var(--coral)" stroke="var(--ink)" strokeWidth={2} />
         <text x={EX + COL_W / 2} y={HDR - 7} textAnchor="middle"
-          fontSize={10} fontWeight="700" fontFamily="Space Grotesk, sans-serif"
-          fill="var(--coral)">Engine</text>
+          fontSize={10} fontWeight="900" fontFamily="Archivo Black, sans-serif"
+          fill="#fff">Engine</text>
 
-        <rect x={PX} y={2} width={COL_W} height={HDR - 6} rx={7}
-          fill="rgba(210,163,58,0.13)" />
+        <rect x={PX} y={2} width={COL_W} height={HDR - 6} rx={0}
+          fill="var(--gold)" stroke="var(--ink)" strokeWidth={2} />
         <text x={PX + COL_W / 2} y={HDR - 7} textAnchor="middle"
-          fontSize={10} fontWeight="700" fontFamily="Space Grotesk, sans-serif"
-          fill="color-mix(in srgb, var(--gold) 80%, var(--ink))">Policy</text>
+          fontSize={10} fontWeight="900" fontFamily="Archivo Black, sans-serif"
+          fill="var(--ink)">Policy</text>
 
-        {/* Column background stripes */}
+        {/* Column background stripes — flat fill, solid border */}
         <rect x={EX} y={HDR} width={COL_W} height={VH - HDR}
-          fill="rgba(209,77,44,0.04)" rx={4}
-          stroke="rgba(209,77,44,0.16)" strokeWidth={1.5} />
+          fill="rgba(209,77,44,0.05)" rx={0}
+          stroke="var(--ink)" strokeWidth={2} />
         <rect x={PX} y={HDR} width={COL_W} height={VH - HDR}
-          fill="rgba(210,163,58,0.04)" rx={4}
-          stroke="rgba(210,163,58,0.16)" strokeWidth={1.5} />
+          fill="rgba(210,163,58,0.07)" rx={0}
+          stroke="var(--ink)" strokeWidth={2} />
 
         {/* Dashed row guide lines across middle zone */}
         {steps.map((_, i) => (
           <line key={`guide-${i}`}
             x1={MID_L} y1={rowCY(i)} x2={MID_R} y2={rowCY(i)}
-            stroke="color-mix(in srgb, var(--ink) 8%, transparent)"
-            strokeWidth={1} strokeDasharray="3 3" />
+            stroke="var(--ink)" opacity={0.12}
+            strokeWidth={1} strokeDasharray="4 4" />
         ))}
 
-        {/* Phase blocks in Policy column */}
+        {/* Phase blocks in Policy column — sharp, thick border */}
         {phaseBlocks.map(block => {
           const name = wfPhases.find(p => p.id === block.phase)?.name || block.phase;
           const isActive = step.phase === block.phase;
@@ -359,85 +359,102 @@ function SwimLaneDiagram({ t }) {
           return (
             <g key={block.phase}>
               <rect
-                x={PX + 5} y={block.y + 3}
-                width={COL_W - 10} height={block.h - 6}
-                fill={isActive ? "var(--gold)" : isPast ? "rgba(0,109,114,0.15)" : "transparent"}
-                rx={8}
-                stroke={isActive ? "var(--ink)" : "color-mix(in srgb, var(--ink) 18%, transparent)"}
+                x={PX + 6} y={block.y + 4}
+                width={COL_W - 12} height={block.h - 8}
+                fill={isActive ? "var(--gold)" : isPast ? "rgba(0,109,114,0.18)" : "rgba(255,251,245,0.6)"}
+                rx={0}
+                stroke="var(--ink)"
                 strokeWidth={isActive ? 2.5 : 1.5}
               />
               <text
                 x={PX + COL_W / 2} y={block.y + block.h / 2 + 5}
                 textAnchor="middle" fontSize={11}
-                fontWeight={isActive ? "700" : "500"}
-                fontFamily="Space Grotesk, sans-serif"
-                fill={isActive ? "var(--ink)" : "var(--muted)"}
+                fontWeight="900"
+                fontFamily="Archivo Black, sans-serif"
+                fill="var(--ink)"
+                opacity={isActive ? 1 : isPast ? 0.5 : 0.35}
               >{name}</text>
             </g>
           );
         })}
 
-        {/* Turn boxes in Engine column */}
+        {/* Turn boxes in Engine column — sharp rect */}
         {steps.map((s, i) => {
           const isActive = i === stepIdx;
           const isDone   = i < stepIdx;
           return (
             <g key={i}>
               <motion.rect
-                x={EX + 5} y={rowY(i) + 3}
-                width={COL_W - 10} height={BOX_H - 6}
-                rx={8}
-                fill={isActive ? "var(--coral)" : isDone ? "rgba(0,109,114,0.18)" : "var(--surface)"}
-                stroke={isActive ? "var(--ink)" : "color-mix(in srgb, var(--ink) 22%, transparent)"}
+                x={EX + 6} y={rowY(i) + 4}
+                width={COL_W - 12} height={BOX_H - 8}
+                rx={0}
+                fill={isActive ? "var(--coral)" : isDone ? "rgba(0,109,114,0.18)" : "rgba(255,251,245,0.6)"}
+                stroke="var(--ink)"
                 strokeWidth={isActive ? 2.5 : 1.5}
-                animate={!reduceMotion && isActive && animPhase === 0 ? { scale: [1, 1.04, 1] } : {}}
-                transition={{ duration: 0.65 }}
+                animate={!reduceMotion && isActive && animPhase === 0 ? { scale: [1, 1.03, 1] } : {}}
+                transition={{ duration: 0.55 }}
               />
               <text
                 x={EX + COL_W / 2} y={rowCY(i) + 5}
                 textAnchor="middle" fontSize={10}
-                fontWeight={isActive ? "700" : "500"}
+                fontWeight="700"
                 fontFamily="Space Grotesk, sans-serif"
-                fill={isActive ? "#fff" : "var(--muted)"}
+                fill={isActive ? "#fff" : "var(--ink)"}
+                opacity={isActive ? 1 : isDone ? 0.55 : 0.35}
               >T{s.turn} · {s.engine}</text>
             </g>
           );
         })}
 
-        {/* Outcome dot: Engine → Policy (rightward) */}
+        {/* Outcome arrow line: Engine → Policy */}
+        {animPhase >= 1 && (
+          <line x1={MID_L + 2} y1={rowCY(stepIdx)} x2={MID_R - 2} y2={rowCY(stepIdx)}
+            stroke="var(--coral)" strokeWidth={2} opacity={0.5} />
+        )}
+        {/* Directive arrow line: Policy → Engine */}
+        {animPhase >= 3 && (
+          <line x1={MID_R - 2} y1={rowCY(stepIdx) + 4} x2={MID_L + 2} y2={rowCY(stepIdx) + 4}
+            stroke="var(--teal)" strokeWidth={2} opacity={0.5} />
+        )}
+
+        {/* Outcome diamond: Engine → Policy (rightward) */}
         {!reduceMotion && animPhase === 1 && (
-          <motion.circle key={`out-${stepIdx}`}
-            r={5} fill="var(--coral)" stroke="var(--ink)" strokeWidth={2}
-            initial={{ cx: MID_L, cy: rowCY(stepIdx) }}
-            animate={{ cx: MID_R, cy: rowCY(stepIdx) }}
+          <motion.rect key={`out-${stepIdx}`}
+            width={9} height={9}
+            fill="var(--coral)" stroke="var(--ink)" strokeWidth={1.5}
+            style={{ rotate: "45deg", transformOrigin: "center" }}
+            initial={{ x: MID_L - 4.5, y: rowCY(stepIdx) - 4.5 }}
+            animate={{ x: MID_R - 12, y: rowCY(stepIdx) - 4.5 }}
             transition={{ duration: 0.48, ease: "easeInOut" }} />
         )}
 
-        {/* Directive dot: Policy → Engine (leftward) */}
+        {/* Directive diamond: Policy → Engine (leftward) */}
         {!reduceMotion && animPhase === 3 && (
-          <motion.circle key={`dir-${stepIdx}`}
-            r={5} fill="var(--gold)" stroke="var(--ink)" strokeWidth={2}
-            initial={{ cx: MID_R, cy: rowCY(stepIdx) }}
-            animate={{ cx: MID_L, cy: rowCY(stepIdx) }}
+          <motion.rect key={`dir-${stepIdx}`}
+            width={9} height={9}
+            fill="var(--teal)" stroke="var(--ink)" strokeWidth={1.5}
+            style={{ rotate: "45deg", transformOrigin: "center" }}
+            initial={{ x: MID_R - 12, y: rowCY(stepIdx) - 4.5 + 4 }}
+            animate={{ x: MID_L - 4.5, y: rowCY(stepIdx) - 4.5 + 4 }}
             transition={{ duration: 0.48, ease: "easeInOut" }} />
         )}
 
-        {/* Directive badge in middle zone */}
+        {/* Directive badge in middle zone — sharp, thick border */}
         {animPhase >= 2 && (
           <motion.g key={`badge-${stepIdx}`}
             initial={reduceMotion ? {} : { opacity: 0 }}
             animate={{ opacity: 1 }}
-            transition={{ duration: 0.22 }}>
+            transition={{ duration: 0.18 }}>
             <rect
-              x={MID_CX - 38} y={rowCY(stepIdx) - 10}
-              width={76} height={20} rx={10}
-              fill="var(--surface-strong)"
-              stroke="color-mix(in srgb, var(--teal) 55%, transparent)"
-              strokeWidth={1.5} />
+              x={MID_CX - 36} y={rowCY(stepIdx) - 10}
+              width={72} height={20} rx={0}
+              fill="var(--surface)"
+              stroke="var(--ink)"
+              strokeWidth={2} />
             <text x={MID_CX} y={rowCY(stepIdx) + 5}
-              textAnchor="middle" fontSize={9} fontWeight="700"
-              fontFamily="Space Grotesk, sans-serif"
-              fill="var(--teal)">{step.directive}</text>
+              textAnchor="middle" fontSize={8.5} fontWeight="900"
+              fontFamily="Archivo Black, sans-serif"
+              fill="var(--ink)">{step.directive}</text>
           </motion.g>
         )}
       </svg>
@@ -471,7 +488,7 @@ const PHASE_NODES = [
   { cx: 180, cy: 30 },
   { cx: 305, cy: 30 },
 ];
-const NODE_W = 88, NODE_H = 32, NODE_R = 7;
+const NODE_W = 88, NODE_H = 32, NODE_R = 0;
 
 function PolicyFlowCard({ item, index }) {
   const reduceMotion = useReducedMotion();
@@ -514,19 +531,20 @@ function PolicyFlowCard({ item, index }) {
               <g key={phase.id}>
                 <rect
                   x={cx - NODE_W / 2} y={cy - NODE_H / 2}
-                  width={NODE_W} height={NODE_H} rx={NODE_R}
-                  fill={isActive ? "var(--gold)" : isDone ? "var(--teal)" : "var(--surface)"}
-                  stroke={isActive ? "var(--ink)" : "color-mix(in srgb, var(--ink) 28%, transparent)"}
+                  width={NODE_W} height={NODE_H} rx={0}
+                  fill={isActive ? "var(--gold)" : isDone ? "var(--teal)" : "rgba(255,251,245,0.8)"}
+                  stroke="var(--ink)"
                   strokeWidth={isActive ? 2.5 : 1.5}
-                  opacity={isDone ? 0.7 : 1}
+                  opacity={isDone ? 0.75 : 1}
                 />
                 <text
                   x={cx} y={cy + 5}
                   textAnchor="middle"
-                  fontSize="10.5"
-                  fontWeight={isActive ? "700" : "500"}
-                  fontFamily="Space Grotesk, sans-serif"
-                  fill={isActive || isDone ? "var(--ink)" : "var(--text)"}
+                  fontSize="10"
+                  fontWeight="900"
+                  fontFamily="Archivo Black, sans-serif"
+                  fill="var(--ink)"
+                  opacity={isDone ? 0.75 : isActive ? 1 : 0.4}
                 >
                   {phase.name}
                 </text>
@@ -536,15 +554,15 @@ function PolicyFlowCard({ item, index }) {
 
           {/* Forward arrows between nodes */}
           {item.phases.slice(0, -1).map((_, i) => {
-            const x1 = PHASE_NODES[i].cx + NODE_W / 2 + 3;
-            const x2 = PHASE_NODES[i + 1].cx - NODE_W / 2 - 3;
+            const x1 = PHASE_NODES[i].cx + NODE_W / 2 + 2;
+            const x2 = PHASE_NODES[i + 1].cx - NODE_W / 2 - 2;
             const y = PHASE_NODES[i].cy;
             return (
-              <g key={`fw-${i}`} opacity="0.38">
-                <line x1={x1} y1={y} x2={x2 - 5} y2={y}
-                  stroke="var(--ink)" strokeWidth="1.5" />
+              <g key={`fw-${i}`} opacity="0.55">
+                <line x1={x1} y1={y} x2={x2 - 6} y2={y}
+                  stroke="var(--ink)" strokeWidth="2" />
                 <polygon
-                  points={`${x2 - 6},${y - 3.5} ${x2},${y} ${x2 - 6},${y + 3.5}`}
+                  points={`${x2 - 7},${y - 4} ${x2},${y} ${x2 - 7},${y + 4}`}
                   fill="var(--ink)" />
               </g>
             );
