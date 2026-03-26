@@ -39,8 +39,8 @@ module wtl_policy {
     recovery_pending' = false,
   }
 
-  action init_phased_delivery = all {
-    policy_kind' = "phased_delivery",
+  action init_ralph_wigum = all {
+    policy_kind' = "ralph_wigum",
     engine_directive' = "continue",
     policy_state' = "active",
     completion_requested' = false,
@@ -60,7 +60,7 @@ module wtl_policy {
 
   action init = any {
     init_interactive_completion,
-    init_phased_delivery,
+    init_ralph_wigum,
   }
 
   action turn_requests_continue = all {
@@ -275,7 +275,7 @@ module wtl_policy {
   }
 
   action start_init = all {
-    policy_kind == "phased_delivery",
+    policy_kind == "ralph_wigum",
     phase == "idle",
     policy_kind' = policy_kind,
     engine_directive' = "advance_phase",
@@ -296,7 +296,7 @@ module wtl_policy {
   }
 
   action init_succeeds = all {
-    policy_kind == "phased_delivery",
+    policy_kind == "ralph_wigum",
     phase == "init",
     policy_kind' = policy_kind,
     engine_directive' = "advance_phase",
@@ -317,7 +317,7 @@ module wtl_policy {
   }
 
   action planning_completed = all {
-    policy_kind == "phased_delivery",
+    policy_kind == "ralph_wigum",
     phase == "planning",
     worktree_ready,
     policy_kind' = policy_kind,
@@ -339,7 +339,7 @@ module wtl_policy {
   }
 
   action implementation_continues = all {
-    policy_kind == "phased_delivery",
+    policy_kind == "ralph_wigum",
     phase == "implementing",
     plan_exists,
     iteration < MAX_ITERATIONS,
@@ -362,7 +362,7 @@ module wtl_policy {
   }
 
   action implementation_failed = all {
-    policy_kind == "phased_delivery",
+    policy_kind == "ralph_wigum",
     phase == "implementing",
     plan_exists,
     iteration < MAX_ITERATIONS,
@@ -385,7 +385,7 @@ module wtl_policy {
   }
 
   action implementation_ready_for_review = all {
-    policy_kind == "phased_delivery",
+    policy_kind == "ralph_wigum",
     phase == "implementing",
     plan_exists,
     iteration < MAX_ITERATIONS,
@@ -408,7 +408,7 @@ module wtl_policy {
   }
 
   action phased_exhausted = all {
-    policy_kind == "phased_delivery",
+    policy_kind == "ralph_wigum",
     phase == "implementing",
     iteration >= MAX_ITERATIONS,
     policy_kind' = policy_kind,
@@ -430,7 +430,7 @@ module wtl_policy {
   }
 
   action review_completed = all {
-    policy_kind == "phased_delivery",
+    policy_kind == "ralph_wigum",
     phase == "review",
     delivery_complete,
     policy_kind' = policy_kind,
@@ -452,7 +452,7 @@ module wtl_policy {
   }
 
   action phased_workflow_failed = all {
-    policy_kind == "phased_delivery",
+    policy_kind == "ralph_wigum",
     Set("planning", "review").contains(phase),
     policy_kind' = policy_kind,
     engine_directive' = "fail",
@@ -495,7 +495,7 @@ module wtl_policy {
   }
 
   val valid_kind =
-    Set("interactive_completion", "phased_delivery").contains(policy_kind)
+    Set("interactive_completion", "ralph_wigum").contains(policy_kind)
 
   val validated_completion_only =
     policy_kind != "interactive_completion"
@@ -513,7 +513,7 @@ module wtl_policy {
       or engine_directive == "wait"
 
   val phase_order =
-    policy_kind != "phased_delivery"
+    policy_kind != "ralph_wigum"
       or (
         (phase != "planning" or worktree_ready)
           and (phase != "implementing" or (worktree_ready and plan_exists))
@@ -522,12 +522,12 @@ module wtl_policy {
       )
 
   val review_requires_delivery_completion =
-    policy_kind != "phased_delivery"
+    policy_kind != "ralph_wigum"
       or phase != "review"
       or delivery_complete
 
   val terminal_completion_uses_complete_directive =
-    policy_kind != "phased_delivery"
+    policy_kind != "ralph_wigum"
       or phase != "completed"
       or engine_directive == "complete"
 
@@ -543,7 +543,7 @@ module wtl_policy {
       ).contains(policy_state)
 
   val valid_phase =
-    policy_kind != "phased_delivery"
+    policy_kind != "ralph_wigum"
       or Set(
         "idle",
         "init",
@@ -570,7 +570,7 @@ module wtl_policy {
     ).contains(prompt_kind)
 
   val phase_prompt_alignment =
-    policy_kind != "phased_delivery"
+    policy_kind != "ralph_wigum"
       or (
         (phase != "idle" or prompt_kind == "bootstrap")
           and (phase != "init" or prompt_kind == "init_prompt")

@@ -379,18 +379,18 @@ function WorkflowDiagram({ t }) {
 // ── Policy Examples ──────────────────────────────────────────────────────────
 
 const POLICY_STEPS = {
-  phased_delivery: [
-    { phase: "planning",     directive: "advance_phase", isLoopBack: false },
-    { phase: "implementing", directive: "continue",      isLoopBack: false },
-    { phase: "implementing", directive: "advance_phase", isLoopBack: false },
-    { phase: "review",       directive: "complete",      isLoopBack: false },
+  ralph_wigum: [
+    { phase: "planning",     directive: "advance_phase", isLoopBack: false, isSelfLoop: false },
+    { phase: "implementing", directive: "continue",      isLoopBack: false, isSelfLoop: true  },
+    { phase: "implementing", directive: "advance_phase", isLoopBack: false, isSelfLoop: false },
+    { phase: "review",       directive: "complete",      isLoopBack: false, isSelfLoop: false },
   ],
   gan: [
-    { phase: "planning",   directive: "advance_phase", isLoopBack: false },
-    { phase: "generating", directive: "advance_phase", isLoopBack: false },
-    { phase: "evaluating", directive: "advance_phase", isLoopBack: true  },
-    { phase: "generating", directive: "advance_phase", isLoopBack: false },
-    { phase: "evaluating", directive: "complete",      isLoopBack: false },
+    { phase: "planning",   directive: "advance_phase", isLoopBack: false, isSelfLoop: false },
+    { phase: "generating", directive: "advance_phase", isLoopBack: false, isSelfLoop: false },
+    { phase: "evaluating", directive: "advance_phase", isLoopBack: true,  isSelfLoop: false },
+    { phase: "generating", directive: "advance_phase", isLoopBack: false, isSelfLoop: false },
+    { phase: "evaluating", directive: "complete",      isLoopBack: false, isSelfLoop: false },
   ],
 };
 
@@ -480,6 +480,28 @@ function PolicyFlowCard({ item, index }) {
               </g>
             );
           })}
+
+          {/* Ralph Wigum self-loop on Implementing node */}
+          {!isGAN && (
+            <motion.g
+              animate={!reduceMotion ? { opacity: step.isSelfLoop ? 1 : 0.15 } : {}}
+              transition={{ duration: 0.4 }}
+            >
+              {/* Arc curving above the Implementing node (cx=180) */}
+              <path
+                d="M 153 14 C 153 1, 207 1, 207 14"
+                fill="none"
+                stroke="var(--coral)"
+                strokeWidth="1.5"
+                strokeDasharray="4 3"
+              />
+              {/* Arrowhead pointing down into the node */}
+              <polygon
+                points="203,8 207,15 211,8"
+                fill="var(--coral)"
+              />
+            </motion.g>
+          )}
 
           {/* GAN adversarial loop-back arc */}
           {isGAN && (

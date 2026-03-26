@@ -432,11 +432,11 @@ export const i18n = {
     policies: {
       eyebrow: "Policy examples",
       title: "Every policy shapes the loop differently.",
-      body: "WTL separates mechanics from meaning so the same engine can run radically different workflows. Here are two example policies — a linear phased delivery and an adversarial GAN loop.",
+      body: "WTL separates mechanics from meaning so the same engine can run radically different workflows. Here are two example policies — Ralph Wigum and an adversarial GAN loop.",
       items: [
         {
-          id: "phased_delivery",
-          name: "Phased Delivery",
+          id: "ralph_wigum",
+          name: "Ralph Wigum",
           tag: "Linear three-phase progression",
           body: "A policy that drives the run through Planning, Implementing, and Review in strict sequence. `advance_phase` installs each next stage. `complete` only appears in Review after delivery is confirmed.",
           loopNote: null,
@@ -941,11 +941,11 @@ Done: your request was completed successfully.`
     policies: {
       eyebrow: "Policy 예시",
       title: "Policy마다 루프의 형태가 달라집니다.",
-      body: "WTL은 메커니즘과 의미를 분리하기 때문에 같은 Engine으로 전혀 다른 워크플로를 실행할 수 있습니다. 선형 단계 진행과 대립적 GAN 루프, 두 가지 Policy 예시를 소개합니다.",
+      body: "WTL은 메커니즘과 의미를 분리하기 때문에 같은 Engine으로 전혀 다른 워크플로를 실행할 수 있습니다. Ralph Wigum과 대립적 GAN 루프, 두 가지 Policy 예시를 소개합니다.",
       items: [
         {
-          id: "phased_delivery",
-          name: "Phased Delivery",
+          id: "ralph_wigum",
+          name: "Ralph Wigum",
           tag: "선형 3단계 진행",
           body: "Planning, Implementing, Review를 순서대로 진행하는 Policy입니다. `advance_phase`로 다음 단계를 설치하고, Review에서 검증이 완료될 때만 `complete`를 반환합니다.",
           loopNote: null,

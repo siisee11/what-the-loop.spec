@@ -257,7 +257,7 @@ Required properties:
 - completion is not allowed while waiting for input
 - waiting state must emit the `wait` directive
 
-### Phased Delivery Policy (example)
+### Ralph Wigum Policy (example)
 
 Suitable for tasks that must progress through ordered stages.
 
