@@ -264,7 +264,7 @@ function SwimLaneDiagram({ t }) {
   const reduceMotion = useReducedMotion();
   const [stepIdx, setStepIdx] = useState(0);
   const [animPhase, setAnimPhase] = useState(0);
-  // animPhase: 0=engine running, 1=outcome→policy, 2=policy deciding, 3=directive→engine
+  // animPhase: 0=engine running, 1=outcome→right, 2=policy deciding, 3=directive←left
 
   const steps = t.loopMap.workflow.steps;
   const wfPhases = t.loopMap.workflow.phases;
@@ -283,18 +283,23 @@ function SwimLaneDiagram({ t }) {
     return () => clearTimeout(tid);
   }, [stepIdx, animPhase, reduceMotion, steps.length]);
 
-  // SVG layout
-  const LW = 54, SP = 108, TW = 80, TH = 36;
-  const EY = 12, EH = 52, PY = 132, PH = 52;
-  const ECY = EY + EH / 2;
-  const PCY = PY + PH / 2;
-  const MID = (ECY + PCY) / 2;
-  const tcx = i => LW + SP * i + SP / 2;
-  const tx  = i => tcx(i) - TW / 2;
-  const VW  = LW + SP * steps.length + 10;
-  const VH  = PY + PH + 10;
+  // Layout: Engine=left column, Policy=right column, time flows top→bottom
+  const VW    = 520;
+  const HDR   = 26;   // header row height
+  const ROW_H = 50;   // height per turn row
+  const BOX_H = 34;   // turn / phase box height
+  const COL_W = 185;  // column width
+  const EX    = 6;    // engine column x
+  const PX    = 329;  // policy column x  (VW - COL_W - EX = 329)
+  const MID_L = EX + COL_W + 4;   // 195
+  const MID_R = PX - 4;            // 325
+  const MID_CX = (MID_L + MID_R) / 2; // 260
 
-  // Build phase blocks by grouping consecutive steps with same phase
+  const rowY  = i => HDR + 8 + i * ROW_H;
+  const rowCY = i => rowY(i) + BOX_H / 2;
+  const VH    = rowY(steps.length - 1) + BOX_H + 14;
+
+  // Phase blocks: group consecutive steps with same phase
   const phaseBlocks = [];
   let pi = 0;
   while (pi < steps.length) {
@@ -304,137 +309,138 @@ function SwimLaneDiagram({ t }) {
     phaseBlocks.push({
       phase: ph,
       endIdx: pj - 1,
-      x: tx(pi) - 6,
-      w: tx(pj - 1) + TW + 6 - (tx(pi) - 6),
+      y:  rowY(pi),
+      h:  rowY(pj - 1) + BOX_H - rowY(pi),
     });
     pi = pj;
   }
 
   const currentBlock = phaseBlocks.find(b => b.phase === step.phase);
-  const phaseCX = currentBlock ? currentBlock.x + currentBlock.w / 2 : tcx(stepIdx);
+  const blockCY = currentBlock ? currentBlock.y + currentBlock.h / 2 : rowCY(stepIdx);
 
   return (
     <div className="swimlane-wrap">
       <svg viewBox={`0 0 ${VW} ${VH}`} className="swimlane-svg" aria-hidden="true">
 
-        {/* Lane backgrounds */}
-        <rect x={LW} y={EY} width={VW - LW - 4} height={EH}
-          fill="rgba(209,77,44,0.07)" rx={8}
-          stroke="rgba(209,77,44,0.22)" strokeWidth={1.5} />
-        <rect x={LW} y={PY} width={VW - LW - 4} height={PH}
-          fill="rgba(210,163,58,0.07)" rx={8}
-          stroke="rgba(210,163,58,0.22)" strokeWidth={1.5} />
+        {/* Column header pills */}
+        <rect x={EX} y={2} width={COL_W} height={HDR - 6} rx={7}
+          fill="rgba(209,77,44,0.13)" />
+        <text x={EX + COL_W / 2} y={HDR - 7} textAnchor="middle"
+          fontSize={10} fontWeight="700" fontFamily="Space Grotesk, sans-serif"
+          fill="var(--coral)">Engine</text>
 
-        {/* Lane labels */}
-        <text x={LW - 8} y={ECY + 5} textAnchor="end" fontSize={10}
-          fontWeight="700" fontFamily="Space Grotesk, sans-serif" fill="var(--coral)">Engine</text>
-        <text x={LW - 8} y={PCY + 5} textAnchor="end" fontSize={10}
-          fontWeight="700" fontFamily="Space Grotesk, sans-serif" fill="var(--gold)">Policy</text>
+        <rect x={PX} y={2} width={COL_W} height={HDR - 6} rx={7}
+          fill="rgba(210,163,58,0.13)" />
+        <text x={PX + COL_W / 2} y={HDR - 7} textAnchor="middle"
+          fontSize={10} fontWeight="700" fontFamily="Space Grotesk, sans-serif"
+          fill="color-mix(in srgb, var(--gold) 80%, var(--ink))">Policy</text>
 
-        {/* Dashed vertical connectors */}
+        {/* Column background stripes */}
+        <rect x={EX} y={HDR} width={COL_W} height={VH - HDR}
+          fill="rgba(209,77,44,0.04)" rx={4}
+          stroke="rgba(209,77,44,0.16)" strokeWidth={1.5} />
+        <rect x={PX} y={HDR} width={COL_W} height={VH - HDR}
+          fill="rgba(210,163,58,0.04)" rx={4}
+          stroke="rgba(210,163,58,0.16)" strokeWidth={1.5} />
+
+        {/* Dashed row guide lines across middle zone */}
         {steps.map((_, i) => (
-          <line key={`conn-${i}`}
-            x1={tcx(i)} y1={EY + EH} x2={tcx(i)} y2={PY}
-            stroke="color-mix(in srgb, var(--ink) 10%, transparent)"
+          <line key={`guide-${i}`}
+            x1={MID_L} y1={rowCY(i)} x2={MID_R} y2={rowCY(i)}
+            stroke="color-mix(in srgb, var(--ink) 8%, transparent)"
             strokeWidth={1} strokeDasharray="3 3" />
         ))}
 
-        {/* Phase blocks in Policy lane */}
+        {/* Phase blocks in Policy column */}
         {phaseBlocks.map(block => {
           const name = wfPhases.find(p => p.id === block.phase)?.name || block.phase;
           const isActive = step.phase === block.phase;
-          const isPast = stepIdx > block.endIdx;
+          const isPast   = stepIdx > block.endIdx;
           return (
             <g key={block.phase}>
-              <rect x={block.x} y={PY + 5} width={block.w} height={PH - 10}
+              <rect
+                x={PX + 5} y={block.y + 3}
+                width={COL_W - 10} height={block.h - 6}
                 fill={isActive ? "var(--gold)" : isPast ? "rgba(0,109,114,0.15)" : "transparent"}
-                rx={6}
-                stroke={isActive ? "var(--ink)" : "color-mix(in srgb, var(--ink) 20%, transparent)"}
-                strokeWidth={isActive ? 2.5 : 1.5} />
-              <text x={block.x + block.w / 2} y={PCY + 5}
+                rx={8}
+                stroke={isActive ? "var(--ink)" : "color-mix(in srgb, var(--ink) 18%, transparent)"}
+                strokeWidth={isActive ? 2.5 : 1.5}
+              />
+              <text
+                x={PX + COL_W / 2} y={block.y + block.h / 2 + 5}
                 textAnchor="middle" fontSize={11}
                 fontWeight={isActive ? "700" : "500"}
                 fontFamily="Space Grotesk, sans-serif"
-                fill={isActive ? "var(--ink)" : "var(--muted)"}>{name}</text>
+                fill={isActive ? "var(--ink)" : "var(--muted)"}
+              >{name}</text>
             </g>
           );
         })}
 
-        {/* Turn boxes in Engine lane */}
+        {/* Turn boxes in Engine column */}
         {steps.map((s, i) => {
           const isActive = i === stepIdx;
           const isDone   = i < stepIdx;
           return (
             <g key={i}>
               <motion.rect
-                x={tx(i)} y={EY + (EH - TH) / 2} width={TW} height={TH} rx={6}
+                x={EX + 5} y={rowY(i) + 3}
+                width={COL_W - 10} height={BOX_H - 6}
+                rx={8}
                 fill={isActive ? "var(--coral)" : isDone ? "rgba(0,109,114,0.18)" : "var(--surface)"}
-                stroke={isActive ? "var(--ink)" : "color-mix(in srgb, var(--ink) 25%, transparent)"}
+                stroke={isActive ? "var(--ink)" : "color-mix(in srgb, var(--ink) 22%, transparent)"}
                 strokeWidth={isActive ? 2.5 : 1.5}
-                animate={!reduceMotion && isActive && animPhase === 0 ? { scale: [1, 1.05, 1] } : {}}
+                animate={!reduceMotion && isActive && animPhase === 0 ? { scale: [1, 1.04, 1] } : {}}
                 transition={{ duration: 0.65 }}
               />
-              <text x={tcx(i)} y={ECY + 5} textAnchor="middle" fontSize={10}
+              <text
+                x={EX + COL_W / 2} y={rowCY(i) + 5}
+                textAnchor="middle" fontSize={10}
                 fontWeight={isActive ? "700" : "500"}
                 fontFamily="Space Grotesk, sans-serif"
-                fill={isActive ? "#fff" : "var(--muted)"}>T{s.turn}</text>
+                fill={isActive ? "#fff" : "var(--muted)"}
+              >T{s.turn} · {s.engine}</text>
             </g>
           );
         })}
 
-        {/* Outcome dot: Engine → Policy */}
+        {/* Outcome dot: Engine → Policy (rightward) */}
         {!reduceMotion && animPhase === 1 && (
           <motion.circle key={`out-${stepIdx}`}
             r={5} fill="var(--coral)" stroke="var(--ink)" strokeWidth={2}
-            initial={{ cx: tcx(stepIdx), cy: EY + EH }}
-            animate={{ cx: phaseCX, cy: PY }}
-            transition={{ duration: 0.55, ease: "easeInOut" }} />
+            initial={{ cx: MID_L, cy: rowCY(stepIdx) }}
+            animate={{ cx: MID_R, cy: rowCY(stepIdx) }}
+            transition={{ duration: 0.48, ease: "easeInOut" }} />
         )}
 
-        {/* Directive dot: Policy → Engine */}
+        {/* Directive dot: Policy → Engine (leftward) */}
         {!reduceMotion && animPhase === 3 && (
           <motion.circle key={`dir-${stepIdx}`}
             r={5} fill="var(--gold)" stroke="var(--ink)" strokeWidth={2}
-            initial={{ cx: phaseCX, cy: PY }}
-            animate={{ cx: tcx(stepIdx), cy: EY + EH }}
-            transition={{ duration: 0.55, ease: "easeInOut" }} />
+            initial={{ cx: MID_R, cy: rowCY(stepIdx) }}
+            animate={{ cx: MID_L, cy: rowCY(stepIdx) }}
+            transition={{ duration: 0.48, ease: "easeInOut" }} />
         )}
 
-        {/* Directive label badge between lanes */}
+        {/* Directive badge in middle zone */}
         {animPhase >= 2 && (
           <motion.g key={`badge-${stepIdx}`}
             initial={reduceMotion ? {} : { opacity: 0 }}
             animate={{ opacity: 1 }}
-            transition={{ duration: 0.25 }}>
-            <rect x={tcx(stepIdx) - 38} y={MID - 10} width={76} height={20} rx={10}
+            transition={{ duration: 0.22 }}>
+            <rect
+              x={MID_CX - 38} y={rowCY(stepIdx) - 10}
+              width={76} height={20} rx={10}
               fill="var(--surface-strong)"
               stroke="color-mix(in srgb, var(--teal) 55%, transparent)"
               strokeWidth={1.5} />
-            <text x={tcx(stepIdx)} y={MID + 5} textAnchor="middle"
-              fontSize={9} fontWeight="700"
+            <text x={MID_CX} y={rowCY(stepIdx) + 5}
+              textAnchor="middle" fontSize={9} fontWeight="700"
               fontFamily="Space Grotesk, sans-serif"
               fill="var(--teal)">{step.directive}</text>
           </motion.g>
         )}
       </svg>
-
-      {/* Step caption */}
-      <div className="swimlane-caption">
-        <div className="swimlane-caption-row">
-          <span className="swimlane-role-badge swimlane-engine-badge">Engine</span>
-          <span className="swimlane-caption-text">{step.engine}</span>
-        </div>
-        <div className="swimlane-caption-row">
-          <span className="swimlane-role-badge swimlane-policy-badge">Policy</span>
-          <motion.span
-            key={`policy-${stepIdx}-${animPhase}`}
-            className="swimlane-caption-text"
-            initial={reduceMotion ? {} : { opacity: animPhase < 2 ? 0.3 : 1 }}
-            animate={{ opacity: animPhase >= 2 ? 1 : 0.3 }}
-            transition={{ duration: 0.3 }}
-          >{animPhase >= 2 ? step.policy : "…"}</motion.span>
-        </div>
-      </div>
     </div>
   );
 }
