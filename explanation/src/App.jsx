@@ -258,118 +258,181 @@ function HeroDiagram({ t }) {
   );
 }
 
-function WorkflowDiagram({ t }) {
+const SWIMLANE_DELAYS = [900, 600, 850, 600];
+
+function SwimLaneDiagram({ t }) {
   const reduceMotion = useReducedMotion();
-  const [phase, setPhase] = useState(0);
-  const [stepIndex, setStepIndex] = useState(0);
+  const [stepIdx, setStepIdx] = useState(0);
+  const [animPhase, setAnimPhase] = useState(0);
+  // animPhase: 0=engine running, 1=outcome→policy, 2=policy deciding, 3=directive→engine
+
   const steps = t.loopMap.workflow.steps;
-  const workflowPhases = t.loopMap.workflow.phases;
-  const step = steps[stepIndex];
-  const currentPhaseIndex = workflowPhases.findIndex((item) => item.id === step.phase);
+  const wfPhases = t.loopMap.workflow.phases;
+  const step = steps[stepIdx];
 
   useEffect(() => {
     if (reduceMotion) return;
     const tid = setTimeout(() => {
-      if (phase === 4) {
-        setStepIndex((index) => (index + 1) % steps.length);
-        setPhase(0);
-        return;
+      if (animPhase === 3) {
+        setStepIdx(i => (i + 1) % steps.length);
+        setAnimPhase(0);
+      } else {
+        setAnimPhase(p => p + 1);
       }
-      setPhase((current) => current + 1);
-    }, HERO_DELAYS[phase]);
+    }, SWIMLANE_DELAYS[animPhase]);
     return () => clearTimeout(tid);
-  }, [phase, reduceMotion, steps.length]);
+  }, [stepIdx, animPhase, reduceMotion, steps.length]);
 
-  const directive = step.directive;
-  const turnNum = step.turn;
-  const ui = t.ui;
-  const engineState =
-    phase === 0 ? step.engine
-      : phase === 1 ? ui.sendingOutcome
-      : phase === 3 ? ui.gotDirective
-      : phase === 4 ? step.follow
-      : ui.idle;
-  const policyState =
-    phase === 2 ? step.policy
-      : phase >= 3 ? step.decision
-      : ui.waiting;
+  // SVG layout
+  const LW = 54, SP = 108, TW = 80, TH = 36;
+  const EY = 12, EH = 52, PY = 132, PH = 52;
+  const ECY = EY + EH / 2;
+  const PCY = PY + PH / 2;
+  const MID = (ECY + PCY) / 2;
+  const tcx = i => LW + SP * i + SP / 2;
+  const tx  = i => tcx(i) - TW / 2;
+  const VW  = LW + SP * steps.length + 10;
+  const VH  = PY + PH + 10;
+
+  // Build phase blocks by grouping consecutive steps with same phase
+  const phaseBlocks = [];
+  let pi = 0;
+  while (pi < steps.length) {
+    const ph = steps[pi].phase;
+    let pj = pi;
+    while (pj < steps.length && steps[pj].phase === ph) pj++;
+    phaseBlocks.push({
+      phase: ph,
+      endIdx: pj - 1,
+      x: tx(pi) - 6,
+      w: tx(pj - 1) + TW + 6 - (tx(pi) - 6),
+    });
+    pi = pj;
+  }
+
+  const currentBlock = phaseBlocks.find(b => b.phase === step.phase);
+  const phaseCX = currentBlock ? currentBlock.x + currentBlock.w / 2 : tcx(stepIdx);
 
   return (
-    <div className="hero-diagram workflow-diagram">
-      <div className="wtl-phase-rail">
-        <span className="wtl-phase-label">{t.loopMap.workflow.phaseLabel}</span>
-        <div className="wtl-phase-list">
-          {workflowPhases.map((item, index) => {
-            const state =
-              index === currentPhaseIndex ? "active" : index < currentPhaseIndex ? "done" : "idle";
+    <div className="swimlane-wrap">
+      <svg viewBox={`0 0 ${VW} ${VH}`} className="swimlane-svg" aria-hidden="true">
 
-            return (
-              <motion.span
-                key={item.id}
-                className={`wtl-phase-pill wtl-phase-pill-${state}`}
-                animate={!reduceMotion && state === "active" ? { y: [0, -2, 0] } : undefined}
-                transition={{ duration: 1.2, repeat: Infinity, ease: "easeInOut" }}
-              >
-                {item.name}
-              </motion.span>
-            );
-          })}
+        {/* Lane backgrounds */}
+        <rect x={LW} y={EY} width={VW - LW - 4} height={EH}
+          fill="rgba(209,77,44,0.07)" rx={8}
+          stroke="rgba(209,77,44,0.22)" strokeWidth={1.5} />
+        <rect x={LW} y={PY} width={VW - LW - 4} height={PH}
+          fill="rgba(210,163,58,0.07)" rx={8}
+          stroke="rgba(210,163,58,0.22)" strokeWidth={1.5} />
+
+        {/* Lane labels */}
+        <text x={LW - 8} y={ECY + 5} textAnchor="end" fontSize={10}
+          fontWeight="700" fontFamily="Space Grotesk, sans-serif" fill="var(--coral)">Engine</text>
+        <text x={LW - 8} y={PCY + 5} textAnchor="end" fontSize={10}
+          fontWeight="700" fontFamily="Space Grotesk, sans-serif" fill="var(--gold)">Policy</text>
+
+        {/* Dashed vertical connectors */}
+        {steps.map((_, i) => (
+          <line key={`conn-${i}`}
+            x1={tcx(i)} y1={EY + EH} x2={tcx(i)} y2={PY}
+            stroke="color-mix(in srgb, var(--ink) 10%, transparent)"
+            strokeWidth={1} strokeDasharray="3 3" />
+        ))}
+
+        {/* Phase blocks in Policy lane */}
+        {phaseBlocks.map(block => {
+          const name = wfPhases.find(p => p.id === block.phase)?.name || block.phase;
+          const isActive = step.phase === block.phase;
+          const isPast = stepIdx > block.endIdx;
+          return (
+            <g key={block.phase}>
+              <rect x={block.x} y={PY + 5} width={block.w} height={PH - 10}
+                fill={isActive ? "var(--gold)" : isPast ? "rgba(0,109,114,0.15)" : "transparent"}
+                rx={6}
+                stroke={isActive ? "var(--ink)" : "color-mix(in srgb, var(--ink) 20%, transparent)"}
+                strokeWidth={isActive ? 2.5 : 1.5} />
+              <text x={block.x + block.w / 2} y={PCY + 5}
+                textAnchor="middle" fontSize={11}
+                fontWeight={isActive ? "700" : "500"}
+                fontFamily="Space Grotesk, sans-serif"
+                fill={isActive ? "var(--ink)" : "var(--muted)"}>{name}</text>
+            </g>
+          );
+        })}
+
+        {/* Turn boxes in Engine lane */}
+        {steps.map((s, i) => {
+          const isActive = i === stepIdx;
+          const isDone   = i < stepIdx;
+          return (
+            <g key={i}>
+              <motion.rect
+                x={tx(i)} y={EY + (EH - TH) / 2} width={TW} height={TH} rx={6}
+                fill={isActive ? "var(--coral)" : isDone ? "rgba(0,109,114,0.18)" : "var(--surface)"}
+                stroke={isActive ? "var(--ink)" : "color-mix(in srgb, var(--ink) 25%, transparent)"}
+                strokeWidth={isActive ? 2.5 : 1.5}
+                animate={!reduceMotion && isActive && animPhase === 0 ? { scale: [1, 1.05, 1] } : {}}
+                transition={{ duration: 0.65 }}
+              />
+              <text x={tcx(i)} y={ECY + 5} textAnchor="middle" fontSize={10}
+                fontWeight={isActive ? "700" : "500"}
+                fontFamily="Space Grotesk, sans-serif"
+                fill={isActive ? "#fff" : "var(--muted)"}>T{s.turn}</text>
+            </g>
+          );
+        })}
+
+        {/* Outcome dot: Engine → Policy */}
+        {!reduceMotion && animPhase === 1 && (
+          <motion.circle key={`out-${stepIdx}`}
+            r={5} fill="var(--coral)" stroke="var(--ink)" strokeWidth={2}
+            initial={{ cx: tcx(stepIdx), cy: EY + EH }}
+            animate={{ cx: phaseCX, cy: PY }}
+            transition={{ duration: 0.55, ease: "easeInOut" }} />
+        )}
+
+        {/* Directive dot: Policy → Engine */}
+        {!reduceMotion && animPhase === 3 && (
+          <motion.circle key={`dir-${stepIdx}`}
+            r={5} fill="var(--gold)" stroke="var(--ink)" strokeWidth={2}
+            initial={{ cx: phaseCX, cy: PY }}
+            animate={{ cx: tcx(stepIdx), cy: EY + EH }}
+            transition={{ duration: 0.55, ease: "easeInOut" }} />
+        )}
+
+        {/* Directive label badge between lanes */}
+        {animPhase >= 2 && (
+          <motion.g key={`badge-${stepIdx}`}
+            initial={reduceMotion ? {} : { opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ duration: 0.25 }}>
+            <rect x={tcx(stepIdx) - 38} y={MID - 10} width={76} height={20} rx={10}
+              fill="var(--surface-strong)"
+              stroke="color-mix(in srgb, var(--teal) 55%, transparent)"
+              strokeWidth={1.5} />
+            <text x={tcx(stepIdx)} y={MID + 5} textAnchor="middle"
+              fontSize={9} fontWeight="700"
+              fontFamily="Space Grotesk, sans-serif"
+              fill="var(--teal)">{step.directive}</text>
+          </motion.g>
+        )}
+      </svg>
+
+      {/* Step caption */}
+      <div className="swimlane-caption">
+        <div className="swimlane-caption-row">
+          <span className="swimlane-role-badge swimlane-engine-badge">Engine</span>
+          <span className="swimlane-caption-text">{step.engine}</span>
         </div>
-      </div>
-
-      <div className="workflow-frame">
-        <div className="workflow-exchange">
-          <motion.div
-            className={`workflow-node workflow-node-engine${phase === 0 || phase === 4 ? " workflow-node-active" : ""}`}
-            animate={!reduceMotion && (phase === 0 || phase === 4) ? { scale: [1, 1.03, 1] } : {}}
-            transition={{ duration: 0.65 }}
-          >
-            <span className="workflow-node-label">Engine</span>
-            <strong>{workflowPhases[currentPhaseIndex]?.name}</strong>
-            <p>{engineState}</p>
-          </motion.div>
-
-          <div className="workflow-lines" aria-hidden="true">
-            <div className="workflow-line workflow-line-outcome" />
-            <div className="workflow-line workflow-line-directive" />
-
-            {!reduceMotion && phase === 1 ? (
-              <motion.span
-                key={`workflow-outcome-${stepIndex}`}
-                className="workflow-dot workflow-dot-outcome"
-                initial={{ top: "8%" }}
-                animate={{ top: "84%" }}
-                transition={{ duration: 0.95, ease: "easeInOut" }}
-              />
-            ) : null}
-
-            {!reduceMotion && phase === 3 ? (
-              <motion.span
-                key={`workflow-directive-${stepIndex}`}
-                className="workflow-dot workflow-dot-directive"
-                initial={{ top: "84%" }}
-                animate={{ top: "8%" }}
-                transition={{ duration: 0.95, ease: "easeInOut" }}
-              />
-            ) : null}
-          </div>
-
-          <motion.div
-            className={`workflow-node workflow-node-policy${phase === 2 || phase === 3 ? " workflow-node-active" : ""}`}
-            animate={!reduceMotion && (phase === 2 || phase === 3) ? { scale: [1, 1.03, 1] } : {}}
-            transition={{ duration: 0.65 }}
-          >
-            <span className="workflow-node-label">Policy</span>
-            <strong>{directive}</strong>
-            <p>{policyState}</p>
-            <motion.span
-              className={`wtl-chip wtl-chip-inline wtl-chip-${directive}`}
-              animate={!reduceMotion ? { opacity: phase >= 2 ? 1 : 0.18 } : undefined}
-              transition={{ duration: 0.3 }}
-            >
-              {directive}
-            </motion.span>
-          </motion.div>
+        <div className="swimlane-caption-row">
+          <span className="swimlane-role-badge swimlane-policy-badge">Policy</span>
+          <motion.span
+            key={`policy-${stepIdx}-${animPhase}`}
+            className="swimlane-caption-text"
+            initial={reduceMotion ? {} : { opacity: animPhase < 2 ? 0.3 : 1 }}
+            animate={{ opacity: animPhase >= 2 ? 1 : 0.3 }}
+            transition={{ duration: 0.3 }}
+          >{animPhase >= 2 ? step.policy : "…"}</motion.span>
         </div>
       </div>
     </div>
@@ -763,7 +826,7 @@ function ExampleWorkflowSection({ t }) {
           </div>
 
           <div className="diagram-main-visual">
-            <WorkflowDiagram t={t} />
+            <SwimLaneDiagram t={t} />
           </div>
         </div>
       </Reveal>
