@@ -1,17 +1,19 @@
 @import url("https://fonts.googleapis.com/css2?family=Archivo+Black&family=Space+Grotesk:wght@400;500;700&display=swap");
 
 :root {
-  --bg: #f6efe3;
-  --bg-strong: #f0ddba;
-  --surface: rgba(255, 251, 245, 0.72);
-  --surface-strong: rgba(255, 251, 245, 0.9);
-  --line: rgba(41, 32, 22, 0.14);
+  --bg: #f5f0e8;
+  --bg-strong: #ede6d8;
+  --surface: #fffbf5;
+  --surface-strong: #fff8ee;
+  --line: #1d1711;
+  --ink: #1d1711;
   --text: #1d1711;
-  --muted: rgba(29, 23, 17, 0.72);
+  --muted: rgba(29, 23, 17, 0.68);
   --coral: #d14d2c;
   --gold: #d2a33a;
   --teal: #006d72;
-  --shadow: 0 24px 80px rgba(70, 41, 12, 0.14);
+  --shadow: 4px 4px 0 #1d1711;
+  --shadow-lg: 6px 6px 0 #1d1711;
 }
 
 * {
@@ -26,10 +28,7 @@ body {
   margin: 0;
   color: var(--text);
   font-family: "Space Grotesk", sans-serif;
-  background:
-    radial-gradient(circle at top left, rgba(209, 77, 44, 0.16), transparent 28%),
-    radial-gradient(circle at 85% 18%, rgba(0, 109, 114, 0.18), transparent 26%),
-    linear-gradient(180deg, #faefe0 0%, var(--bg) 48%, #f9f5ee 100%);
+  background: var(--bg);
   min-height: 100vh;
 }
 
@@ -57,10 +56,9 @@ a {
   position: fixed;
   inset: 0;
   background-image:
-    linear-gradient(rgba(29, 23, 17, 0.03) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(29, 23, 17, 0.03) 1px, transparent 1px);
-  background-size: 36px 36px;
-  mask-image: linear-gradient(180deg, rgba(0, 0, 0, 0.75), transparent 92%);
+    linear-gradient(rgba(29, 23, 17, 0.06) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(29, 23, 17, 0.06) 1px, transparent 1px);
+  background-size: 32px 32px;
   pointer-events: none;
 }
 
@@ -94,19 +92,21 @@ a {
 .brand-lockup {
   display: inline-flex;
   align-items: center;
-  gap: 12px;
-  font-size: 0.95rem;
+  gap: 10px;
+  padding: 6px 14px;
+  background: var(--gold);
+  border: 2px solid var(--ink);
+  box-shadow: 3px 3px 0 var(--ink);
+  font-size: 0.88rem;
   font-weight: 700;
-  letter-spacing: 0.08em;
+  letter-spacing: 0.1em;
   text-transform: uppercase;
 }
 
 .brand-dot {
-  width: 12px;
-  height: 12px;
-  border-radius: 999px;
-  background: linear-gradient(135deg, var(--coral), var(--gold));
-  box-shadow: 0 0 0 6px rgba(209, 77, 44, 0.14);
+  width: 10px;
+  height: 10px;
+  background: var(--ink);
 }
 
 .nav-row nav {
@@ -117,30 +117,34 @@ a {
 }
 
 .nav-row nav a {
-  color: var(--muted);
+  color: var(--text);
+  font-weight: 600;
+  font-size: 0.82rem;
 }
 
 .nav-row nav a:hover {
-  color: var(--text);
+  text-decoration: underline;
+  text-underline-offset: 3px;
 }
 
 .lang-toggle {
-  background: none;
-  border: 1.5px solid rgba(29, 23, 17, 0.22);
-  color: var(--muted);
-  border-radius: 999px;
+  background: var(--coral);
+  border: 2px solid var(--ink);
+  color: #fff;
+  border-radius: 0;
   padding: 3px 12px;
   font-size: 0.78rem;
   font-weight: 700;
   letter-spacing: 0.04em;
   cursor: pointer;
-  transition: border-color 0.18s, color 0.18s;
+  box-shadow: 2px 2px 0 var(--ink);
+  transition: transform 100ms ease, box-shadow 100ms ease;
   white-space: nowrap;
 }
 
 .lang-toggle:hover {
-  border-color: var(--teal);
-  color: var(--teal);
+  transform: translate(-1px, -1px);
+  box-shadow: 3px 3px 0 var(--ink);
 }
 
 .hero-grid {
@@ -167,24 +171,24 @@ h1,
 h2,
 h3 {
   margin: 0;
-  font-family: "Fraunces", serif;
-  font-weight: 700;
+  font-family: "Archivo Black", sans-serif;
+  font-weight: 900;
   line-height: 0.96;
 }
 
 h1 {
-  font-size: clamp(3.4rem, 6vw, 6.4rem);
-  letter-spacing: -0.05em;
+  font-size: clamp(2.8rem, 5.5vw, 5.8rem);
+  letter-spacing: -0.02em;
 }
 
 h2 {
-  font-size: clamp(2.1rem, 3vw, 3.3rem);
-  letter-spacing: -0.04em;
+  font-size: clamp(1.8rem, 2.8vw, 2.8rem);
+  letter-spacing: -0.01em;
 }
 
 h3 {
-  font-size: 1.5rem;
-  letter-spacing: -0.03em;
+  font-size: 1.35rem;
+  letter-spacing: 0;
 }
 
 .hero-text,
@@ -215,35 +219,35 @@ h3 {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  min-height: 50px;
+  min-height: 46px;
   padding: 0 22px;
-  border-radius: 999px;
-  border: 1px solid var(--line);
-  transition:
-    transform 180ms ease,
-    border-color 180ms ease,
-    background 180ms ease;
+  border-radius: 0;
+  border: 2px solid var(--ink);
+  font-weight: 700;
+  box-shadow: 3px 3px 0 var(--ink);
+  transition: transform 100ms ease, box-shadow 100ms ease;
 }
 
 .button:hover {
-  transform: translateY(-2px);
+  transform: translate(-2px, -2px);
+  box-shadow: 5px 5px 0 var(--ink);
 }
 
 .button:disabled {
   cursor: default;
-  opacity: 0.62;
+  opacity: 0.5;
   transform: none;
+  box-shadow: none;
 }
 
 .button-primary {
-  color: #fff9f1;
-  background: linear-gradient(135deg, #0d5f62, #0f3b4a);
-  border-color: transparent;
+  color: #fff;
+  background: var(--teal);
 }
 
 .button-secondary {
-  background: rgba(255, 251, 245, 0.75);
-  backdrop-filter: blur(18px);
+  background: var(--surface);
+  color: var(--text);
 }
 
 .hero-facts {
@@ -258,14 +262,13 @@ h3 {
 .lifecycle-step,
 .terminal-shell {
   background: var(--surface);
-  backdrop-filter: blur(18px);
-  border: 1px solid rgba(255, 255, 255, 0.6);
+  border: 2px solid var(--ink);
   box-shadow: var(--shadow);
 }
 
 .hero-facts div {
   padding: 16px 18px;
-  border-radius: 24px;
+  border-radius: 0;
 }
 
 .hero-facts strong,
@@ -295,13 +298,11 @@ h3 {
   position: relative;
   width: min(100%, 540px);
   aspect-ratio: 1 / 1;
-  border-radius: 38px;
+  border-radius: 0;
   overflow: hidden;
-  background:
-    radial-gradient(circle at center, rgba(255, 245, 223, 0.95), rgba(240, 221, 186, 0.45) 52%, rgba(255, 255, 255, 0.15) 80%),
-    linear-gradient(145deg, rgba(255, 255, 255, 0.5), rgba(255, 255, 255, 0.05));
-  border: 1px solid rgba(255, 255, 255, 0.5);
-  box-shadow: var(--shadow);
+  background: var(--surface);
+  border: 2px solid var(--ink);
+  box-shadow: var(--shadow-lg);
 }
 
 .diagram-ambient-grid,
@@ -489,9 +490,10 @@ h3 {
   position: absolute;
   width: 190px;
   padding: 16px 18px;
-  border-radius: 24px;
-  background: var(--surface-strong);
-  border: 1px solid rgba(255, 255, 255, 0.7);
+  border-radius: 0;
+  background: var(--surface);
+  border: 2px solid var(--ink);
+  box-shadow: 3px 3px 0 var(--ink);
 }
 
 .diagram-card p {
@@ -533,15 +535,15 @@ h3 {
 }
 
 .diagram-chip {
-  padding: 10px 14px;
-  border-radius: 999px;
-  border: 1px solid rgba(255, 255, 255, 0.7);
-  background: rgba(255, 251, 245, 0.72);
-  backdrop-filter: blur(18px);
-  font-size: 0.83rem;
+  padding: 8px 12px;
+  border-radius: 0;
+  border: 2px solid var(--ink);
+  background: var(--surface);
+  font-size: 0.8rem;
   font-weight: 700;
   text-transform: uppercase;
-  letter-spacing: 0.12em;
+  letter-spacing: 0.1em;
+  box-shadow: 2px 2px 0 var(--ink);
 }
 
 .diagram-chip-coral {
@@ -1030,11 +1032,11 @@ h3 {
   flex-direction: column;
   gap: 12px;
   padding: 24px;
-  border-radius: 24px;
+  border-radius: 0;
   background: var(--surface);
-  border: 1px solid rgba(255, 255, 255, 0.6);
+  border: 2px solid var(--ink);
   box-shadow: var(--shadow);
-  border-top: 2.5px solid var(--prob-accent);
+  border-top: 4px solid var(--prob-accent);
 }
 
 .problem-num {
@@ -1098,10 +1100,10 @@ h3 {
   grid-template-columns: 1fr 1.1fr;
   gap: 26px;
   padding: 30px;
-  border-radius: 32px;
-  background: linear-gradient(135deg, rgba(255, 243, 226, 0.85), rgba(255, 251, 245, 0.55));
-  border: 1px solid rgba(255, 255, 255, 0.55);
-  box-shadow: var(--shadow);
+  border-radius: 0;
+  background: var(--gold);
+  border: 2px solid var(--ink);
+  box-shadow: var(--shadow-lg);
 }
 
 .band-lead h2 {
@@ -1134,7 +1136,7 @@ h3 {
 .directive-card,
 .lifecycle-step,
 .terminal-shell {
-  border-radius: 28px;
+  border-radius: 0;
 }
 
 .role-card {
@@ -1152,9 +1154,10 @@ h3 {
 }
 
 .role-chip {
-  padding: 10px 14px;
-  border-radius: 999px;
-  background: color-mix(in srgb, var(--card-accent) 14%, white);
+  padding: 6px 12px;
+  border-radius: 0;
+  background: color-mix(in srgb, var(--card-accent) 18%, white);
+  border: 2px solid var(--ink);
 }
 
 .card-topline p,
@@ -2122,17 +2125,18 @@ h3 {
   align-items: center;
   gap: 5px;
   padding: 13px 14px;
-  border-radius: 18px;
-  background: var(--surface-strong);
-  border: 1px solid rgba(255, 255, 255, 0.78);
-  box-shadow: 0 6px 28px rgba(70, 41, 12, 0.1);
+  border-radius: 0;
+  background: var(--surface);
+  border: 2px solid var(--ink);
+  box-shadow: 3px 3px 0 var(--ink);
   text-align: center;
   width: 140px;
-  transition: box-shadow 0.3s;
+  transition: box-shadow 0.2s, transform 0.2s;
 }
 
 .wtl-node-active {
-  box-shadow: 0 8px 32px rgba(70, 41, 12, 0.14);
+  box-shadow: 5px 5px 0 var(--ink);
+  transform: translate(-1px, -1px);
 }
 
 /* Engine: top-left (left=36, top=70 in 540×540 → 6.7%, 13%) */
@@ -2176,12 +2180,14 @@ h3 {
 .wtl-chip {
   display: inline-flex;
   align-items: center;
-  padding: 6px 14px;
-  border-radius: 999px;
-  font-size: 0.8rem;
+  padding: 4px 12px;
+  border-radius: 0;
+  font-size: 0.78rem;
   font-weight: 700;
-  letter-spacing: 0.04em;
+  letter-spacing: 0.06em;
   white-space: nowrap;
+  text-transform: uppercase;
+  border: 2px solid currentColor;
 }
 
 .wtl-chip-inline {
@@ -2191,32 +2197,27 @@ h3 {
 }
 
 .wtl-chip-continue {
-  background: rgba(209, 77, 44, 0.1);
-  border: 1px solid rgba(209, 77, 44, 0.3);
+  background: rgba(209, 77, 44, 0.08);
   color: var(--coral);
 }
 
 .wtl-chip-retry {
-  background: rgba(210, 163, 58, 0.12);
-  border: 1px solid rgba(210, 163, 58, 0.35);
+  background: rgba(210, 163, 58, 0.1);
   color: #9f6c00;
 }
 
 .wtl-chip-wait {
-  background: rgba(210, 163, 58, 0.12);
-  border: 1px solid rgba(210, 163, 58, 0.35);
+  background: rgba(210, 163, 58, 0.1);
   color: #9f6c00;
 }
 
 .wtl-chip-advance_phase {
-  background: rgba(71, 131, 255, 0.12);
-  border: 1px solid rgba(71, 131, 255, 0.35);
+  background: rgba(71, 131, 255, 0.1);
   color: #264fc9;
 }
 
 .wtl-chip-complete {
-  background: rgba(0, 109, 114, 0.1);
-  border: 1px solid rgba(0, 109, 114, 0.3);
+  background: rgba(0, 109, 114, 0.08);
   color: var(--teal);
 }
 
@@ -3534,12 +3535,9 @@ h2 {
   gap: 18px;
   padding: 18px;
   border: 3px solid var(--ink);
-  border-radius: 24px;
-  background:
-    radial-gradient(circle at 18% 18%, rgba(235, 219, 255, 0.38), transparent 28%),
-    radial-gradient(circle at 82% 80%, rgba(255, 235, 108, 0.26), transparent 26%),
-    rgba(255, 252, 246, 0.9);
-  box-shadow: 10px 10px 0 rgba(18, 18, 18, 0.18);
+  border-radius: 0;
+  background: var(--surface);
+  box-shadow: var(--shadow-lg);
   overflow: hidden;
 }
 
@@ -3549,9 +3547,9 @@ h2 {
   gap: 18px;
   padding: 18px;
   border: 3px solid var(--ink);
-  border-radius: 24px;
-  background: rgba(255, 252, 246, 0.92);
-  box-shadow: 10px 10px 0 rgba(18, 18, 18, 0.18);
+  border-radius: 0;
+  background: var(--surface);
+  box-shadow: var(--shadow-lg);
   overflow: hidden;
 }
 
@@ -3568,10 +3566,10 @@ h2 {
 .diagram-main-copy h2 {
   max-width: 10ch;
   margin-bottom: 18px;
-  font-family: "Space Grotesk", sans-serif;
-  font-size: clamp(3rem, 6vw, 5.5rem);
-  line-height: 0.92;
-  letter-spacing: -0.06em;
+  font-family: "Archivo Black", sans-serif;
+  font-size: clamp(2.6rem, 5.2vw, 4.8rem);
+  line-height: 0.94;
+  letter-spacing: -0.02em;
   text-transform: none;
   overflow-wrap: anywhere;
 }
@@ -3579,10 +3577,10 @@ h2 {
 .workflow-copy h2 {
   max-width: 13ch;
   margin-bottom: 18px;
-  font-family: "Space Grotesk", sans-serif;
-  font-size: clamp(2.4rem, 4.8vw, 4.4rem);
+  font-family: "Archivo Black", sans-serif;
+  font-size: clamp(2rem, 4vw, 3.6rem);
   line-height: 0.96;
-  letter-spacing: -0.06em;
+  letter-spacing: -0.01em;
   text-transform: none;
   overflow-wrap: anywhere;
 }
@@ -3673,8 +3671,8 @@ h2 {
   min-height: 220px;
   padding: 22px;
   border: 3px solid var(--ink);
-  border-radius: 20px;
-  box-shadow: 8px 8px 0 rgba(18, 18, 18, 0.18);
+  border-radius: 0;
+  box-shadow: var(--shadow-lg);
 }
 
 .diagram-copy-card span {
@@ -3712,9 +3710,9 @@ h2 {
 .diagram-phase-card {
   padding: 22px 24px;
   border: 3px solid var(--ink);
-  border-radius: 20px;
-  background: rgba(255, 252, 246, 0.92);
-  box-shadow: 8px 8px 0 rgba(18, 18, 18, 0.18);
+  border-radius: 0;
+  background: var(--surface);
+  box-shadow: var(--shadow-lg);
 }
 
 .diagram-phase-kicker {
@@ -3810,10 +3808,10 @@ h2 {
 }
 
 .policy-flow-card {
-  background: rgba(255, 251, 245, 0.88);
-  border: 1.5px solid rgba(255, 255, 255, 0.76);
-  border-radius: 20px;
-  box-shadow: 0 6px 28px rgba(70, 41, 12, 0.09);
+  background: var(--surface);
+  border: 2px solid var(--ink);
+  border-radius: 0;
+  box-shadow: var(--shadow);
   overflow: hidden;
   display: flex;
   flex-direction: column;
@@ -3843,10 +3841,11 @@ h2 {
   font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 0.1em;
-  color: var(--muted);
-  background: rgba(29, 23, 17, 0.06);
-  padding: 4px 10px;
-  border-radius: 999px;
+  color: var(--text);
+  background: var(--gold);
+  padding: 3px 10px;
+  border-radius: 0;
+  border: 1.5px solid var(--ink);
 }
 
 .policy-body {
