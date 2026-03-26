@@ -2607,7 +2607,7 @@ body {
 .brand-dot {
   width: 16px;
   height: 16px;
-  border-radius: 2px;
+  border-radius: 0;
   border: 3px solid var(--ink);
   background: var(--coral);
   box-shadow: none;
@@ -2698,7 +2698,7 @@ h2 {
 .button {
   min-height: 54px;
   border: 3px solid var(--ink);
-  border-radius: 12px;
+  border-radius: 0;
   box-shadow: 6px 6px 0 var(--ink);
   font-weight: 700;
   text-transform: uppercase;
@@ -2786,7 +2786,7 @@ h2 {
 .explore-mini-toggle,
 .explore-rule-box,
 .ownership-grid div {
-  border-radius: 14px;
+  border-radius: 0;
 }
 
 .hero-facts div:nth-child(1) {
@@ -2802,7 +2802,7 @@ h2 {
 }
 
 .hero-diagram {
-  border-radius: 22px;
+  border-radius: 0;
   background:
     linear-gradient(var(--grid-line) 3px, transparent 3px),
     linear-gradient(90deg, var(--grid-line) 3px, transparent 3px),
@@ -2811,7 +2811,7 @@ h2 {
 }
 
 .wtl-node {
-  border-radius: 12px;
+  border-radius: 0;
   background: var(--surface-strong);
 }
 
@@ -2840,8 +2840,8 @@ h2 {
 .explore-directive-chip,
 .explore-flag {
   border: 3px solid var(--ink);
-  border-radius: 999px;
-  box-shadow: 4px 4px 0 var(--ink);
+  border-radius: 0;
+  box-shadow: 3px 3px 0 var(--ink);
   background: var(--surface-strong);
   color: var(--ink);
 }
@@ -2967,7 +2967,7 @@ h2 {
 }
 
 .band-grid {
-  border-radius: 18px;
+  border-radius: 0;
   background:
     linear-gradient(135deg, var(--teal) 0 32%, var(--surface-strong) 32% 100%);
 }
@@ -2995,7 +2995,7 @@ h2 {
 .accent-section::before {
   inset: 36px -10px 24px;
   border: 3px solid var(--ink);
-  border-radius: 18px;
+  border-radius: 0;
   background:
     repeating-linear-gradient(
       -45deg,
@@ -3018,7 +3018,7 @@ h2 {
 }
 
 .lifecycle-step {
-  border-radius: 16px;
+  border-radius: 0;
 }
 
 .lifecycle-index {
@@ -3041,7 +3041,7 @@ h2 {
 
 .explore-stage,
 .loop-map-stage {
-  border-radius: 18px;
+  border-radius: 0;
   background:
     linear-gradient(var(--grid-line) 2px, transparent 2px),
     linear-gradient(90deg, var(--grid-line) 2px, transparent 2px),
@@ -3069,7 +3069,7 @@ h2 {
 }
 
 .explore-preview {
-  border-radius: 18px;
+  border-radius: 0;
 }
 
 .explore-preview-coral {
@@ -3096,12 +3096,12 @@ h2 {
 
 .explore-log-entry {
   border: 2px solid rgba(255, 255, 255, 0.18);
-  border-radius: 10px;
+  border-radius: 0;
   background: rgba(255, 255, 255, 0.06);
 }
 
 .terminal-shell {
-  border-radius: 16px;
+  border-radius: 0;
   background: var(--surface-strong);
 }
 
@@ -3186,13 +3186,13 @@ h2 {
 .explore-rule-box,
 .explore-disclosure,
 .explore-stat {
-  border: 1.5px solid rgba(18, 18, 18, 0.14);
-  box-shadow: 0 16px 34px rgba(18, 18, 18, 0.08);
+  border: 2px solid var(--ink);
+  box-shadow: var(--shadow);
 }
 
 .explore-controls,
 .explore-stage {
-  border-radius: 24px;
+  border-radius: 0;
   background: rgba(255, 252, 246, 0.92);
 }
 
@@ -3229,7 +3229,7 @@ h2 {
 .explore-step-card {
   min-height: 100%;
   padding: 12px 14px;
-  border-radius: 16px;
+  border-radius: 0;
   background: rgba(255, 255, 255, 0.88);
   color: rgba(18, 18, 18, 0.76);
 }
@@ -3241,7 +3241,7 @@ h2 {
 
 .explore-scenario {
   padding: 18px 20px;
-  border-radius: 18px;
+  border-radius: 0;
   background: rgba(255, 255, 255, 0.86);
 }
 
@@ -3273,7 +3273,7 @@ h2 {
 .explore-mini-toggle,
 .explore-phase-guide,
 .explore-rule-box {
-  border-radius: 18px;
+  border-radius: 0;
   background: rgba(255, 255, 255, 0.82);
 }
 
@@ -3293,7 +3293,7 @@ h2 {
 
 .explore-preview {
   padding: 24px;
-  border-radius: 22px;
+  border-radius: 0;
   background: rgba(255, 255, 255, 0.92);
 }
 
@@ -3339,7 +3339,7 @@ h2 {
   gap: 18px;
   align-items: start;
   padding: 16px 18px;
-  border-radius: 18px;
+  border-radius: 0;
   border: 1.5px solid rgba(18, 18, 18, 0.1);
   background: rgba(255, 255, 255, 0.72);
 }
@@ -3385,7 +3385,7 @@ h2 {
 
 .explore-disclosure {
   overflow: hidden;
-  border-radius: 18px;
+  border-radius: 0;
   background: rgba(255, 255, 255, 0.76);
 }
 
@@ -3430,7 +3430,7 @@ h2 {
 .explore-stat {
   min-height: 96px;
   padding: 14px 16px;
-  border-radius: 16px;
+  border-radius: 0;
   background: rgba(255, 255, 255, 0.88);
 }
 
@@ -3443,7 +3443,7 @@ h2 {
 }
 
 .explore-log-shell {
-  border-radius: 16px;
+  border-radius: 0;
   border: 1px solid rgba(191, 227, 218, 0.12);
   background: linear-gradient(180deg, rgba(9, 24, 34, 0.98), rgba(12, 31, 40, 0.96));
 }
@@ -3457,7 +3457,7 @@ h2 {
   grid-template-columns: 84px minmax(0, 1fr);
   padding: 12px 14px;
   border: 1px solid rgba(255, 255, 255, 0.1);
-  border-radius: 12px;
+  border-radius: 0;
 }
 
 .explore-log-entry span,
@@ -3912,7 +3912,7 @@ h2 {
 .workflow-phase-pill {
   display: inline-block;
   padding: 4px 12px;
-  border-radius: 20px;
+  border-radius: 0;
   font-size: 0.78rem;
   font-weight: 700;
   letter-spacing: 0.04em;
@@ -3966,7 +3966,7 @@ h2 {
   gap: 6px;
   padding: 14px 16px;
   background: var(--surface);
-  border-radius: 14px;
+  border-radius: 0;
   border: 1.5px solid var(--line);
 }
 
@@ -3983,7 +3983,7 @@ h2 {
   letter-spacing: 0.06em;
   text-transform: uppercase;
   padding: 2px 8px;
-  border-radius: 6px;
+  border-radius: 0;
   flex-shrink: 0;
   width: 54px;
   text-align: center;
@@ -4037,7 +4037,7 @@ h2 {
   color: var(--coral);
   background: color-mix(in srgb, var(--coral) 10%, transparent);
   border: 1.5px solid color-mix(in srgb, var(--coral) 28%, transparent);
-  border-radius: 8px;
+  border-radius: 0;
   padding: 3px 10px;
   width: fit-content;
 }
@@ -4071,7 +4071,7 @@ h2 {
   color: var(--teal);
   background: color-mix(in srgb, var(--teal) 10%, transparent);
   border: 1.5px solid color-mix(in srgb, var(--teal) 28%, transparent);
-  border-radius: 8px;
+  border-radius: 0;
   padding: 3px 10px;
   width: fit-content;
 }
