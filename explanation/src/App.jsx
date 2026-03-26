@@ -318,108 +318,112 @@ function SwimLaneDiagram({ t }) {
   const currentBlock = phaseBlocks.find(b => b.phase === step.phase);
   const blockCY = currentBlock ? currentBlock.y + currentBlock.h / 2 : rowCY(stepIdx);
 
+  // SVG hard-shadow box helper (wtl-flow-box style)
+  const ShadowBox = ({ x, y, w, h, fill = "#fffbf5", stroke = "var(--ink)", sw = 2.5, sdx = 3, sdy = 3, children }) => (
+    <g>
+      <rect x={x + sdx} y={y + sdy} width={w} height={h} fill="var(--ink)" />
+      <rect x={x} y={y} width={w} height={h} fill={fill} stroke={stroke} strokeWidth={sw} />
+      {children}
+    </g>
+  );
+
+  const SD = 3; // shadow offset
+  const BX = EX + 5, BW = COL_W - 10;
+  const PBX = PX + 5;
+
   return (
     <div className="swimlane-wrap">
       <svg viewBox={`0 0 ${VW} ${VH}`} className="swimlane-svg" aria-hidden="true">
 
-        {/* Column header — outlined, ink border */}
-        <rect x={EX} y={2} width={COL_W} height={HDR - 6} rx={0}
-          fill="rgba(209,77,44,0.10)" stroke="var(--ink)" strokeWidth={2} />
-        <text x={EX + COL_W / 2} y={HDR - 7} textAnchor="middle"
-          fontSize={10} fontWeight="900" fontFamily="Archivo Black, sans-serif"
-          fill="var(--coral)">Engine</text>
+        {/* Column headers — wtl-flow-box style */}
+        <ShadowBox x={EX} y={2} w={COL_W} h={HDR - 6} fill="rgba(209,77,44,0.12)" sdx={3} sdy={3}>
+          <text x={EX + COL_W / 2} y={HDR - 7} textAnchor="middle"
+            fontSize={10} fontWeight="900" fontFamily="Archivo Black, sans-serif"
+            fill="var(--coral)">Engine</text>
+        </ShadowBox>
 
-        <rect x={PX} y={2} width={COL_W} height={HDR - 6} rx={0}
-          fill="rgba(210,163,58,0.12)" stroke="var(--ink)" strokeWidth={2} />
-        <text x={PX + COL_W / 2} y={HDR - 7} textAnchor="middle"
-          fontSize={10} fontWeight="900" fontFamily="Archivo Black, sans-serif"
-          fill="var(--ink)">Policy</text>
+        <ShadowBox x={PX} y={2} w={COL_W} h={HDR - 6} fill="rgba(210,163,58,0.14)" sdx={3} sdy={3}>
+          <text x={PX + COL_W / 2} y={HDR - 7} textAnchor="middle"
+            fontSize={10} fontWeight="900" fontFamily="Archivo Black, sans-serif"
+            fill="var(--ink)">Policy</text>
+        </ShadowBox>
 
-        {/* Column background stripes — subtle fill, solid border */}
-        <rect x={EX} y={HDR} width={COL_W} height={VH - HDR}
-          fill="rgba(209,77,44,0.03)" rx={0}
-          stroke="var(--ink)" strokeWidth={2} />
-        <rect x={PX} y={HDR} width={COL_W} height={VH - HDR}
-          fill="rgba(210,163,58,0.04)" rx={0}
-          stroke="var(--ink)" strokeWidth={2} />
+        {/* Column lane backgrounds — light border, no shadow */}
+        <rect x={EX} y={HDR + 4} width={COL_W} height={VH - HDR - 8}
+          fill="rgba(209,77,44,0.03)" stroke="var(--ink)" strokeWidth={1.5} strokeDasharray="4 3" />
+        <rect x={PX} y={HDR + 4} width={COL_W} height={VH - HDR - 8}
+          fill="rgba(210,163,58,0.04)" stroke="var(--ink)" strokeWidth={1.5} strokeDasharray="4 3" />
 
-        {/* Dashed row guide lines across middle zone */}
+        {/* Dashed guide lines across middle zone */}
         {steps.map((_, i) => (
           <line key={`guide-${i}`}
             x1={MID_L} y1={rowCY(i)} x2={MID_R} y2={rowCY(i)}
-            stroke="var(--ink)" opacity={0.12}
+            stroke="var(--ink)" opacity={0.1}
             strokeWidth={1} strokeDasharray="4 4" />
         ))}
 
-        {/* Phase blocks in Policy column — sharp, thick border */}
+        {/* Phase blocks in Policy column — hard shadow box */}
         {phaseBlocks.map(block => {
           const name = wfPhases.find(p => p.id === block.phase)?.name || block.phase;
           const isActive = step.phase === block.phase;
           const isPast   = stepIdx > block.endIdx;
+          const fill = isActive ? "var(--gold)" : isPast ? "rgba(0,109,114,0.15)" : "#fffbf5";
           return (
-            <g key={block.phase}>
-              <rect
-                x={PX + 6} y={block.y + 4}
-                width={COL_W - 12} height={block.h - 8}
-                fill={isActive ? "var(--gold)" : isPast ? "rgba(0,109,114,0.18)" : "rgba(255,251,245,0.6)"}
-                rx={0}
-                stroke="var(--ink)"
-                strokeWidth={isActive ? 2.5 : 1.5}
-              />
+            <ShadowBox key={block.phase}
+              x={PBX} y={block.y + 4} w={COL_W - 10} h={block.h - 8}
+              fill={fill} sw={isActive ? 2.5 : 1.5}
+              sdx={isActive ? 3 : 2} sdy={isActive ? 3 : 2}>
               <text
                 x={PX + COL_W / 2} y={block.y + block.h / 2 + 5}
-                textAnchor="middle" fontSize={11}
-                fontWeight="900"
-                fontFamily="Archivo Black, sans-serif"
-                fill="var(--ink)"
-                opacity={isActive ? 1 : isPast ? 0.5 : 0.35}
+                textAnchor="middle" fontSize={11} fontWeight="700"
+                fontFamily="Space Grotesk, sans-serif"
+                fill={isActive ? "var(--ink)" : isPast ? "var(--teal)" : "var(--muted)"}
               >{name}</text>
-            </g>
+            </ShadowBox>
           );
         })}
 
-        {/* Turn boxes in Engine column — sharp rect */}
+        {/* Turn boxes in Engine column — hard shadow box */}
         {steps.map((s, i) => {
           const isActive = i === stepIdx;
           const isDone   = i < stepIdx;
+          const fill = isActive ? "var(--coral)" : isDone ? "rgba(0,109,114,0.15)" : "#fffbf5";
           return (
             <g key={i}>
+              {/* shadow */}
+              <rect x={BX + (isActive ? 3 : 2)} y={rowY(i) + 4 + (isActive ? 3 : 2)}
+                width={BW} height={BOX_H - 8} fill="var(--ink)" />
+              {/* box */}
               <motion.rect
-                x={EX + 6} y={rowY(i) + 4}
-                width={COL_W - 12} height={BOX_H - 8}
-                rx={0}
-                fill={isActive ? "var(--coral)" : isDone ? "rgba(0,109,114,0.18)" : "rgba(255,251,245,0.6)"}
-                stroke="var(--ink)"
-                strokeWidth={isActive ? 2.5 : 1.5}
+                x={BX} y={rowY(i) + 4} width={BW} height={BOX_H - 8} rx={0}
+                fill={fill} stroke="var(--ink)" strokeWidth={isActive ? 2.5 : 1.5}
                 animate={!reduceMotion && isActive && animPhase === 0 ? { scale: [1, 1.03, 1] } : {}}
                 transition={{ duration: 0.55 }}
               />
               <text
                 x={EX + COL_W / 2} y={rowCY(i) + 5}
-                textAnchor="middle" fontSize={10}
-                fontWeight="700"
+                textAnchor="middle" fontSize={10} fontWeight="700"
                 fontFamily="Space Grotesk, sans-serif"
-                fill={isActive ? "#fff" : "var(--ink)"}
-                opacity={isActive ? 1 : isDone ? 0.55 : 0.35}
+                fill={isActive ? "#fff" : isDone ? "var(--teal)" : "var(--muted)"}
               >T{s.turn} · {s.engine}</text>
             </g>
           );
         })}
 
-        {/* Track lines in middle zone — backbone + dashed accent (hero style) */}
+        {/* Track lines — backbone + dashed accent */}
         <line x1={MID_L} y1={rowCY(stepIdx)} x2={MID_R} y2={rowCY(stepIdx)}
-          stroke="var(--ink)" strokeWidth={5} strokeLinecap="round" opacity={0.18} />
+          stroke="var(--ink)" strokeWidth={5} strokeLinecap="round" opacity={0.15} />
         <line x1={MID_L} y1={rowCY(stepIdx)} x2={MID_R} y2={rowCY(stepIdx)}
           stroke="var(--coral)" strokeWidth={2.5} strokeLinecap="round"
           strokeDasharray="8 8" opacity={animPhase >= 1 ? 0.7 : 0.15} />
 
-        <line x1={MID_R} y1={rowCY(stepIdx) + 6} x2={MID_L} y2={rowCY(stepIdx) + 6}
-          stroke="var(--ink)" strokeWidth={5} strokeLinecap="round" opacity={0.18} />
-        <line x1={MID_R} y1={rowCY(stepIdx) + 6} x2={MID_L} y2={rowCY(stepIdx) + 6}
+        <line x1={MID_R} y1={rowCY(stepIdx) + 7} x2={MID_L} y2={rowCY(stepIdx) + 7}
+          stroke="var(--ink)" strokeWidth={5} strokeLinecap="round" opacity={0.15} />
+        <line x1={MID_R} y1={rowCY(stepIdx) + 7} x2={MID_L} y2={rowCY(stepIdx) + 7}
           stroke="var(--teal)" strokeWidth={2.5} strokeLinecap="round"
           strokeDasharray="8 8" opacity={animPhase >= 3 ? 0.7 : 0.15} />
 
-        {/* Outcome circle: Engine → Policy (rightward) — matches hero circle style */}
+        {/* Outcome circle */}
         {!reduceMotion && animPhase === 1 && (
           <motion.circle key={`out-${stepIdx}`}
             r={7} fill="var(--coral)" stroke="var(--ink)" strokeWidth={2.5}
@@ -428,30 +432,27 @@ function SwimLaneDiagram({ t }) {
             transition={{ duration: 0.5, ease: "easeInOut" }} />
         )}
 
-        {/* Directive circle: Policy → Engine (leftward) — matches hero circle style */}
+        {/* Directive circle */}
         {!reduceMotion && animPhase === 3 && (
           <motion.circle key={`dir-${stepIdx}`}
             r={7} fill="var(--teal)" stroke="var(--ink)" strokeWidth={2.5}
-            initial={{ cx: MID_R - 7, cy: rowCY(stepIdx) + 6 }}
-            animate={{ cx: MID_L + 7, cy: rowCY(stepIdx) + 6 }}
+            initial={{ cx: MID_R - 7, cy: rowCY(stepIdx) + 7 }}
+            animate={{ cx: MID_L + 7, cy: rowCY(stepIdx) + 7 }}
             transition={{ duration: 0.5, ease: "easeInOut" }} />
         )}
 
-        {/* Directive badge in middle zone — sharp, thick border */}
+        {/* Directive badge — hard shadow box */}
         {animPhase >= 2 && (
           <motion.g key={`badge-${stepIdx}`}
             initial={reduceMotion ? {} : { opacity: 0 }}
             animate={{ opacity: 1 }}
             transition={{ duration: 0.18 }}>
-            <rect
-              x={MID_CX - 36} y={rowCY(stepIdx) - 10}
-              width={72} height={20} rx={0}
-              fill="var(--surface)"
-              stroke="var(--ink)"
-              strokeWidth={2} />
-            <text x={MID_CX} y={rowCY(stepIdx) + 5}
-              textAnchor="middle" fontSize={8.5} fontWeight="900"
-              fontFamily="Archivo Black, sans-serif"
+            <rect x={MID_CX - 34} y={rowCY(stepIdx) - 9} width={68} height={20} fill="var(--ink)" />
+            <rect x={MID_CX - 36} y={rowCY(stepIdx) - 11} width={68} height={20}
+              fill="#fffbf5" stroke="var(--ink)" strokeWidth={2} />
+            <text x={MID_CX - 2} y={rowCY(stepIdx) + 4}
+              textAnchor="middle" fontSize={8.5} fontWeight="700"
+              fontFamily="Space Grotesk, sans-serif"
               fill="var(--ink)">{step.directive}</text>
           </motion.g>
         )}
@@ -525,23 +526,19 @@ function PolicyFlowCard({ item, index }) {
             const { cx, cy } = PHASE_NODES[i];
             const isActive = i === activePhaseIdx;
             const isDone = i < activePhaseIdx;
+            const nx = cx - NODE_W / 2, ny = cy - NODE_H / 2;
+            const fill = isActive ? "var(--gold)" : isDone ? "rgba(0,109,114,0.15)" : "#fffbf5";
+            const sdx = isActive ? 3 : 2, sdy = isActive ? 3 : 2;
             return (
               <g key={phase.id}>
-                <rect
-                  x={cx - NODE_W / 2} y={cy - NODE_H / 2}
-                  width={NODE_W} height={NODE_H} rx={0}
-                  fill={isActive ? "var(--gold)" : isDone ? "rgba(0,109,114,0.18)" : "var(--surface)"}
-                  stroke="var(--ink)"
-                  strokeWidth={isActive ? 2.5 : 1.5}
-                />
-                <text
-                  x={cx} y={cy + 5}
-                  textAnchor="middle"
-                  fontSize="10"
-                  fontWeight="700"
-                  fontFamily="Space Grotesk, sans-serif"
-                  fill={isActive ? "var(--ink)" : isDone ? "var(--teal)" : "var(--muted)"}
-                >
+                {/* hard shadow */}
+                <rect x={nx + sdx} y={ny + sdy} width={NODE_W} height={NODE_H} fill="var(--ink)" />
+                {/* main box */}
+                <rect x={nx} y={ny} width={NODE_W} height={NODE_H} rx={0}
+                  fill={fill} stroke="var(--ink)" strokeWidth={isActive ? 2.5 : 1.5} />
+                <text x={cx} y={cy + 5} textAnchor="middle"
+                  fontSize="10" fontWeight="700" fontFamily="Space Grotesk, sans-serif"
+                  fill={isActive ? "var(--ink)" : isDone ? "var(--teal)" : "var(--muted)"}>
                   {phase.name}
                 </text>
               </g>
