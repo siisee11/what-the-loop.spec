@@ -9,6 +9,7 @@ export const i18n = {
       roles: "Roles",
       directives: "Directives",
       lifecycle: "Lifecycle",
+      quint: "Quint",
       cli: "CLI"
     },
     ui: {
@@ -32,13 +33,13 @@ export const i18n = {
     hero: {
       eyebrow: "Spec-first execution contract",
       h1: "The loop contract for agent runs.",
-      body: "WTL is not a framework and not a runtime. It is the shared behavioral contract between the part that runs the loop, the part that interprets outcomes, and the part that watches.",
+      body: "WTL defines how an agent loop runs. The core idea: separate the Engine (the machine that runs turns) from the Policy (the brain that decides what results mean). Swap the policy, get a completely different workflow — without touching the engine.",
       btnSplit: "See the split",
       btnLoop: "Follow the loop",
       facts: [
         { strong: "3 roles", span: "Engine, Policy, Observer" },
         { strong: "6 directives", span: "Meaning returned to the engine" },
-        { strong: "1 rule", span: "The engine never invents semantics" }
+        { strong: "Quint-verified", span: "Every invariant machine-checked" }
       ]
     },
     explore: {
@@ -461,7 +462,7 @@ export const i18n = {
       ]
     },
     guarantees: {
-      eyebrow: "Hard guarantees",
+      eyebrow: "Hard guarantees — Quint-verified",
       h2: "The spec defines what must stay true.",
       items: [
         "Completion only happens when the policy explicitly says `complete`.",
@@ -478,6 +479,45 @@ export const i18n = {
         { name: "Engine", body: "Loop control, iteration count, retries, waiting, thread lifecycle." },
         { name: "Policy", body: "Completion gating, phase order, execution plans, thread reuse boundaries." },
         { name: "Observer", body: "Logs, traces, metrics, UI, and audit views." }
+      ]
+    },
+    quint: {
+      eyebrow: "Quint-verified",
+      title: "Every invariant is machine-checked, not just written down.",
+      body: "The behavioral contract in SPEC.md is also encoded in Quint — a formal specification language. The Quint models have been typechecked, simulated, and bounded-verified. This means every hard guarantee in the spec (completion gating, phase ordering, thread stability) is not just a claim — it is proved to hold across every possible execution state.",
+      conceptsTitle: "Three building blocks",
+      concepts: [
+        {
+          term: "var",
+          desc: "A variable that tracks system state. For example: engine_state, iteration, pending_directive. Together they form a complete snapshot of the system at any moment."
+        },
+        {
+          term: "action",
+          desc: "A step that can happen. Conditions on the left say when it is allowed. Assignments with ' (prime) on the right say what the next state will be. If the conditions are not all true, the action cannot fire."
+        },
+        {
+          term: "val (invariant)",
+          desc: "A rule that must be true in every state, no matter what sequence of actions ran before. If any action could break a val, the verifier fails. These are the hard guarantees of the spec."
+        }
+      ],
+      filesTitle: "What each file verifies",
+      files: [
+        {
+          name: "wtl_engine.qnt",
+          body: "Engine state machine. Defines every valid state transition and proves invariants like 'iteration never exceeds MAX_ITERATIONS' and 'waiting state always has a wait directive'."
+        },
+        {
+          name: "wtl_policy.qnt",
+          body: "Policy behavior. Encodes Ralph Wigum and interactive_completion as verifiable state machines. Proves phase ordering: review only after delivery, complete only when approved."
+        },
+        {
+          name: "wtl_policy_gan.qnt",
+          body: "GAN Policy. Verifies the adversarial generating ⇄ evaluating loop. Proves generation_count never exceeds MAX_GENERATIONS and completion only happens after evaluation_passed."
+        },
+        {
+          name: "wtl_observer.qnt",
+          body: "Observer event ordering. Proves turn_finished never exceeds turn_started, and no events are emitted after a terminal event like completed or failed."
+        }
       ]
     },
     cli: {
@@ -518,6 +558,7 @@ Done: your request was completed successfully.`
       roles: "역할",
       directives: "지시어",
       lifecycle: "생명주기",
+      quint: "Quint",
       cli: "CLI"
     },
     ui: {
@@ -541,13 +582,13 @@ Done: your request was completed successfully.`
     hero: {
       eyebrow: "스펙 기반 실행 계약",
       h1: "에이전트 실행의 루프 계약.",
-      body: "WTL은 프레임워크가 아니고 런타임도 아닙니다. 루프를 실행하는 부분, 결과를 해석하는 부분, 그리고 관찰하는 부분 사이의 공유된 동작 계약입니다.",
+      body: "WTL은 에이전트 루프를 어떻게 돌릴지 정의하는 계약입니다. 핵심 아이디어: 루프를 기계적으로 돌리는 Engine과 결과의 의미를 판단하는 Policy를 분리합니다. Policy만 바꾸면 같은 Engine으로 전혀 다른 워크플로를 구현할 수 있습니다.",
       btnSplit: "역할 구분 보기",
       btnLoop: "루프 따라가기",
       facts: [
         { strong: "3가지 역할", span: "Engine, Policy, Observer" },
         { strong: "6가지 지시어", span: "엔진에 반환되는 의미" },
-        { strong: "1가지 규칙", span: "엔진은 의미를 발명하지 않는다" }
+        { strong: "Quint 검증", span: "모든 불변 조건이 기계로 증명됨" }
       ]
     },
     explore: {
@@ -970,7 +1011,7 @@ Done: your request was completed successfully.`
       ]
     },
     guarantees: {
-      eyebrow: "강력한 보장",
+      eyebrow: "강력한 보장 — Quint 검증 완료",
       h2: "스펙은 반드시 유지되어야 할 것을 정의합니다.",
       items: [
         "정책이 명시적으로 `complete`를 반환할 때만 완료가 일어납니다.",
@@ -987,6 +1028,45 @@ Done: your request was completed successfully.`
         { name: "Engine", body: "루프 제어, 반복 횟수, 재시도, 대기, 스레드 생명주기." },
         { name: "Policy", body: "완료 게이팅, 단계 순서, 실행 계획, 스레드 재사용 경계." },
         { name: "Observer", body: "로그, 트레이스, 메트릭, UI, 감사 뷰." }
+      ]
+    },
+    quint: {
+      eyebrow: "Quint 검증 완료",
+      title: "모든 불변 조건은 선언이 아니라 기계로 증명됩니다.",
+      body: "SPEC.md의 동작 계약은 형식 명세 언어인 Quint으로도 작성되어 있습니다. Quint 모델은 타입 검사, 시뮬레이션, 경계 검증을 모두 통과했습니다. 스펙의 모든 강력한 보장(완료 게이팅, 단계 순서, 스레드 안정성)은 단순한 주장이 아니라 모든 가능한 실행 상태에서 성립함이 증명된 사실입니다.",
+      conceptsTitle: "세 가지 구성 요소",
+      concepts: [
+        {
+          term: "var",
+          desc: "시스템 상태를 추적하는 변수입니다. 예: engine_state, iteration, pending_directive. 이 변수들이 모여 시스템의 현재 스냅샷을 완전하게 표현합니다."
+        },
+        {
+          term: "action",
+          desc: "일어날 수 있는 한 단계입니다. 왼쪽의 조건이 모두 참일 때만 실행됩니다. 오른쪽의 ' (프라임) 붙은 할당이 다음 상태를 정의합니다. 조건 중 하나라도 거짓이면 이 action은 발동되지 않습니다."
+        },
+        {
+          term: "val (불변 조건)",
+          desc: "어떤 상태에서도 반드시 참이어야 하는 규칙입니다. 어떤 action 순서를 실행해도 이 규칙이 깨질 수 있으면 검증기가 실패합니다. 이것이 스펙의 강력한 보장입니다."
+        }
+      ],
+      filesTitle: "파일별 검증 내용",
+      files: [
+        {
+          name: "wtl_engine.qnt",
+          body: "Engine 상태 머신. 모든 유효한 상태 전이를 정의하고 'iteration은 MAX_ITERATIONS를 절대 초과하지 않는다', '대기 상태에는 반드시 wait 지시어가 있다' 같은 불변 조건을 증명합니다."
+        },
+        {
+          name: "wtl_policy.qnt",
+          body: "Policy 동작. Ralph Wigum과 interactive_completion을 검증 가능한 상태 머신으로 인코딩합니다. 'review는 delivery 완료 후에만 가능', 'complete는 승인 후에만 가능' 같은 단계 순서를 증명합니다."
+        },
+        {
+          name: "wtl_policy_gan.qnt",
+          body: "GAN Policy. generating ⇄ evaluating 대립 루프를 검증합니다. generation_count가 MAX_GENERATIONS를 초과하지 않고, 완료는 반드시 evaluation_passed 상태에서만 가능함을 증명합니다."
+        },
+        {
+          name: "wtl_observer.qnt",
+          body: "Observer 이벤트 순서. turn_finished가 turn_started를 절대 초과하지 않고, completed/failed 같은 터미널 이벤트 이후에는 새 이벤트가 발생하지 않음을 증명합니다."
+        }
       ]
     },
     cli: {

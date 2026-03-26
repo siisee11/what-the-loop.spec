@@ -111,8 +111,9 @@ a {
 
 .nav-row nav {
   display: inline-flex;
-  gap: 18px;
-  flex-wrap: wrap;
+  gap: 10px;
+  flex-wrap: nowrap;
+  align-items: center;
 }
 
 .nav-row nav a {
@@ -2616,12 +2617,14 @@ body {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  min-height: 40px;
-  padding: 0 12px;
+  min-height: 36px;
+  padding: 0 9px;
   border: 3px solid transparent;
   color: var(--ink);
+  font-size: 0.82rem;
   font-weight: 700;
   letter-spacing: 0.02em;
+  white-space: nowrap;
 }
 
 .nav-row nav a:hover,
@@ -3887,6 +3890,82 @@ h2 {
 
 @media (max-width: 860px) {
   .policies-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* ── Quint section ──────────────────────────────────────────────────────── */
+
+.quint-sub-heading {
+  font-size: 0.8rem;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--muted);
+  margin: 48px 0 16px;
+}
+
+.quint-concept-grid {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+.quint-concept-card {
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.quint-term {
+  display: inline-block;
+  font-size: 1.1rem;
+  font-weight: 700;
+  font-family: "Space Grotesk", monospace;
+  color: var(--coral);
+  background: color-mix(in srgb, var(--coral) 10%, transparent);
+  border: 1.5px solid color-mix(in srgb, var(--coral) 28%, transparent);
+  border-radius: 8px;
+  padding: 3px 10px;
+  width: fit-content;
+}
+
+.quint-files-grid {
+  display: grid;
+  gap: 16px;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  margin-top: 0;
+}
+
+.quint-file-card {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 22px 24px;
+}
+
+.quint-file-card p {
+  margin: 0;
+  color: var(--muted);
+  font-size: 0.93rem;
+  line-height: 1.55;
+}
+
+.quint-file-name {
+  display: inline-block;
+  font-size: 0.88rem;
+  font-weight: 700;
+  font-family: "Space Grotesk", monospace;
+  color: var(--teal);
+  background: color-mix(in srgb, var(--teal) 10%, transparent);
+  border: 1.5px solid color-mix(in srgb, var(--teal) 28%, transparent);
+  border-radius: 8px;
+  padding: 3px 10px;
+  width: fit-content;
+}
+
+@media (max-width: 860px) {
+  .quint-concept-grid,
+  .quint-files-grid {
     grid-template-columns: 1fr;
   }
 }

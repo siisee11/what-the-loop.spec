@@ -574,6 +574,42 @@ function PoliciesSection({ t }) {
   );
 }
 
+function QuintSection({ t }) {
+  return (
+    <section className="section quint-section" id="quint">
+      <SectionIntro
+        eyebrow={t.quint.eyebrow}
+        title={t.quint.title}
+        body={t.quint.body}
+      />
+
+      <Reveal className="quint-concepts-title" delay={0.05}>
+        <p className="quint-sub-heading">{t.quint.conceptsTitle}</p>
+      </Reveal>
+      <div className="directive-grid quint-concept-grid">
+        {t.quint.concepts.map((item, i) => (
+          <Reveal key={item.term} className="directive-card quint-concept-card" delay={i * 0.07} amount={0.15}>
+            <code className="quint-term">{item.term}</code>
+            <span>{item.desc}</span>
+          </Reveal>
+        ))}
+      </div>
+
+      <Reveal className="quint-files-title" delay={0.05}>
+        <p className="quint-sub-heading">{t.quint.filesTitle}</p>
+      </Reveal>
+      <div className="quint-files-grid">
+        {t.quint.files.map((item, i) => (
+          <Reveal key={item.name} className="panel quint-file-card" delay={i * 0.06} amount={0.15}>
+            <code className="quint-file-name">{item.name}</code>
+            <p>{item.body}</p>
+          </Reveal>
+        ))}
+      </div>
+    </section>
+  );
+}
+
 function ProblemCard({ item, index }) {
   return (
     <Reveal delay={index * 0.06} amount={0.15}>
@@ -769,6 +805,7 @@ export default function App() {
               <a href="#roles">{t.nav.roles}</a>
               <a href="#directives">{t.nav.directives}</a>
               <a href="#lifecycle">{t.nav.lifecycle}</a>
+              <a href="#quint">{t.nav.quint}</a>
               <a href="#cli">{t.nav.cli}</a>
               <button
                 className="lang-toggle"
@@ -890,6 +927,8 @@ export default function App() {
               </div>
             </Reveal>
           </section>
+
+          <QuintSection t={t} />
 
           <section className="section terminal-section" id="cli">
             <SectionIntro
