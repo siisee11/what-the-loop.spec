@@ -513,10 +513,12 @@ function PolicyFlowDiagram({ item, index }) {
   const BOT = NCY + NH / 2;
   const LOOP_Y = BOT + 30;
   const VH = LOOP_Y + 30;
-  const ENTRY_X1 = 18;
-  const ENTRY_X2 = CX[0] - NW / 2 - 10;
-  const EXIT_X1 = CX[phaseCount - 1] + NW / 2 + 10;
-  const EXIT_X2 = VW - 18;
+  const entryTipX = CX[0] - NW / 2 - 8;
+  const exitBaseX = CX[phaseCount - 1] + NW / 2 + 8;
+  const ENTRY_X2 = entryTipX;
+  const ENTRY_X1 = Math.max(8, ENTRY_X2 - 28);
+  const EXIT_X1 = exitBaseX;
+  const EXIT_X2 = Math.min(VW - 8, EXIT_X1 + 28);
 
   const phases = item.phases;
   const phaseIndex = phases.findIndex((phase) => phase.id === step.phase);
