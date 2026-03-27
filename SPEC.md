@@ -369,19 +369,14 @@ WTL interface as a working CLI tool.
 
 ## Pre-Implementation Requirements
 
-> **[Must ask the user before starting implementation]**
->
-> The coding agent implementing this spec must ask the user the following two
-> questions before beginning:
->
-> 1. **"Which programming language would you like to use?"**
->    (e.g. Go, TypeScript, Python, Rust, etc.)
->
-> 2. **"Which agent runtime would you like to use?"**
->    (e.g. Claude API, OpenAI API, local LLM, Codex App Server, etc.)
->    The answer determines the TurnRunner implementation and log output behavior.
->
-> Begin implementation only after receiving answers to both questions.
+Default implementation choices for this spec:
+
+- **Programming language:** Go
+- **Agent runtime:** Codex App Server
+
+These defaults should be used unless the user explicitly asks for a different
+language or runtime. If the user overrides either choice, that answer
+determines the `TurnRunner` implementation and log output behavior.
 
 ---
 
