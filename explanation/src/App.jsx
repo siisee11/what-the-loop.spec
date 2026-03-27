@@ -484,7 +484,8 @@ const POLICY_STEPS = {
     { phase: "proposing",   directive: "advance_phase", isLoopBack: false, isSelfLoop: false },
     { phase: "running",     directive: "advance_phase", isLoopBack: false, isSelfLoop: false },
     { phase: "adjudicating", directive: "advance_phase", isLoopBack: true, loopTo: "proposing", isSelfLoop: false },
-    { phase: "proposing",   directive: "continue",      isLoopBack: false, isSelfLoop: false },
+    { phase: "proposing",   directive: "advance_phase", isLoopBack: false, isSelfLoop: false },
+    { phase: "running",     directive: "advance_phase", isLoopBack: false, isSelfLoop: false },
     { phase: "adjudicating", directive: "complete",      isLoopBack: false, isSelfLoop: false },
   ],
 };
