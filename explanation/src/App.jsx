@@ -467,43 +467,81 @@ const POLICY_STEPS = {
   ralph_wigum: [
     { phase: "planning",     directive: "advance_phase", isLoopBack: false, isSelfLoop: false },
     { phase: "implementing", directive: "continue",      isLoopBack: false, isSelfLoop: true  },
+    { phase: "implementing", directive: "continue",      isLoopBack: false, isSelfLoop: true  },
     { phase: "implementing", directive: "advance_phase", isLoopBack: false, isSelfLoop: false },
     { phase: "review",       directive: "complete",      isLoopBack: false, isSelfLoop: false },
   ],
   gan: [
     { phase: "planning",   directive: "advance_phase", isLoopBack: false, isSelfLoop: false },
     { phase: "generating", directive: "advance_phase", isLoopBack: false, isSelfLoop: false },
-    { phase: "evaluating", directive: "advance_phase", isLoopBack: true,  isSelfLoop: false },
+    { phase: "evaluating", directive: "advance_phase", isLoopBack: true, loopTo: "generating", isSelfLoop: false },
     { phase: "generating", directive: "advance_phase", isLoopBack: false, isSelfLoop: false },
     { phase: "evaluating", directive: "complete",      isLoopBack: false, isSelfLoop: false },
   ],
+  autoresearch: [
+    { phase: "setup",       directive: "advance_phase", isLoopBack: false, isSelfLoop: false },
+    { phase: "baseline",    directive: "advance_phase", isLoopBack: false, isSelfLoop: false },
+    { phase: "proposing",   directive: "advance_phase", isLoopBack: false, isSelfLoop: false },
+    { phase: "running",     directive: "advance_phase", isLoopBack: false, isSelfLoop: false },
+    { phase: "adjudicating", directive: "advance_phase", isLoopBack: true, loopTo: "proposing", isSelfLoop: false },
+    { phase: "adjudicating", directive: "complete",      isLoopBack: false, isSelfLoop: false },
+  ],
 };
 
-const POLICY_STEP_DELAY = 1700;
-
-// Node centers (cx, cy) for 3-phase SVG layout
-const PHASE_NODES = [
-  { cx: 55,  cy: 30 },
-  { cx: 180, cy: 30 },
-  { cx: 305, cy: 30 },
-];
-const NODE_W = 88, NODE_H = 32, NODE_R = 0;
-
-function PolicyFlowCard({ item, index }) {
-  const reduceMotion = useReducedMotion();
+function PolicyFlowDiagram({ item, index }) {
   const [stepIdx, setStepIdx] = useState(0);
-  const steps = POLICY_STEPS[item.id];
-  const step = steps[stepIdx];
-  const activePhaseIdx = item.phases.findIndex(p => p.id === step.phase);
-  const isGAN = item.id === "gan";
 
-  useEffect(() => {
-    if (reduceMotion) return;
-    const tid = setTimeout(() => {
-      setStepIdx(i => (i + 1) % steps.length);
-    }, POLICY_STEP_DELAY);
-    return () => clearTimeout(tid);
-  }, [stepIdx, reduceMotion, steps.length]);
+  const steps  = POLICY_STEPS[item.id];
+  const step   = steps[stepIdx];
+  const isDone = stepIdx === steps.length - 1;
+
+  const advance = () => { if (!isDone) setStepIdx(i => i + 1); };
+  const rewind  = () => setStepIdx(0);
+
+  // Layout — compact
+  const phaseCount = item.phases.length;
+  const VW = phaseCount <= 3 ? 300 : 420;
+  const NCY = 30;
+  const NW = phaseCount <= 3 ? 66 : 54;
+  const NH = 22;
+  const marginX = phaseCount <= 3 ? 54 : 34;
+  const span = VW - marginX * 2;
+  const CX = Array.from({ length: phaseCount }, (_, i) =>
+    phaseCount === 1 ? VW / 2 : marginX + (span * i) / (phaseCount - 1)
+  );
+  const BOT = NCY + NH / 2;
+  const LOOP_Y = BOT + 20;
+  const VH = LOOP_Y + 16;
+
+  const phases = item.phases;
+  const phaseIndex = phases.findIndex((phase) => phase.id === step.phase);
+  const loopToIndex = step.loopTo ? phases.findIndex((phase) => phase.id === step.loopTo) : -1;
+
+  const isFwdActive  = i => step.phase === phases[i].id && step.directive === "advance_phase" && !step.isLoopBack;
+  const isExitActive = step.directive === "complete";
+  const isSelfActive = !!step.isSelfLoop;
+  const isBackActive = !!step.isLoopBack;
+
+  const ShadowBox = ({ x, y, w, h, fill = "#fffbf5", sw = 2, sdx = 3, sdy = 3, children }) => (
+    <g>
+      <rect x={x + sdx} y={y + sdy} width={w} height={h} fill="var(--ink)" />
+      <rect x={x} y={y} width={w} height={h} fill={fill} stroke="var(--ink)" strokeWidth={sw} />
+      {children}
+    </g>
+  );
+
+  const HArrow = ({ x1, x2, y, active, color = "var(--ink)" }) => (
+    <g opacity={active ? 1 : 0.22}>
+      <line x1={x1} y1={y} x2={x2 - 7} y2={y} stroke={color} strokeWidth={active ? 2 : 1.5} />
+      <polygon points={`${x2-7},${y-3} ${x2},${y} ${x2-7},${y+3}`} fill={color} />
+    </g>
+  );
+
+  const UpArrow = ({ cx: ax, y, color }) => (
+    <polygon points={`${ax-4},${y+7} ${ax},${y} ${ax+4},${y+7}`} fill={color} />
+  );
+
+  const LABEL_Y = NCY - NH / 2 - 7;
 
   return (
     <Reveal className="policy-flow-card" delay={index * 0.1}>
@@ -516,123 +554,136 @@ function PolicyFlowCard({ item, index }) {
       </div>
 
       <div className="policy-diagram-area">
-        <svg
-          viewBox={`0 0 360 ${isGAN ? 92 : 56}`}
-          className="policy-svg"
-          aria-hidden="true"
-        >
-          {/* Phase nodes */}
-          {item.phases.map((phase, i) => {
-            const { cx, cy } = PHASE_NODES[i];
-            const isActive = i === activePhaseIdx;
-            const isDone = i < activePhaseIdx;
-            const nx = cx - NODE_W / 2, ny = cy - NODE_H / 2;
-            const fill = isActive ? "var(--gold)" : isDone ? "rgba(0,109,114,0.15)" : "#fffbf5";
-            const sdx = isActive ? 3 : 2, sdy = isActive ? 3 : 2;
+        <svg viewBox={`0 0 ${VW} ${VH}`} className="policy-svg" aria-hidden="true">
+
+          {/* Entry arrow */}
+          <HArrow x1={6} x2={CX[0] - NW / 2 - 2} y={NCY} active={true} />
+
+          {/* Phase nodes — scale-up on activation */}
+          {phases.map((phase, i) => {
+            const isActive = phase.id === step.phase;
             return (
-              <g key={phase.id}>
-                {/* hard shadow */}
-                <rect x={nx + sdx} y={ny + sdy} width={NODE_W} height={NODE_H} fill="var(--ink)" />
-                {/* main box */}
-                <rect x={nx} y={ny} width={NODE_W} height={NODE_H} rx={0}
-                  fill={fill} stroke="var(--ink)" strokeWidth={isActive ? 2.5 : 1.5} />
-                <text x={cx} y={cy + 5} textAnchor="middle"
-                  fontSize="10" fontWeight="700" fontFamily="Space Grotesk, sans-serif"
-                  fill={isActive ? "var(--ink)" : isDone ? "var(--teal)" : "var(--muted)"}>
-                  {phase.name}
-                </text>
-              </g>
-            );
-          })}
-
-          {/* Forward arrows — backbone + dashed accent (hero style) */}
-          {item.phases.slice(0, -1).map((_, i) => {
-            const x1 = PHASE_NODES[i].cx + NODE_W / 2 + 2;
-            const x2 = PHASE_NODES[i + 1].cx - NODE_W / 2 - 2;
-            const y = PHASE_NODES[i].cy;
-            return (
-              <g key={`fw-${i}`}>
-                <line x1={x1} y1={y} x2={x2} y2={y}
-                  stroke="var(--ink)" strokeWidth="4" strokeLinecap="round" opacity={0.15} />
-                <line x1={x1} y1={y} x2={x2 - 6} y2={y}
-                  stroke="var(--ink)" strokeWidth="1.5" strokeDasharray="5 4" opacity={0.45} />
-                <polygon
-                  points={`${x2 - 6},${y - 3.5} ${x2},${y} ${x2 - 6},${y + 3.5}`}
-                  fill="var(--ink)" opacity={0.55} />
-              </g>
-            );
-          })}
-
-          {/* Ralph Wigum self-loop on Implementing node */}
-          {!isGAN && (
-            <motion.g
-              animate={!reduceMotion ? { opacity: step.isSelfLoop ? 1 : 0.15 } : {}}
-              transition={{ duration: 0.4 }}
-            >
-              {/* Arc curving above the Implementing node (cx=180) */}
-              <path
-                d="M 153 14 C 153 1, 207 1, 207 14"
-                fill="none"
-                stroke="var(--coral)"
-                strokeWidth="1.5"
-                strokeDasharray="4 3"
-              />
-              {/* Arrowhead pointing down into the node */}
-              <polygon
-                points="203,8 207,15 211,8"
-                fill="var(--coral)"
-              />
-            </motion.g>
-          )}
-
-          {/* GAN adversarial loop-back arc */}
-          {isGAN && (
-            <motion.g
-              animate={!reduceMotion ? { opacity: step.isLoopBack ? 1 : 0.15 } : {}}
-              transition={{ duration: 0.4 }}
-            >
-              {/* U-shaped path from Evaluating ↓ → ↑ Generating */}
-              <path
-                d={`M ${PHASE_NODES[2].cx} ${PHASE_NODES[2].cy + NODE_H / 2 + 1}
-                    L ${PHASE_NODES[2].cx} 71
-                    L ${PHASE_NODES[1].cx} 71
-                    L ${PHASE_NODES[1].cx} ${PHASE_NODES[1].cy + NODE_H / 2 + 1}`}
-                fill="none"
-                stroke="var(--coral)"
-                strokeWidth="1.5"
-                strokeDasharray="4 3"
-              />
-              {/* Arrowhead pointing up into Generating */}
-              <polygon
-                points={`${PHASE_NODES[1].cx - 4},${PHASE_NODES[1].cy + NODE_H / 2 + 8} ${PHASE_NODES[1].cx},${PHASE_NODES[1].cy + NODE_H / 2} ${PHASE_NODES[1].cx + 4},${PHASE_NODES[1].cy + NODE_H / 2 + 8}`}
-                fill="var(--coral)"
-              />
-              {/* Loop label */}
-              <text
-                x={(PHASE_NODES[1].cx + PHASE_NODES[2].cx) / 2}
-                y="85"
-                textAnchor="middle"
-                fontSize="9"
-                fontFamily="Space Grotesk, sans-serif"
-                fill="var(--coral)"
+              <motion.g
+                key={isActive ? `p${i}-s${stepIdx}` : `p${i}`}
+                initial={isActive ? { scale: 1.14 } : false}
+                animate={{ scale: 1 }}
+                style={{ transformOrigin: `${CX[i]}px ${NCY}px` }}
+                transition={{ duration: 0.35, ease: "backOut" }}
               >
-                {item.loopNote}
-              </text>
+                <ShadowBox
+                  x={CX[i] - NW / 2} y={NCY - NH / 2} w={NW} h={NH}
+                  fill={isActive ? "var(--gold)" : "#fffbf5"} sw={isActive ? 2.5 : 2}>
+                  <text x={CX[i]} y={NCY} textAnchor="middle" dominantBaseline="central"
+                    fontSize={5} fontWeight="700" fontFamily="Space Grotesk, sans-serif"
+                    fill={isActive ? "var(--ink)" : "var(--muted)"}>{phase.name}</text>
+                </ShadowBox>
+              </motion.g>
+            );
+          })}
+
+          {/* Forward arrows + labels — fade+slide in when active */}
+          {phases.slice(0, -1).map((_, i) => {
+            const x1 = CX[i] + NW / 2 + 2, x2 = CX[i + 1] - NW / 2 - 2;
+            const active = isFwdActive(i);
+            return (
+              <g key={`fwd-${i}`}>
+                <HArrow x1={x1} x2={x2} y={NCY} active={active} />
+                <motion.text
+                  key={active ? `fwd-lbl-${i}-${stepIdx}` : `fwd-lbl-${i}`}
+                  x={(x1 + x2) / 2} y={LABEL_Y} textAnchor="middle"
+                  initial={active ? { opacity: 0, y: 2 } : false}
+                  animate={{ opacity: active ? 1 : 0.22, y: 0 }}
+                  transition={{ duration: 0.28, delay: 0.05 }}
+                  fontSize={4.5} fontWeight="700" fontFamily="Space Grotesk, sans-serif"
+                  fill="var(--ink)">advance_phase</motion.text>
+              </g>
+            );
+          })}
+
+          {/* Exit arrow + complete label */}
+          <HArrow x1={CX[phaseCount - 1] + NW / 2 + 2} x2={VW - 6} y={NCY} active={isExitActive} color="var(--teal)" />
+          <motion.text
+            key={isExitActive ? `exit-${stepIdx}` : "exit"}
+            x={VW - 4} y={LABEL_Y} textAnchor="end"
+            initial={isExitActive ? { opacity: 0, y: 2 } : false}
+            animate={{ opacity: isExitActive ? 1 : 0.22, y: 0 }}
+            transition={{ duration: 0.28, delay: 0.05 }}
+            fontSize={4.5} fontWeight="700" fontFamily="Space Grotesk, sans-serif"
+            fill="var(--teal)">complete</motion.text>
+
+          {/* Self-loop (Ralph Wigum) — pulse on activation */}
+          {item.id === "ralph_wigum" && phaseIndex >= 0 && (
+            <motion.g
+              key={isSelfActive ? `self-${stepIdx}` : "self"}
+              animate={{ opacity: isSelfActive ? 1 : 0.18 }}
+              transition={{ duration: 0.25 }}
+            >
+              <motion.path
+                d={`M ${CX[phaseIndex]-20} ${BOT} C ${CX[phaseIndex]-20} ${LOOP_Y} ${CX[phaseIndex]+20} ${LOOP_Y} ${CX[phaseIndex]+20} ${BOT}`}
+                fill="none" stroke="var(--coral)" strokeDasharray="5 3"
+                initial={isSelfActive ? { strokeWidth: 2.5 } : false}
+                animate={{ strokeWidth: 1.5 }}
+                transition={{ duration: 0.4 }}
+              />
+              <UpArrow cx={CX[phaseIndex] + 20} y={BOT} color="var(--coral)" />
+              <motion.text
+                key={isSelfActive ? `self-lbl-${stepIdx}` : "self-lbl"}
+                x={CX[phaseIndex]} y={LOOP_Y + 13} textAnchor="middle"
+                initial={isSelfActive ? { opacity: 0, scale: 1.2 } : false}
+                animate={{ opacity: 1, scale: 1 }}
+                style={{ transformOrigin: `${CX[phaseIndex]}px ${LOOP_Y + 13}px` }}
+                transition={{ duration: 0.3 }}
+                fontSize={4.5} fontWeight="700" fontFamily="Space Grotesk, sans-serif"
+                fill="var(--coral)">continue</motion.text>
             </motion.g>
           )}
+
+          {/* Back-arc for looping policies — pulse on activation */}
+          {isBackActive && phaseIndex >= 0 && loopToIndex >= 0 && (
+            <motion.g
+              key={isBackActive ? `back-${stepIdx}` : "back"}
+              animate={{ opacity: isBackActive ? 1 : 0.18 }}
+              transition={{ duration: 0.25 }}
+            >
+              <motion.path
+                d={`M ${CX[phaseIndex]-20} ${BOT} C ${CX[phaseIndex]-20} ${LOOP_Y} ${CX[loopToIndex]+20} ${LOOP_Y} ${CX[loopToIndex]+20} ${BOT}`}
+                fill="none" stroke="var(--coral)" strokeDasharray="5 3"
+                initial={isBackActive ? { strokeWidth: 2.5 } : false}
+                animate={{ strokeWidth: 1.5 }}
+                transition={{ duration: 0.4 }}
+              />
+              <UpArrow cx={CX[loopToIndex] + 20} y={BOT} color="var(--coral)" />
+              <motion.text
+                key={isBackActive ? `back-lbl-${stepIdx}` : "back-lbl"}
+                x={(CX[loopToIndex] + CX[phaseIndex]) / 2} y={LOOP_Y + 13} textAnchor="middle"
+                initial={isBackActive ? { opacity: 0, scale: 1.2 } : false}
+                animate={{ opacity: 1, scale: 1 }}
+                style={{ transformOrigin: `${(CX[loopToIndex] + CX[phaseIndex]) / 2}px ${LOOP_Y + 13}px` }}
+                transition={{ duration: 0.3 }}
+                fontSize={4.5} fontWeight="700" fontFamily="Space Grotesk, sans-serif"
+                fill="var(--coral)">advance_phase</motion.text>
+            </motion.g>
+          )}
+
         </svg>
 
-        {/* Current directive badge */}
-        <div className="policy-directive-row">
-          <motion.span
-            key={`${item.id}-${stepIdx}`}
-            className={`wtl-chip wtl-chip-inline wtl-chip-${step.directive}`}
-            initial={reduceMotion ? {} : { opacity: 0, y: 4 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.28 }}
-          >
-            {step.directive}
-          </motion.span>
+        {/* Step controls */}
+        <div className="policy-step-controls">
+          <span className="policy-step-counter">{stepIdx + 1} / {steps.length}</span>
+          {isDone ? (
+            <button className="policy-step-btn" onClick={rewind} aria-label="Rewind">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                <polyline points="1 4 1 10 7 10" />
+                <path d="M3.51 15a9 9 0 1 0 .49-4.5" />
+              </svg>
+            </button>
+          ) : (
+            <button className="policy-step-btn" onClick={advance} aria-label="Next step">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                <polygon points="5 3 19 12 5 21 5 3" />
+              </svg>
+            </button>
+          )}
         </div>
       </div>
     </Reveal>
@@ -649,7 +700,7 @@ function PoliciesSection({ t }) {
       />
       <div className="policies-grid">
         {t.policies.items.map((item, i) => (
-          <PolicyFlowCard key={item.id} item={item} index={i} />
+          <PolicyFlowDiagram key={item.id} item={item} index={i} />
         ))}
       </div>
     </section>

@@ -433,7 +433,7 @@ export const i18n = {
     policies: {
       eyebrow: "Policy examples",
       title: "Every policy shapes the loop differently.",
-      body: "WTL separates mechanics from meaning so the same engine can run radically different workflows. Here are two example policies — Ralph Wigum and an adversarial GAN loop.",
+      body: "WTL separates mechanics from meaning so the same engine can run radically different workflows. Here are three example policies — Ralph Wigum, an adversarial GAN loop, and an autoresearch loop.",
       items: [
         {
           id: "ralph_wigum",
@@ -457,6 +457,20 @@ export const i18n = {
             { id: "planning", name: "Planning" },
             { id: "generating", name: "Generating" },
             { id: "evaluating", name: "Evaluating" }
+          ]
+        },
+        {
+          id: "autoresearch",
+          name: "Autoresearch Policy",
+          tag: "Autonomous experiment loop",
+          body: "Models a code-research loop. The run prepares the worktree, records a baseline, proposes one experiment, runs it, and adjudicates the result. Good candidates loop back to the next proposal, bad ones are discarded, and completion only happens when the configured experiment budget is exhausted.",
+          loopNote: "keep or discard, then propose again",
+          phases: [
+            { id: "setup", name: "Setup" },
+            { id: "baseline", name: "Baseline" },
+            { id: "proposing", name: "Proposing" },
+            { id: "running", name: "Running" },
+            { id: "adjudicating", name: "Adjudicating" }
           ]
         }
       ]
@@ -513,6 +527,10 @@ export const i18n = {
         {
           name: "wtl_policy_gan.qnt",
           body: "GAN Policy. Verifies the adversarial generating ⇄ evaluating loop. Proves generation_count never exceeds MAX_GENERATIONS and completion only happens after evaluation_passed."
+        },
+        {
+          name: "wtl_policy_autoresearch.qnt",
+          body: "Autoresearch Policy. Verifies the setup → baseline → proposing → running → adjudicating research loop. Proves the loop cannot start experiments before baseline, only retries recoverable crashes, and only completes after the experiment budget is exhausted."
         },
         {
           name: "wtl_observer.qnt",
@@ -982,7 +1000,7 @@ Done: your request was completed successfully.`
     policies: {
       eyebrow: "Policy 예시",
       title: "Policy마다 루프의 형태가 달라집니다.",
-      body: "WTL은 메커니즘과 의미를 분리하기 때문에 같은 Engine으로 전혀 다른 워크플로를 실행할 수 있습니다. Ralph Wigum과 대립적 GAN 루프, 두 가지 Policy 예시를 소개합니다.",
+      body: "WTL은 메커니즘과 의미를 분리하기 때문에 같은 Engine으로 전혀 다른 워크플로를 실행할 수 있습니다. Ralph Wigum, 대립적 GAN 루프, 그리고 autoresearch 루프까지 세 가지 Policy 예시를 소개합니다.",
       items: [
         {
           id: "ralph_wigum",
@@ -1006,6 +1024,20 @@ Done: your request was completed successfully.`
             { id: "planning", name: "Planning" },
             { id: "generating", name: "Generating" },
             { id: "evaluating", name: "Evaluating" }
+          ]
+        },
+        {
+          id: "autoresearch",
+          name: "Autoresearch Policy",
+          tag: "자율 실험 루프",
+          body: "코드 연구 루프를 모델링한 Policy입니다. worktree를 준비하고, baseline을 기록하고, 한 번의 실험을 제안하고, 실행하고, 결과를 판정합니다. 좋은 후보는 다음 제안 단계로 되돌아가고, 나쁜 후보는 버리며, 종료는 설정된 실험 예산이 모두 소진됐을 때만 일어납니다.",
+          loopNote: "keep/discard 후 다음 제안으로 복귀",
+          phases: [
+            { id: "setup", name: "Setup" },
+            { id: "baseline", name: "Baseline" },
+            { id: "proposing", name: "Proposing" },
+            { id: "running", name: "Running" },
+            { id: "adjudicating", name: "Adjudicating" }
           ]
         }
       ]
@@ -1062,6 +1094,10 @@ Done: your request was completed successfully.`
         {
           name: "wtl_policy_gan.qnt",
           body: "GAN Policy. generating ⇄ evaluating 대립 루프를 검증합니다. generation_count가 MAX_GENERATIONS를 초과하지 않고, 완료는 반드시 evaluation_passed 상태에서만 가능함을 증명합니다."
+        },
+        {
+          name: "wtl_policy_autoresearch.qnt",
+          body: "Autoresearch Policy. setup → baseline → proposing → running → adjudicating 연구 루프를 검증합니다. baseline 이전에는 실험 루프가 시작될 수 없고, 복구 가능한 crash만 재시도하며, 완료는 실험 예산이 모두 소진된 뒤에만 가능함을 증명합니다."
         },
         {
           name: "wtl_observer.qnt",

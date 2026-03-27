@@ -1193,8 +1193,8 @@ h3 {
 }
 
 .directive-card {
-  min-height: 190px;
-  padding: 22px;
+  min-height: 130px;
+  padding: 16px 18px;
 }
 
 .directive-card p {
@@ -2992,8 +2992,12 @@ h2 {
   box-shadow: 4px 4px 0 var(--ink);
 }
 
+.accent-section {
+  padding: 28px 32px 32px;
+}
+
 .accent-section::before {
-  inset: 36px -10px 24px;
+  inset: 0;
   border: 3px solid var(--ink);
   border-radius: 0;
   background:
@@ -3006,7 +3010,7 @@ h2 {
 }
 
 .directive-card {
-  min-height: 200px;
+  min-height: 130px;
 }
 
 .directive-card:nth-child(odd) {
@@ -3801,8 +3805,8 @@ h2 {
 }
 
 .policies-grid {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
+  display: flex;
+  flex-direction: column;
   gap: 24px;
   margin-top: 48px;
 }
@@ -3866,8 +3870,10 @@ h2 {
 
 .policy-svg {
   width: 100%;
+  max-width: 900px;
   height: auto;
   display: block;
+  margin: 0 auto;
 }
 
 .policy-directive-row {
@@ -3875,6 +3881,52 @@ h2 {
   align-items: center;
   gap: 10px;
   min-height: 32px;
+}
+
+.policy-step-controls {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  padding: 8px 4px 0;
+}
+
+.policy-step-counter {
+  font-size: 1rem;
+  font-weight: 700;
+  font-family: "Space Grotesk", sans-serif;
+  color: var(--muted);
+  min-width: 48px;
+  text-align: center;
+}
+
+.policy-step-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 44px;
+  height: 44px;
+  background: var(--surface);
+  border: 2.5px solid var(--ink);
+  box-shadow: 4px 4px 0 var(--ink);
+  cursor: pointer;
+  color: var(--ink);
+  transition: box-shadow 0.1s, transform 0.1s;
+}
+
+.policy-step-btn:hover {
+  box-shadow: 2px 2px 0 var(--ink);
+  transform: translate(2px, 2px);
+}
+
+.policy-step-btn:active {
+  box-shadow: none;
+  transform: translate(4px, 4px);
+}
+
+.policy-step-btn svg {
+  width: 20px;
+  height: 20px;
 }
 
 /* Neo-brutalism override for policy cards */
@@ -3885,12 +3937,6 @@ h2 {
 
 .policy-diagram-area {
   border-top: 3px solid var(--ink);
-}
-
-@media (max-width: 860px) {
-  .policies-grid {
-    grid-template-columns: 1fr;
-  }
 }
 
 /* ── Workflow phase trail ───────────────────────────────────────────────── */
