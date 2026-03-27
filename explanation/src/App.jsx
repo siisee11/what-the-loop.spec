@@ -472,11 +472,12 @@ const POLICY_STEPS = {
     { phase: "review",       directive: "complete",      isLoopBack: false, isSelfLoop: false },
   ],
   gan: [
-    { phase: "planning",   directive: "advance_phase", isLoopBack: false, isSelfLoop: false },
-    { phase: "generating", directive: "advance_phase", isLoopBack: false, isSelfLoop: false },
-    { phase: "evaluating", directive: "advance_phase", isLoopBack: true, loopTo: "generating", isSelfLoop: false },
-    { phase: "generating", directive: "advance_phase", isLoopBack: false, isSelfLoop: false },
-    { phase: "evaluating", directive: "complete",      isLoopBack: false, isSelfLoop: false },
+    { phase: "planning",    directive: "advance_phase", isLoopBack: false, isSelfLoop: false },
+    { phase: "contracting", directive: "advance_phase", isLoopBack: false, isSelfLoop: false },
+    { phase: "generating",  directive: "advance_phase", isLoopBack: false, isSelfLoop: false },
+    { phase: "evaluating",  directive: "advance_phase", isLoopBack: true, loopTo: "generating", isSelfLoop: false },
+    { phase: "generating",  directive: "advance_phase", isLoopBack: false, isSelfLoop: false },
+    { phase: "evaluating",  directive: "complete",      isLoopBack: false, isSelfLoop: false },
   ],
   autoresearch: [
     { phase: "setup",       directive: "advance_phase", isLoopBack: false, isSelfLoop: false },

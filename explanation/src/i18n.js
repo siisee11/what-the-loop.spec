@@ -451,10 +451,11 @@ export const i18n = {
           id: "gan",
           name: "GAN Policy",
           tag: "Adversarial generation loop",
-          body: "Inspired by Generative Adversarial Networks. Planner writes the spec once. Then Generator and Evaluator run in opposition: if the score is below threshold, `advance_phase` sends the Generator back with the critique injected into the next prompt. When the Evaluator approves, `complete` ends the run.",
-          loopNote: "critique injected on retry",
+          body: "Inspired by Generative Adversarial Networks. Planner writes the spec once, then Generator and Evaluator first negotiate a contract for what counts as done. Only after that agreed contract exists does generation begin. If the score is below threshold, `advance_phase` sends the Generator back with the critique injected into the next prompt. When the Evaluator approves, `complete` ends the run.",
+          loopNote: "contract first, then critique-driven retries",
           phases: [
             { id: "planning", name: "Planning" },
+            { id: "contracting", name: "Contracting" },
             { id: "generating", name: "Generating" },
             { id: "evaluating", name: "Evaluating" }
           ]
@@ -521,12 +522,16 @@ export const i18n = {
           body: "Engine state machine. Defines every valid state transition and proves invariants like 'iteration never exceeds MAX_ITERATIONS' and 'waiting state always has a wait directive'."
         },
         {
-          name: "wtl_policy.qnt",
-          body: "Policy behavior. Encodes Ralph Wigum and interactive_completion as verifiable state machines. Proves phase ordering: review only after delivery, complete only when approved."
+          name: "wtl_policy_interactive.qnt",
+          body: "Interactive completion policy. Encodes waiting, rejection, and explicit approval as a verifiable state machine. Proves completion cannot happen while blocked on input."
+        },
+        {
+          name: "wtl_policy_ralph_wigum.qnt",
+          body: "Ralph Wigum policy. Encodes staged planning → implementing → review flow. Proves phase ordering: review only after delivery, complete only when approved."
         },
         {
           name: "wtl_policy_gan.qnt",
-          body: "GAN Policy. Verifies the adversarial generating ⇄ evaluating loop. Proves generation_count never exceeds MAX_GENERATIONS and completion only happens after evaluation_passed."
+          body: "GAN Policy. Verifies planning → contracting → generating ⇄ evaluating. Proves generation cannot begin before contract agreement, generation_count never exceeds MAX_GENERATIONS, and completion only happens after evaluation_passed."
         },
         {
           name: "wtl_policy_autoresearch.qnt",
@@ -1018,10 +1023,11 @@ Done: your request was completed successfully.`
           id: "gan",
           name: "GAN Policy",
           tag: "대립적 생성 루프",
-          body: "생성적 적대 신경망(GAN)에서 영감을 받은 Policy입니다. Planner가 스펙을 작성하고, Generator와 Evaluator가 대립적으로 동작합니다. 점수가 기준 미달이면 `advance_phase`로 Generator에게 critique를 주입해 재생성을 요청합니다. Evaluator가 승인하면 `complete`로 종료합니다.",
-          loopNote: "critique 주입 후 재시도",
+          body: "생성적 적대 신경망(GAN)에서 영감을 받은 Policy입니다. Planner가 스펙을 작성한 뒤, Generator와 Evaluator가 먼저 완료 조건 계약을 합의합니다. 이 계약이 존재할 때만 생성이 시작됩니다. 점수가 기준 미달이면 `advance_phase`로 Generator에게 critique를 주입해 재생성을 요청합니다. Evaluator가 승인하면 `complete`로 종료합니다.",
+          loopNote: "계약 합의 후 critique 기반 재시도",
           phases: [
             { id: "planning", name: "Planning" },
+            { id: "contracting", name: "Contracting" },
             { id: "generating", name: "Generating" },
             { id: "evaluating", name: "Evaluating" }
           ]
@@ -1088,12 +1094,16 @@ Done: your request was completed successfully.`
           body: "Engine 상태 머신. 모든 유효한 상태 전이를 정의하고 'iteration은 MAX_ITERATIONS를 절대 초과하지 않는다', '대기 상태에는 반드시 wait 지시어가 있다' 같은 불변 조건을 증명합니다."
         },
         {
-          name: "wtl_policy.qnt",
-          body: "Policy 동작. Ralph Wigum과 interactive_completion을 검증 가능한 상태 머신으로 인코딩합니다. 'review는 delivery 완료 후에만 가능', 'complete는 승인 후에만 가능' 같은 단계 순서를 증명합니다."
+          name: "wtl_policy_interactive.qnt",
+          body: "Interactive completion policy. 대기, 거절, 명시적 승인 상태를 검증 가능한 상태 머신으로 인코딩합니다. 입력이 차단된 상태에서는 완료가 일어날 수 없음을 증명합니다."
+        },
+        {
+          name: "wtl_policy_ralph_wigum.qnt",
+          body: "Ralph Wigum policy. planning → implementing → review 흐름을 상태 머신으로 인코딩합니다. 'review는 delivery 완료 후에만 가능', 'complete는 승인 후에만 가능' 같은 단계 순서를 증명합니다."
         },
         {
           name: "wtl_policy_gan.qnt",
-          body: "GAN Policy. generating ⇄ evaluating 대립 루프를 검증합니다. generation_count가 MAX_GENERATIONS를 초과하지 않고, 완료는 반드시 evaluation_passed 상태에서만 가능함을 증명합니다."
+          body: "GAN Policy. planning → contracting → generating ⇄ evaluating 흐름을 검증합니다. 계약 합의 전에는 생성이 시작될 수 없고, generation_count가 MAX_GENERATIONS를 초과하지 않으며, 완료는 반드시 evaluation_passed 상태에서만 가능함을 증명합니다."
         },
         {
           name: "wtl_policy_autoresearch.qnt",

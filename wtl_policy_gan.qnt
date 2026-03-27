@@ -1,19 +1,22 @@
 // GAN Policy — Generative Adversarial Network-inspired harness
 //
-// Separates generation from evaluation across three adversarial phases:
+// Separates planning, contract negotiation, generation, and evaluation across
+// four adversarial phases:
 //
-//   idle → planning → generating ⇄ evaluating → completed
-//                         ↑______________|
-//                       (evaluation_failed, generation_count < MAX_GENERATIONS)
+//   idle → planning → contracting → generating ⇄ evaluating → completed
+//                                      ↑______________|
+//                                    (evaluation_failed, generation_count < MAX_GENERATIONS)
 //
 // Planner   : expands a brief prompt into a detailed spec (new thread)
+// Contract  : Generator and Evaluator agree what "done" means before build
 // Generator : produces output from the spec (new thread each attempt)
 // Evaluator : scores the output and decides pass or fail (new thread)
 //
-// If the Evaluator fails the output, the Generator runs again with the
-// Evaluator's critique injected into the next prompt. This adversarial
-// loop continues until the Evaluator passes the output or MAX_GENERATIONS
-// is reached.
+// Generation may not begin until the contract is agreed. If the Evaluator
+// later fails the output, the Generator runs again with the Evaluator's
+// critique injected into the next prompt under the same agreed contract.
+// This adversarial loop continues until the Evaluator passes the output or
+// MAX_GENERATIONS is reached.
 
 module wtl_policy_gan {
   pure val MAX_GENERATIONS = 3
@@ -24,6 +27,7 @@ module wtl_policy_gan {
   var prompt_kind: str
   var generation_count: int
   var plan_exists: bool
+  var contract_agreed: bool
   var score_passed: bool
 
   action init = all {
@@ -33,6 +37,7 @@ module wtl_policy_gan {
     prompt_kind' = "bootstrap",
     generation_count' = 0,
     plan_exists' = false,
+    contract_agreed' = false,
     score_passed' = false,
   }
 
@@ -46,17 +51,19 @@ module wtl_policy_gan {
     prompt_kind' = "planning_prompt",
     generation_count' = generation_count,
     plan_exists' = plan_exists,
+    contract_agreed' = contract_agreed,
     score_passed' = score_passed,
   }
 
   action planning_completed = all {
     phase == "planning",
-    phase' = "generating",
+    phase' = "contracting",
     engine_directive' = "advance_phase",
     thread_mode' = "start_new",
-    prompt_kind' = "generation_prompt",
+    prompt_kind' = "contract_prompt",
     generation_count' = generation_count,
     plan_exists' = true,
+    contract_agreed' = false,
     score_passed' = score_passed,
   }
 
@@ -68,6 +75,49 @@ module wtl_policy_gan {
     prompt_kind' = "none",
     generation_count' = generation_count,
     plan_exists' = plan_exists,
+    contract_agreed' = contract_agreed,
+    score_passed' = score_passed,
+  }
+
+  // ── Contract phase ───────────────────────────────────────────────────────
+
+  // Generator and Evaluator negotiate acceptance criteria until they agree.
+  action contracting_revises = all {
+    phase == "contracting",
+    plan_exists,
+    phase' = "contracting",
+    engine_directive' = "continue",
+    thread_mode' = "reuse_current",
+    prompt_kind' = "contract_revision_prompt",
+    generation_count' = generation_count,
+    plan_exists' = plan_exists,
+    contract_agreed' = false,
+    score_passed' = score_passed,
+  }
+
+  action contracting_completed = all {
+    phase == "contracting",
+    plan_exists,
+    phase' = "generating",
+    engine_directive' = "advance_phase",
+    thread_mode' = "start_new",
+    prompt_kind' = "generation_prompt",
+    generation_count' = generation_count,
+    plan_exists' = plan_exists,
+    contract_agreed' = true,
+    score_passed' = score_passed,
+  }
+
+  action contracting_failed = all {
+    phase == "contracting",
+    plan_exists,
+    phase' = "failed",
+    engine_directive' = "fail",
+    thread_mode' = thread_mode,
+    prompt_kind' = "none",
+    generation_count' = generation_count,
+    plan_exists' = plan_exists,
+    contract_agreed' = contract_agreed,
     score_passed' = score_passed,
   }
 
@@ -78,12 +128,14 @@ module wtl_policy_gan {
   action generating_completed = all {
     phase == "generating",
     plan_exists,
+    contract_agreed,
     phase' = "evaluating",
     engine_directive' = "advance_phase",
     thread_mode' = "start_new",
     prompt_kind' = "evaluation_prompt",
     generation_count' = generation_count + 1,
     plan_exists' = plan_exists,
+    contract_agreed' = contract_agreed,
     score_passed' = score_passed,
   }
 
@@ -92,12 +144,14 @@ module wtl_policy_gan {
   action generating_failed = all {
     phase == "generating",
     plan_exists,
+    contract_agreed,
     phase' = "generating",
     engine_directive' = "retry",
     thread_mode' = "reuse_current",
     prompt_kind' = "generation_prompt",
     generation_count' = generation_count,
     plan_exists' = plan_exists,
+    contract_agreed' = contract_agreed,
     score_passed' = score_passed,
   }
 
@@ -107,6 +161,7 @@ module wtl_policy_gan {
   action evaluation_passed = all {
     phase == "evaluating",
     plan_exists,
+    contract_agreed,
     generation_count > 0,
     phase' = "completed",
     engine_directive' = "complete",
@@ -114,6 +169,7 @@ module wtl_policy_gan {
     prompt_kind' = "none",
     generation_count' = generation_count,
     plan_exists' = plan_exists,
+    contract_agreed' = contract_agreed,
     score_passed' = true,
   }
 
@@ -124,6 +180,7 @@ module wtl_policy_gan {
   action evaluation_failed_retry = all {
     phase == "evaluating",
     plan_exists,
+    contract_agreed,
     generation_count > 0,
     generation_count < MAX_GENERATIONS,
     phase' = "generating",
@@ -132,6 +189,7 @@ module wtl_policy_gan {
     prompt_kind' = "generation_prompt_with_feedback",
     generation_count' = generation_count,
     plan_exists' = plan_exists,
+    contract_agreed' = contract_agreed,
     score_passed' = false,
   }
 
@@ -139,6 +197,7 @@ module wtl_policy_gan {
   action generation_exhausted = all {
     phase == "evaluating",
     plan_exists,
+    contract_agreed,
     generation_count >= MAX_GENERATIONS,
     phase' = "failed",
     engine_directive' = "fail",
@@ -146,6 +205,7 @@ module wtl_policy_gan {
     prompt_kind' = "none",
     generation_count' = generation_count,
     plan_exists' = plan_exists,
+    contract_agreed' = contract_agreed,
     score_passed' = false,
   }
 
@@ -153,12 +213,14 @@ module wtl_policy_gan {
   action evaluating_errored = all {
     phase == "evaluating",
     plan_exists,
+    contract_agreed,
     phase' = "failed",
     engine_directive' = "fail",
     thread_mode' = thread_mode,
     prompt_kind' = "none",
     generation_count' = generation_count,
     plan_exists' = plan_exists,
+    contract_agreed' = contract_agreed,
     score_passed' = score_passed,
   }
 
@@ -166,6 +228,9 @@ module wtl_policy_gan {
     start_planning,
     planning_completed,
     planning_failed,
+    contracting_revises,
+    contracting_completed,
+    contracting_failed,
     generating_completed,
     generating_failed,
     evaluation_passed,
@@ -182,8 +247,13 @@ module wtl_policy_gan {
 
   // Generator and Evaluator phases require a plan to exist.
   val plan_required_before_generation =
-    not(Set("generating", "evaluating", "completed").contains(phase))
+    not(Set("contracting", "generating", "evaluating", "completed").contains(phase))
       or plan_exists
+
+  // Generation may begin only after Generator and Evaluator agree the contract.
+  val contract_required_before_generation =
+    not(Set("generating", "evaluating", "completed").contains(phase))
+      or contract_agreed
 
   // Evaluating and completed phases require at least one generation attempt.
   val generation_required_before_evaluation =
@@ -203,6 +273,7 @@ module wtl_policy_gan {
     Set(
       "idle",
       "planning",
+      "contracting",
       "generating",
       "evaluating",
       "completed",
@@ -217,6 +288,8 @@ module wtl_policy_gan {
       "none",
       "bootstrap",
       "planning_prompt",
+      "contract_prompt",
+      "contract_revision_prompt",
       "generation_prompt",
       "generation_prompt_with_feedback",
       "evaluation_prompt",
@@ -226,6 +299,7 @@ module wtl_policy_gan {
   val phase_prompt_alignment =
     (phase != "idle"       or prompt_kind == "bootstrap")
       and (phase != "planning"   or prompt_kind == "planning_prompt")
+      and (phase != "contracting" or Set("contract_prompt", "contract_revision_prompt").contains(prompt_kind))
       and (phase != "generating" or Set("generation_prompt", "generation_prompt_with_feedback").contains(prompt_kind))
       and (phase != "evaluating" or prompt_kind == "evaluation_prompt")
       and (phase != "completed"  or prompt_kind == "none")
@@ -233,7 +307,8 @@ module wtl_policy_gan {
 
   // Phase ordering: prerequisites must be satisfied before advancing.
   val phase_order =
-    (phase != "generating" or plan_exists)
-      and (phase != "evaluating"  or (plan_exists and generation_count > 0))
-      and (phase != "completed"   or (plan_exists and generation_count > 0 and score_passed))
+    (phase != "contracting" or plan_exists)
+      and (phase != "generating" or (plan_exists and contract_agreed))
+      and (phase != "evaluating"  or (plan_exists and contract_agreed and generation_count > 0))
+      and (phase != "completed"   or (plan_exists and contract_agreed and generation_count > 0 and score_passed))
 }

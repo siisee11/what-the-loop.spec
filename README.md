@@ -11,7 +11,10 @@ loop interface for agent execution.
 
 - `SPEC.md` — primary behavioral specification and minimal CLI contract
 - `wtl_engine.qnt` — Quint reference model for engine mechanics
-- `wtl_policy.qnt` — Quint reference model for policy behavior
+- `wtl_policy_interactive.qnt` — Quint reference model for interactive completion
+- `wtl_policy_ralph_wigum.qnt` — Quint reference model for staged delivery
+- `wtl_policy_gan.qnt` — Quint reference model for adversarial generation with contract gating
+- `wtl_policy_autoresearch.qnt` — Quint reference model for autonomous experiment loops
 - `wtl_observer.qnt` — Quint reference model for observer events
 - `references/` — LLM-friendly reference material for example agent runtimes
 
