@@ -1,2 +1,6 @@
 .agents/
 explanation/
+AGENTS.md
+.skills-lock.json
+UPSTREAM.md
+.gitignore
