@@ -1,0 +1,14 @@
+{
+  "$schema": "https://spechub.dev/schema/spec-config.v1.json",
+  "schema_version": 1,
+  "spec": {
+    "key": "github:siisee11/what-the-loop.spec",
+    "slug": "what-the-loop",
+    "title": "What The Loop",
+    "entry": "SPEC.md"
+  },
+  "dependencies": [],
+  "install": {
+    "include_dependencies": "transitive"
+  }
+}
