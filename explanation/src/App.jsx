@@ -498,20 +498,25 @@ function PolicyFlowDiagram({ item, index }) {
   const advance = () => { if (!isDone) setStepIdx(i => i + 1); };
   const rewind  = () => setStepIdx(0);
 
-  // Layout — compact
+  // Layout — compact for 3-phase examples, wider for longer policies.
   const phaseCount = item.phases.length;
-  const VW = phaseCount <= 3 ? 300 : 420;
-  const NCY = 30;
-  const NW = phaseCount <= 3 ? 66 : 54;
+  const isWidePolicy = phaseCount > 3;
+  const VW = isWidePolicy ? 560 : 300;
+  const NCY = 34;
+  const NW = isWidePolicy ? 68 : 66;
   const NH = 22;
-  const marginX = phaseCount <= 3 ? 54 : 34;
+  const marginX = isWidePolicy ? 74 : 54;
   const span = VW - marginX * 2;
   const CX = Array.from({ length: phaseCount }, (_, i) =>
     phaseCount === 1 ? VW / 2 : marginX + (span * i) / (phaseCount - 1)
   );
   const BOT = NCY + NH / 2;
-  const LOOP_Y = BOT + 20;
-  const VH = LOOP_Y + 16;
+  const LOOP_Y = BOT + 30;
+  const VH = LOOP_Y + 30;
+  const ENTRY_X1 = 18;
+  const ENTRY_X2 = CX[0] - NW / 2 - 10;
+  const EXIT_X1 = CX[phaseCount - 1] + NW / 2 + 10;
+  const EXIT_X2 = VW - 18;
 
   const phases = item.phases;
   const phaseIndex = phases.findIndex((phase) => phase.id === step.phase);
@@ -557,7 +562,7 @@ function PolicyFlowDiagram({ item, index }) {
         <svg viewBox={`0 0 ${VW} ${VH}`} className="policy-svg" aria-hidden="true">
 
           {/* Entry arrow */}
-          <HArrow x1={6} x2={CX[0] - NW / 2 - 2} y={NCY} active={true} />
+          <HArrow x1={ENTRY_X1} x2={ENTRY_X2} y={NCY} active={true} />
 
           {/* Phase nodes — scale-up on activation */}
           {phases.map((phase, i) => {
@@ -601,10 +606,10 @@ function PolicyFlowDiagram({ item, index }) {
           })}
 
           {/* Exit arrow + complete label */}
-          <HArrow x1={CX[phaseCount - 1] + NW / 2 + 2} x2={VW - 6} y={NCY} active={isExitActive} color="var(--teal)" />
+          <HArrow x1={EXIT_X1} x2={EXIT_X2} y={NCY} active={isExitActive} color="var(--teal)" />
           <motion.text
             key={isExitActive ? `exit-${stepIdx}` : "exit"}
-            x={VW - 4} y={LABEL_Y} textAnchor="end"
+            x={(EXIT_X1 + EXIT_X2) / 2} y={LABEL_Y} textAnchor="middle"
             initial={isExitActive ? { opacity: 0, y: 2 } : false}
             animate={{ opacity: isExitActive ? 1 : 0.22, y: 0 }}
             transition={{ duration: 0.28, delay: 0.05 }}
@@ -628,10 +633,10 @@ function PolicyFlowDiagram({ item, index }) {
               <UpArrow cx={CX[phaseIndex] + 20} y={BOT} color="var(--coral)" />
               <motion.text
                 key={isSelfActive ? `self-lbl-${stepIdx}` : "self-lbl"}
-                x={CX[phaseIndex]} y={LOOP_Y + 13} textAnchor="middle"
+                x={CX[phaseIndex]} y={LOOP_Y + 16} textAnchor="middle"
                 initial={isSelfActive ? { opacity: 0, scale: 1.2 } : false}
                 animate={{ opacity: 1, scale: 1 }}
-                style={{ transformOrigin: `${CX[phaseIndex]}px ${LOOP_Y + 13}px` }}
+                style={{ transformOrigin: `${CX[phaseIndex]}px ${LOOP_Y + 16}px` }}
                 transition={{ duration: 0.3 }}
                 fontSize={4.5} fontWeight="700" fontFamily="Space Grotesk, sans-serif"
                 fill="var(--coral)">continue</motion.text>
@@ -655,10 +660,10 @@ function PolicyFlowDiagram({ item, index }) {
               <UpArrow cx={CX[loopToIndex] + 20} y={BOT} color="var(--coral)" />
               <motion.text
                 key={isBackActive ? `back-lbl-${stepIdx}` : "back-lbl"}
-                x={(CX[loopToIndex] + CX[phaseIndex]) / 2} y={LOOP_Y + 13} textAnchor="middle"
+                x={(CX[loopToIndex] + CX[phaseIndex]) / 2} y={LOOP_Y + 16} textAnchor="middle"
                 initial={isBackActive ? { opacity: 0, scale: 1.2 } : false}
                 animate={{ opacity: 1, scale: 1 }}
-                style={{ transformOrigin: `${(CX[loopToIndex] + CX[phaseIndex]) / 2}px ${LOOP_Y + 13}px` }}
+                style={{ transformOrigin: `${(CX[loopToIndex] + CX[phaseIndex]) / 2}px ${LOOP_Y + 16}px` }}
                 transition={{ duration: 0.3 }}
                 fontSize={4.5} fontWeight="700" fontFamily="Space Grotesk, sans-serif"
                 fill="var(--coral)">advance_phase</motion.text>
