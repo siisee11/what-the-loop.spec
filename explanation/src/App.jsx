@@ -520,7 +520,17 @@ function PolicyFlowDiagram({ item, index }) {
 
   const phases = item.phases;
   const phaseIndex = phases.findIndex((phase) => phase.id === step.phase);
-  const loopToIndex = step.loopTo ? phases.findIndex((phase) => phase.id === step.loopTo) : -1;
+  const selfLoopStep = steps.find((candidate) => candidate.isSelfLoop);
+  const selfLoopIndex = selfLoopStep
+    ? phases.findIndex((phase) => phase.id === selfLoopStep.phase)
+    : -1;
+  const loopBackStep = steps.find((candidate) => candidate.isLoopBack && candidate.loopTo);
+  const loopFromIndex = loopBackStep
+    ? phases.findIndex((phase) => phase.id === loopBackStep.phase)
+    : -1;
+  const loopToIndex = loopBackStep
+    ? phases.findIndex((phase) => phase.id === loopBackStep.loopTo)
+    : -1;
 
   const isFwdActive  = i => step.phase === phases[i].id && step.directive === "advance_phase" && !step.isLoopBack;
   const isExitActive = step.directive === "complete";
@@ -617,26 +627,26 @@ function PolicyFlowDiagram({ item, index }) {
             fill="var(--teal)">complete</motion.text>
 
           {/* Self-loop (Ralph Wigum) — pulse on activation */}
-          {item.id === "ralph_wigum" && phaseIndex >= 0 && (
+          {item.id === "ralph_wigum" && selfLoopIndex >= 0 && (
             <motion.g
               key={isSelfActive ? `self-${stepIdx}` : "self"}
               animate={{ opacity: isSelfActive ? 1 : 0.18 }}
               transition={{ duration: 0.25 }}
             >
               <motion.path
-                d={`M ${CX[phaseIndex]-20} ${BOT} C ${CX[phaseIndex]-20} ${LOOP_Y} ${CX[phaseIndex]+20} ${LOOP_Y} ${CX[phaseIndex]+20} ${BOT}`}
+                d={`M ${CX[selfLoopIndex]-20} ${BOT} C ${CX[selfLoopIndex]-20} ${LOOP_Y} ${CX[selfLoopIndex]+20} ${LOOP_Y} ${CX[selfLoopIndex]+20} ${BOT}`}
                 fill="none" stroke="var(--coral)" strokeDasharray="5 3"
                 initial={isSelfActive ? { strokeWidth: 2.5 } : false}
                 animate={{ strokeWidth: 1.5 }}
                 transition={{ duration: 0.4 }}
               />
-              <UpArrow cx={CX[phaseIndex] + 20} y={BOT} color="var(--coral)" />
+              <UpArrow cx={CX[selfLoopIndex] + 20} y={BOT} color="var(--coral)" />
               <motion.text
                 key={isSelfActive ? `self-lbl-${stepIdx}` : "self-lbl"}
-                x={CX[phaseIndex]} y={LOOP_Y + 16} textAnchor="middle"
+                x={CX[selfLoopIndex]} y={LOOP_Y + 16} textAnchor="middle"
                 initial={isSelfActive ? { opacity: 0, scale: 1.2 } : false}
                 animate={{ opacity: 1, scale: 1 }}
-                style={{ transformOrigin: `${CX[phaseIndex]}px ${LOOP_Y + 16}px` }}
+                style={{ transformOrigin: `${CX[selfLoopIndex]}px ${LOOP_Y + 16}px` }}
                 transition={{ duration: 0.3 }}
                 fontSize={4.5} fontWeight="700" fontFamily="Space Grotesk, sans-serif"
                 fill="var(--coral)">continue</motion.text>
@@ -644,14 +654,14 @@ function PolicyFlowDiagram({ item, index }) {
           )}
 
           {/* Back-arc for looping policies — pulse on activation */}
-          {isBackActive && phaseIndex >= 0 && loopToIndex >= 0 && (
+          {loopFromIndex >= 0 && loopToIndex >= 0 && (
             <motion.g
               key={isBackActive ? `back-${stepIdx}` : "back"}
               animate={{ opacity: isBackActive ? 1 : 0.18 }}
               transition={{ duration: 0.25 }}
             >
               <motion.path
-                d={`M ${CX[phaseIndex]-20} ${BOT} C ${CX[phaseIndex]-20} ${LOOP_Y} ${CX[loopToIndex]+20} ${LOOP_Y} ${CX[loopToIndex]+20} ${BOT}`}
+                d={`M ${CX[loopFromIndex]-20} ${BOT} C ${CX[loopFromIndex]-20} ${LOOP_Y} ${CX[loopToIndex]+20} ${LOOP_Y} ${CX[loopToIndex]+20} ${BOT}`}
                 fill="none" stroke="var(--coral)" strokeDasharray="5 3"
                 initial={isBackActive ? { strokeWidth: 2.5 } : false}
                 animate={{ strokeWidth: 1.5 }}
@@ -660,10 +670,10 @@ function PolicyFlowDiagram({ item, index }) {
               <UpArrow cx={CX[loopToIndex] + 20} y={BOT} color="var(--coral)" />
               <motion.text
                 key={isBackActive ? `back-lbl-${stepIdx}` : "back-lbl"}
-                x={(CX[loopToIndex] + CX[phaseIndex]) / 2} y={LOOP_Y + 16} textAnchor="middle"
+                x={(CX[loopToIndex] + CX[loopFromIndex]) / 2} y={LOOP_Y + 16} textAnchor="middle"
                 initial={isBackActive ? { opacity: 0, scale: 1.2 } : false}
                 animate={{ opacity: 1, scale: 1 }}
-                style={{ transformOrigin: `${(CX[loopToIndex] + CX[phaseIndex]) / 2}px ${LOOP_Y + 16}px` }}
+                style={{ transformOrigin: `${(CX[loopToIndex] + CX[loopFromIndex]) / 2}px ${LOOP_Y + 16}px` }}
                 transition={{ duration: 0.3 }}
                 fontSize={4.5} fontWeight="700" fontFamily="Space Grotesk, sans-serif"
                 fill="var(--coral)">advance_phase</motion.text>
