@@ -240,89 +240,43 @@ Required invariants:
 
 ## Policy State Model
 
-WTL does not restrict how policies are implemented. The two below are examples.
-Any policy that satisfies the directive contract may be freely defined.
+WTL does not restrict how policies are implemented. Any policy that satisfies
+the directive contract may be freely defined.
+
+The example policies in this repository are specified in Quint reference files.
+Their detailed state machines, transitions, and invariants belong there rather
+than in this document. Use the files below when you want the precise model:
+
+- Interactive completion example — [wtl_policy_interactive.qnt](./wtl_policy_interactive.qnt)
+- Ralph Wigum example — [wtl_policy_ralph_wigum.qnt](./wtl_policy_ralph_wigum.qnt)
+- GAN-inspired planner / generator / evaluator example, inspired by Anthropic's March 24, 2026 article [Harness design for long-running application development](https://www.anthropic.com/engineering/harness-design-long-running-apps) — [wtl_policy_gan.qnt](./wtl_policy_gan.qnt)
+- Autoresearch example, inspired by [karpathy/autoresearch](https://github.com/karpathy/autoresearch) — [wtl_policy_autoresearch.qnt](./wtl_policy_autoresearch.qnt)
+- Ralph example inspiration source — [ghuntley.com/ralph](https://ghuntley.com/ralph/)
 
 ### Interactive Completion Policy (example)
 
-Suitable for tasks that require waiting for user input or approval.
-
-```
-active ──────────────────────────────► completed
-  │                                       ▲
-  ├── waiting for user input ─(arrived)───┤
-  ├── waiting for login      ─(authed)────┤
-  └── completion rejected    ─(retry)─────┘
-                                      (limit reached → exhausted)
-```
-
-Required properties:
-- completion is invalid unless explicitly approved
-- completion is not allowed while waiting for input
-- waiting state must emit the `wait` directive
+Suitable for tasks that require waiting for user input or approval. See
+[wtl_policy_interactive.qnt](./wtl_policy_interactive.qnt).
 
 ### Ralph Wigum Policy (example)
 
-Suitable for tasks that must progress through ordered stages. This example is
-inspired by Geoffrey Huntley's Ralph workflow writeup at
-[ghuntley.com/ralph](https://ghuntley.com/ralph/).
-
-```
-idle → init → planning → implementing → review → completed
-                                                      │
-                                             (limit reached → exhausted)
-```
-
-Required properties:
-- planning cannot begin before init prerequisites are met
-- implementing cannot begin before a plan exists
-- review cannot begin before delivery is complete
-- terminal completion requires an explicit `complete` directive
+Suitable for tasks that must progress through ordered stages. See
+[wtl_policy_ralph_wigum.qnt](./wtl_policy_ralph_wigum.qnt). Inspiration
+source: [ghuntley.com/ralph](https://ghuntley.com/ralph/).
 
 ### GAN Policy (example)
 
 Suitable for planner / generator / evaluator workflows that require an agreed
-acceptance contract before generation starts. This example is inspired by
-Anthropic's March 24, 2026 article, [Harness design for long-running application development](https://www.anthropic.com/engineering/harness-design-long-running-apps),
-which describes a GAN-inspired planner / generator / evaluator harness and
-generator-evaluator contract negotiation before implementation.
-
-```
-idle → planning → contracting → generating ⇄ evaluating → completed
-                                         │
-                         (score below threshold, budget remains)
-                                         ▼
-                                     generating
-                              (limit reached → exhausted)
-```
-
-Required properties:
-- generation cannot begin before both a plan and a contract exist
-- evaluation cannot begin before at least one generation attempt exists
-- evaluator failure may loop back to generation under the same contract
-- terminal completion requires an explicit evaluator pass and `complete` directive
+acceptance contract before generation starts. See
+[wtl_policy_gan.qnt](./wtl_policy_gan.qnt). Inspiration source: Anthropic's
+March 24, 2026 article [Harness design for long-running application development](https://www.anthropic.com/engineering/harness-design-long-running-apps).
 
 ### Autoresearch Policy (example)
 
 Suitable for autonomous experiment loops that prepare an environment, record a
 baseline, propose one experiment, run it, and adjudicate the result before
-continuing. This example is inspired by Andrej Karpathy's
-[karpathy/autoresearch](https://github.com/karpathy/autoresearch) repository.
-
-```
-idle → setup → baseline → proposing → running → adjudicating → completed
-                                           │               │
-                           (recoverable crash, budget left)│
-                                           ▼               │
-                                        running ───────────┘
-                              (limit reached → exhausted)
-```
-
-Required properties:
-- setup must complete before baseline can begin
-- baseline must be recorded before proposing, running, or adjudicating
-- recoverable crashes may retry in place during running
-- completion requires the experiment budget to be exhausted and `complete` to be issued explicitly
+continuing. See [wtl_policy_autoresearch.qnt](./wtl_policy_autoresearch.qnt).
+Inspiration source: [karpathy/autoresearch](https://github.com/karpathy/autoresearch).
 
 ---
 
