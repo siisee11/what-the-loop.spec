@@ -1192,6 +1192,53 @@ h3 {
   grid-template-columns: repeat(3, minmax(0, 1fr));
 }
 
+.hook-section {
+  position: relative;
+}
+
+.hook-panel {
+  padding: 28px;
+}
+
+.hook-panel h3,
+.hook-card strong,
+.hook-map-title p {
+  margin: 0;
+}
+
+.hook-panel h3 {
+  margin-top: 4px;
+}
+
+.hook-panel > p:not(.eyebrow) {
+  margin: 14px 0 0;
+}
+
+.hook-list {
+  margin-top: 18px;
+}
+
+.hook-map-title {
+  margin-top: 28px;
+  margin-bottom: 18px;
+}
+
+.hook-grid {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+.hook-card {
+  min-height: 188px;
+}
+
+.hook-card strong {
+  display: block;
+  margin-bottom: 10px;
+  color: var(--teal);
+  font-size: 1rem;
+  letter-spacing: 0.01em;
+}
+
 .directive-card {
   min-height: 130px;
   padding: 16px 18px;
@@ -1500,6 +1547,7 @@ h3 {
 
   .roles-grid,
   .directive-grid,
+  .hook-grid,
   .problems-grid {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
@@ -1540,6 +1588,7 @@ h3 {
   .hero-facts,
   .roles-grid,
   .directive-grid,
+  .hook-grid,
   .problems-grid,
   .split-section,
   .explore-status-grid {
@@ -3124,6 +3173,10 @@ h2 {
 
 .ownership-grid div:nth-child(3) {
   background: #d8ffe8;
+}
+
+.ownership-grid div:nth-child(4) {
+  background: #d7f0ff;
 }
 
 @media (max-width: 1024px) {

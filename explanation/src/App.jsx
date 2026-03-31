@@ -829,6 +829,56 @@ function LifecycleRail({ steps }) {
   );
 }
 
+function HooksSection({ t }) {
+  return (
+    <section className="section hook-section" id="hooks">
+      <SectionIntro
+        eyebrow={t.hooks.eyebrow}
+        title={t.hooks.title}
+        body={t.hooks.body}
+      />
+
+      <div className="split-section hook-panels">
+        <Reveal className="panel hook-panel">
+          <p className="eyebrow">{t.hooks.model.eyebrow}</p>
+          <h3>{t.hooks.model.title}</h3>
+          <p>{t.hooks.model.body}</p>
+          <ul className="guarantee-list hook-list">
+            {t.hooks.model.points.map((item) => (
+              <li key={item}>{item}</li>
+            ))}
+          </ul>
+        </Reveal>
+
+        <Reveal className="panel hook-panel" delay={0.1}>
+          <p className="eyebrow">{t.hooks.constraints.eyebrow}</p>
+          <h3>{t.hooks.constraints.title}</h3>
+          <p>{t.hooks.constraints.body}</p>
+          <ul className="guarantee-list hook-list">
+            {t.hooks.constraints.points.map((item) => (
+              <li key={item}>{item}</li>
+            ))}
+          </ul>
+        </Reveal>
+      </div>
+
+      <Reveal className="hook-map-title" delay={0.04}>
+        <p className="quint-sub-heading">{t.hooks.mappingTitle}</p>
+      </Reveal>
+
+      <div className="directive-grid hook-grid">
+        {t.hooks.events.map((item, index) => (
+          <Reveal key={item.event} className="directive-card hook-card" delay={index * 0.05} amount={0.15}>
+            <p>{item.event}</p>
+            <strong>{item.hook}</strong>
+            <span>{item.body}</span>
+          </Reveal>
+        ))}
+      </div>
+    </section>
+  );
+}
+
 function DiagramSection({ t }) {
   const items = [
     {
@@ -967,6 +1017,7 @@ export default function App() {
               <a href="#roles">{t.nav.roles}</a>
               <a href="#directives">{t.nav.directives}</a>
               <a href="#lifecycle">{t.nav.lifecycle}</a>
+              <a href="#hooks">{t.nav.hooks}</a>
               <a href="#quint">{t.nav.quint}</a>
               <a href="#cli">{t.nav.cli}</a>
               <button
@@ -1064,6 +1115,8 @@ export default function App() {
 
             <LifecycleRail steps={t.lifecycle.steps} />
           </section>
+
+          <HooksSection t={t} />
 
           <section className="section split-section">
             <Reveal className="panel guarantee-panel">

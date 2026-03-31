@@ -9,6 +9,7 @@ export const i18n = {
       roles: "Roles",
       directives: "Directives",
       lifecycle: "Lifecycle",
+      hooks: "Hooks",
       quint: "Quint",
       cli: "CLI"
     },
@@ -310,6 +311,65 @@ export const i18n = {
         { step: "Handle", body: "The engine loops, waits, retries, compacts, changes phase, or terminates based on that directive." }
       ]
     },
+    hooks: {
+      eyebrow: "Hook layer",
+      title: "Hooks are optional host extensions built from observer events.",
+      body: "WTL does not add a fourth control role. Instead, an implementation may project observer events into a host-facing hook system for side effects like logs, notifications, cleanup, or UI refresh.",
+      model: {
+        eyebrow: "What it is",
+        title: "A hook system is observer-derived, not engine-authoritative.",
+        body: "The engine still emits lifecycle events. The host may expose those events as callbacks, subscribers, handlers, or another extension shape, but the source of truth remains the observer stream.",
+        points: [
+          "Hooks come from observer notifications or their semantic equivalents.",
+          "Hook inputs should be snapshots of what already happened in the run.",
+          "A hook layer may exist, but it does not become a new policy surface."
+        ]
+      },
+      constraints: {
+        eyebrow: "What it must not do",
+        title: "Hooks can trigger side effects, but they cannot steer the loop.",
+        body: "A hook may fail, time out, or be absent entirely without changing whether the run is valid. Implementations may dispatch hooks synchronously or asynchronously, but correctness cannot depend on hook completion.",
+        points: [
+          "Hooks must not choose directives or mutate policy meaning.",
+          "Hooks must not decide whether completion is legal.",
+          "Hook failure or cancellation must not invalidate the run.",
+          "Dispatch order and registration mechanics may vary by implementation, but they should be documented."
+        ]
+      },
+      mappingTitle: "Common observer-event to hook correspondences",
+      events: [
+        {
+          event: "run start",
+          hook: "onRunStarted",
+          body: "Initialize host-side logs, traces, timers, or UI state."
+        },
+        {
+          event: "phase change",
+          hook: "onPhaseChanged",
+          body: "Update workflow displays or record stage transitions for audit."
+        },
+        {
+          event: "turn start",
+          hook: "onTurnStarted",
+          body: "Show activity, mark latency windows, or annotate live dashboards."
+        },
+        {
+          event: "turn finish",
+          hook: "onTurnFinished",
+          body: "Persist outputs, emit metrics, or schedule downstream processing."
+        },
+        {
+          event: "wait entry",
+          hook: "onWaitEntered",
+          body: "Notify a user, surface an approval gate, or mark the run as blocked."
+        },
+        {
+          event: "terminal completion / exhaustion",
+          hook: "onRunCompleted / onRunExhausted",
+          body: "Send final notifications and perform cleanup without changing the outcome."
+        }
+      ]
+    },
     loopMap: {
       eyebrow: "System diagram",
       h2: "One run, three roles, two kinds of signal.",
@@ -493,7 +553,8 @@ export const i18n = {
       items: [
         { name: "Engine", body: "Loop control, iteration count, retries, waiting, thread lifecycle." },
         { name: "Policy", body: "Completion gating, phase order, execution plans, thread reuse boundaries." },
-        { name: "Observer", body: "Logs, traces, metrics, UI, and audit views." }
+        { name: "Observer", body: "Logs, traces, metrics, UI, and audit views." },
+        { name: "Hook layer (optional)", body: "Host-side callback registration and dispatch derived from observer events." }
       ]
     },
     quint: {
@@ -581,6 +642,7 @@ Done: your request was completed successfully.`
       roles: "역할",
       directives: "지시어",
       lifecycle: "생명주기",
+      hooks: "훅",
       quint: "Quint",
       cli: "CLI"
     },
@@ -882,6 +944,65 @@ Done: your request was completed successfully.`
         { step: "처리", body: "엔진은 그 지시어에 따라 루프, 대기, 재시도, 컴팩션, 단계 변경 또는 종료를 수행합니다." }
       ]
     },
+    hooks: {
+      eyebrow: "훅 레이어",
+      title: "Hook은 observer event 위에 얹히는 선택적 host 확장입니다.",
+      body: "WTL은 네 번째 제어 역할을 추가하지 않습니다. 대신 구현체는 observer event를 로그, 알림, 정리 작업, UI 갱신 같은 side effect를 위한 host-facing hook 시스템으로 투영할 수 있습니다.",
+      model: {
+        eyebrow: "무엇인가",
+        title: "Hook system은 observer에서 파생되며, engine 권한을 가지지 않습니다.",
+        body: "Lifecycle event를 내보내는 주체는 여전히 engine입니다. 호스트는 그 이벤트를 callback, subscriber, handler 등 어떤 형태로든 노출할 수 있지만, 기준 진실은 observer stream에 남아 있습니다.",
+        points: [
+          "Hook은 observer notification 또는 그와 동등한 의미의 이벤트에서만 나와야 합니다.",
+          "Hook 입력은 run에서 이미 일어난 일을 담은 스냅샷이어야 합니다.",
+          "Hook layer가 존재해도 그것이 새로운 policy surface가 되지는 않습니다."
+        ]
+      },
+      constraints: {
+        eyebrow: "무엇을 하면 안 되는가",
+        title: "Hook은 side effect를 일으킬 수 있지만, 루프를 조종할 수는 없습니다.",
+        body: "Hook은 실패하거나, timeout 되거나, 아예 없어도 run의 합법성이 바뀌면 안 됩니다. 구현체는 hook을 동기 또는 비동기로 실행할 수 있지만, 정합성은 hook 완료에 의존해서는 안 됩니다.",
+        points: [
+          "Hook은 directive를 고르거나 policy 의미를 바꾸면 안 됩니다.",
+          "Hook은 completion의 합법성을 판단하면 안 됩니다.",
+          "Hook의 실패나 취소가 run을 무효화해서는 안 됩니다.",
+          "디스패치 순서와 등록 방식은 구현체마다 달라도 되지만, 문서화되어야 합니다."
+        ]
+      },
+      mappingTitle: "자주 쓰이는 observer-event → hook 대응",
+      events: [
+        {
+          event: "run start",
+          hook: "onRunStarted",
+          body: "호스트 측 로그, 트레이스, 타이머, UI 상태를 초기화합니다."
+        },
+        {
+          event: "phase change",
+          hook: "onPhaseChanged",
+          body: "워크플로 표시를 갱신하거나 단계 전이를 감사 로그로 남깁니다."
+        },
+        {
+          event: "turn start",
+          hook: "onTurnStarted",
+          body: "실행 중 표시를 켜고, 지연 시간 창을 기록하거나 대시보드를 갱신합니다."
+        },
+        {
+          event: "turn finish",
+          hook: "onTurnFinished",
+          body: "출력을 저장하고, 메트릭을 내보내거나 후속 처리를 예약합니다."
+        },
+        {
+          event: "wait entry",
+          hook: "onWaitEntered",
+          body: "사용자에게 알리고, 승인 게이트를 띄우거나 run이 차단되었음을 표시합니다."
+        },
+        {
+          event: "terminal completion / exhaustion",
+          hook: "onRunCompleted / onRunExhausted",
+          body: "결과를 바꾸지 않은 채 최종 알림과 정리 작업을 수행합니다."
+        }
+      ]
+    },
     loopMap: {
       eyebrow: "시스템 다이어그램",
       h2: "하나의 실행, 세 가지 역할, 두 종류의 신호.",
@@ -1065,7 +1186,8 @@ Done: your request was completed successfully.`
       items: [
         { name: "Engine", body: "루프 제어, 반복 횟수, 재시도, 대기, 스레드 생명주기." },
         { name: "Policy", body: "완료 게이팅, 단계 순서, 실행 계획, 스레드 재사용 경계." },
-        { name: "Observer", body: "로그, 트레이스, 메트릭, UI, 감사 뷰." }
+        { name: "Observer", body: "로그, 트레이스, 메트릭, UI, 감사 뷰." },
+        { name: "Hook layer (optional)", body: "Observer event에서 파생된 host 측 callback 등록과 디스패치." }
       ]
     },
     quint: {
