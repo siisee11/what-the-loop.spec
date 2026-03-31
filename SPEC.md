@@ -57,6 +57,7 @@ The goal is to let different workflows share one engine while each using a diffe
 | **Phase-scoped thread reuse** | A policy may either reuse the current logical thread for a phase or start a new one when entering a phase |
 | **Compaction** | Context compression performed by the engine when context grows too large |
 | **External wait** | A paused state while waiting for external input such as user action |
+| **Hook** | An implementation-defined callback or equivalent mechanism derived from observer events to trigger host-side side effects |
 
 ---
 
@@ -105,6 +106,9 @@ May receive notifications for:
 - terminal completion / exhaustion
 
 May do: log, record metrics, update UI, write audit records, emit traces
+
+An implementation may expose observer notifications through a hook system, but
+such hooks remain observational and do not become a separate control role.
 
 Must not do: control the execution flow. An observer's behavior must not be a
 correctness dependency for the loop.
@@ -317,6 +321,45 @@ for downstream consumers to correlate:
 
 ---
 
+## Hook Layer (Optional)
+
+An implementation may expose observer events through a host-facing hook system.
+This hook layer is optional and is not a fourth core role in WTL. It is a
+projection of observer notifications into implementation-defined callbacks,
+subscribers, handlers, or equivalent extension points.
+
+The purpose of hooks is to trigger host-side side effects such as:
+
+- logging
+- metrics
+- notifications
+- UI refresh
+- audit recording
+- cleanup work
+
+Required properties:
+
+- hooks must be derived only from observer events or their semantic equivalents
+- hook inputs must be observational snapshots of run state at the time of the event
+- hooks must not choose directives, mutate policy meaning, or determine terminal validity
+- hook failure, timeout, cancellation, or absence must not affect loop correctness
+- implementations may execute hooks synchronously or asynchronously, but run correctness must not depend on hook completion
+- if multiple hooks are bound to the same event, the dispatch order may be implementation-defined, but the implementation must document its behavior
+- if an implementation exposes hook registration, unregistration, filtering, or fan-out semantics, those mechanisms are implementation-defined
+
+Recommended event correspondences:
+
+- run start → hook such as `onRunStarted`
+- phase change → hook such as `onPhaseChanged`
+- turn start / finish → hook such as `onTurnStarted` / `onTurnFinished`
+- wait entry → hook such as `onWaitEntered`
+- terminal completion / exhaustion → hook such as `onRunCompleted` / `onRunExhausted`
+
+WTL does not prescribe API shapes, type systems, method names, callback
+signatures, or delivery transports for hooks.
+
+---
+
 ## Error Model
 
 A run does not give up early. The engine and policy must keep finding ways to
@@ -343,6 +386,7 @@ WTL does not require a specific persistence mechanism, but ownership must be cle
 | **Engine** | loop control, iteration count, active thread lifecycle, retry/wait mechanics |
 | **Policy** | workflow meaning, completion gating, phase ordering, prompt selection, and thread reuse boundaries |
 | **Observer** | logs, metrics, UI, traces, audit records |
+| **Hook layer (optional)** | implementation-defined callback registration and dispatch derived from observer events |
 
 The engine must not depend on observer behavior. The policy may request
 persistence through the host application.
@@ -369,6 +413,8 @@ Properties not verified by the current models:
 - git commit materialization
 - browser/MFA interactions
 - CLI rendering or log formatting
+- hook delivery ordering, deduplication, or exactly-once behavior
+- side effects triggered by implementation-defined hooks
 
 ---
 
