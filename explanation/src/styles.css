@@ -3912,6 +3912,27 @@ h2 {
   margin: 0;
 }
 
+.policy-source {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin: 12px 0 0;
+  font-size: 0.76rem;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+
+.policy-source a {
+  color: var(--teal);
+  text-decoration: none;
+  border-bottom: 1px solid rgba(0, 109, 114, 0.28);
+}
+
+.policy-source a:hover {
+  border-bottom-color: var(--teal);
+}
+
 .policy-diagram-area {
   padding: 20px 24px 24px;
   background: rgba(0, 0, 0, 0.025);

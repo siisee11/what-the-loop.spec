@@ -571,6 +571,14 @@ function PolicyFlowDiagram({ item, index }) {
           <span className="policy-tag">{item.tag}</span>
         </div>
         <p className="policy-body">{item.body}</p>
+        {item.source ? (
+          <p className="policy-source">
+            <span>{item.source.label}</span>
+            <a href={item.source.url} target="_blank" rel="noreferrer">
+              {item.source.text}
+            </a>
+          </p>
+        ) : null}
       </div>
 
       <div className="policy-diagram-area">

@@ -511,7 +511,12 @@ export const i18n = {
           id: "gan",
           name: "GAN Policy",
           tag: "Adversarial generation loop",
-          body: "Inspired by Generative Adversarial Networks. Planner writes the spec once, then Generator and Evaluator first negotiate a contract for what counts as done. Only after that agreed contract exists does generation begin. If the score is below threshold, `advance_phase` sends the Generator back with the critique injected into the next prompt. When the Evaluator approves, `complete` ends the run.",
+          body: "Inspired by the GAN-style harness introduced in Anthropic's March 24, 2026 article on long-running application development. Planner writes the spec once, then Generator and Evaluator first negotiate a contract for what counts as done. Only after that agreed contract exists does generation begin. If the score is below threshold, `advance_phase` sends the Generator back with the critique injected into the next prompt. When the Evaluator approves, `complete` ends the run.",
+          source: {
+            label: "Source",
+            text: "Anthropic: Harness design for long-running application development",
+            url: "https://www.anthropic.com/engineering/harness-design-long-running-apps"
+          },
           loopNote: "contract first, then critique-driven retries",
           phases: [
             { id: "planning", name: "Planning" },
@@ -1144,7 +1149,12 @@ Done: your request was completed successfully.`
           id: "gan",
           name: "GAN Policy",
           tag: "대립적 생성 루프",
-          body: "생성적 적대 신경망(GAN)에서 영감을 받은 Policy입니다. Planner가 스펙을 작성한 뒤, Generator와 Evaluator가 먼저 완료 조건 계약을 합의합니다. 이 계약이 존재할 때만 생성이 시작됩니다. 점수가 기준 미달이면 `advance_phase`로 Generator에게 critique를 주입해 재생성을 요청합니다. Evaluator가 승인하면 `complete`로 종료합니다.",
+          body: "Anthropic이 2026년 3월 24일 공개한 장기 실행 애플리케이션 개발 harness 글에서 소개한 GAN 스타일 구조를 바탕으로 한 Policy 예시입니다. Planner가 스펙을 작성한 뒤, Generator와 Evaluator가 먼저 완료 조건 계약을 합의합니다. 이 계약이 존재할 때만 생성이 시작됩니다. 점수가 기준 미달이면 `advance_phase`로 Generator에게 critique를 주입해 재생성을 요청합니다. Evaluator가 승인하면 `complete`로 종료합니다.",
+          source: {
+            label: "출처",
+            text: "Anthropic: Harness design for long-running application development",
+            url: "https://www.anthropic.com/engineering/harness-design-long-running-apps"
+          },
           loopNote: "계약 합의 후 critique 기반 재시도",
           phases: [
             { id: "planning", name: "Planning" },

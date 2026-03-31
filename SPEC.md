@@ -280,7 +280,10 @@ Required properties:
 ### GAN Policy (example)
 
 Suitable for planner / generator / evaluator workflows that require an agreed
-acceptance contract before generation starts.
+acceptance contract before generation starts. This example is inspired by
+Anthropic's March 24, 2026 article, [Harness design for long-running application development](https://www.anthropic.com/engineering/harness-design-long-running-apps),
+which describes a GAN-inspired planner / generator / evaluator harness and
+generator-evaluator contract negotiation before implementation.
 
 ```
 idle → planning → contracting → generating ⇄ evaluating → completed
