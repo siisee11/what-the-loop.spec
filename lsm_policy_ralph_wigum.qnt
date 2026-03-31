@@ -1,4 +1,4 @@
-module wtl_policy_ralph_wigum {
+module lsm_policy_ralph_wigum {
   pure val MAX_ITERATIONS = 4
 
   var engine_directive: str

@@ -1,4 +1,4 @@
-module wtl_observer {
+module lsm_observer {
   var run_started: bool
   var phase_changes: int
   var thread_started: int

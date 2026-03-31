@@ -1,9 +1,9 @@
-# WhatTheLoop Spec
+# Loop State Machine Spec
 
-This document aims to define and implement the WhatTheLoop (WTL) interface,
-and to implement the WTL CLI as its minimal working implementation.
+This document aims to define and implement the Loop State Machine (LSM) interface,
+and to implement the LSM CLI as its minimal working implementation.
 
-WTL ("WhatTheLoop") is a proposed shared loop interface for agent execution.
+LSM ("Loop State Machine") is a proposed shared loop interface for agent execution.
 
 This document is intentionally language- and runtime-agnostic. It defines only
 the **behavioral contract** that an implementation must satisfy, without
@@ -17,7 +17,7 @@ Implementers are not required to repeat these steps.
 
 ## Overview
 
-WTL defines "how to run the loop" when executing a single agent task.
+LSM defines "how to run the loop" when executing a single agent task.
 Three roles collaborate:
 
 ```
@@ -49,7 +49,7 @@ The goal is to let different workflows share one engine while each using a diffe
 
 | Term | Description |
 |------|-------------|
-| **Run** | One WTL execution, from initialization to termination |
+| **Run** | One LSM execution, from initialization to termination |
 | **Turn** | One invocation of the agent runtime by the engine |
 | **Directive** | The next action instruction issued by the policy to the engine |
 | **Phase** | A semantically distinct stage within a run |
@@ -240,42 +240,42 @@ Required invariants:
 
 ## Policy State Model
 
-WTL does not restrict how policies are implemented. Any policy that satisfies
+LSM does not restrict how policies are implemented. Any policy that satisfies
 the directive contract may be freely defined.
 
 The example policies in this repository are specified in Quint reference files.
 Their detailed state machines, transitions, and invariants belong there rather
 than in this document. Use the files below when you want the precise model:
 
-- Interactive completion example — [wtl_policy_interactive.qnt](./wtl_policy_interactive.qnt)
-- Ralph Wigum example — [wtl_policy_ralph_wigum.qnt](./wtl_policy_ralph_wigum.qnt)
-- GAN-inspired planner / generator / evaluator example, inspired by Anthropic's March 24, 2026 article [Harness design for long-running application development](https://www.anthropic.com/engineering/harness-design-long-running-apps) — [wtl_policy_gan.qnt](./wtl_policy_gan.qnt)
-- Autoresearch example, inspired by [karpathy/autoresearch](https://github.com/karpathy/autoresearch) — [wtl_policy_autoresearch.qnt](./wtl_policy_autoresearch.qnt)
+- Interactive completion example — [lsm_policy_interactive.qnt](./lsm_policy_interactive.qnt)
+- Ralph Wigum example — [lsm_policy_ralph_wigum.qnt](./lsm_policy_ralph_wigum.qnt)
+- GAN-inspired planner / generator / evaluator example, inspired by Anthropic's March 24, 2026 article [Harness design for long-running application development](https://www.anthropic.com/engineering/harness-design-long-running-apps) — [lsm_policy_gan.qnt](./lsm_policy_gan.qnt)
+- Autoresearch example, inspired by [karpathy/autoresearch](https://github.com/karpathy/autoresearch) — [lsm_policy_autoresearch.qnt](./lsm_policy_autoresearch.qnt)
 - Ralph example inspiration source — [ghuntley.com/ralph](https://ghuntley.com/ralph/)
 
 ### Interactive Completion Policy (example)
 
 Suitable for tasks that require waiting for user input or approval. See
-[wtl_policy_interactive.qnt](./wtl_policy_interactive.qnt).
+[lsm_policy_interactive.qnt](./lsm_policy_interactive.qnt).
 
 ### Ralph Wigum Policy (example)
 
 Suitable for tasks that must progress through ordered stages. See
-[wtl_policy_ralph_wigum.qnt](./wtl_policy_ralph_wigum.qnt). Inspiration
+[lsm_policy_ralph_wigum.qnt](./lsm_policy_ralph_wigum.qnt). Inspiration
 source: [ghuntley.com/ralph](https://ghuntley.com/ralph/).
 
 ### GAN Policy (example)
 
 Suitable for planner / generator / evaluator workflows that require an agreed
 acceptance contract before generation starts. See
-[wtl_policy_gan.qnt](./wtl_policy_gan.qnt). Inspiration source: Anthropic's
+[lsm_policy_gan.qnt](./lsm_policy_gan.qnt). Inspiration source: Anthropic's
 March 24, 2026 article [Harness design for long-running application development](https://www.anthropic.com/engineering/harness-design-long-running-apps).
 
 ### Autoresearch Policy (example)
 
 Suitable for autonomous experiment loops that prepare an environment, record a
 baseline, propose one experiment, run it, and adjudicate the result before
-continuing. See [wtl_policy_autoresearch.qnt](./wtl_policy_autoresearch.qnt).
+continuing. See [lsm_policy_autoresearch.qnt](./lsm_policy_autoresearch.qnt).
 Inspiration source: [karpathy/autoresearch](https://github.com/karpathy/autoresearch).
 
 ---
@@ -305,7 +305,7 @@ for downstream consumers to correlate:
 ## Hook Layer (Optional)
 
 An implementation may expose observer events through a host-facing hook system.
-This hook layer is optional and is not a fourth core role in WTL. It is a
+This hook layer is optional and is not a fourth core role in LSM. It is a
 projection of observer notifications into implementation-defined callbacks,
 subscribers, handlers, or equivalent extension points.
 
@@ -336,7 +336,7 @@ Recommended event correspondences:
 - wait entry → hook such as `onWaitEntered`
 - terminal completion / exhaustion → hook such as `onRunCompleted` / `onRunExhausted`
 
-WTL does not prescribe API shapes, type systems, method names, callback
+LSM does not prescribe API shapes, type systems, method names, callback
 signatures, or delivery transports for hooks.
 
 ---
@@ -346,7 +346,7 @@ signatures, or delivery transports for hooks.
 A run does not give up early. The engine and policy must keep finding ways to
 proceed until a limit is reached.
 
-WTL distinguishes two outcomes:
+LSM distinguishes two outcomes:
 
 | Kind | Description | Engine behavior |
 |------|-------------|-----------------|
@@ -360,7 +360,7 @@ distinguishable in external reporting.
 
 ## State Ownership
 
-WTL does not require a specific persistence mechanism, but ownership must be clear:
+LSM does not require a specific persistence mechanism, but ownership must be clear:
 
 | Owner | Owns |
 |-------|------|
@@ -401,19 +401,19 @@ Properties not verified by the current models:
 
 ## Files
 
-- [wtl_engine.qnt](./wtl_engine.qnt)
-- [wtl_policy_interactive.qnt](./wtl_policy_interactive.qnt)
-- [wtl_policy_ralph_wigum.qnt](./wtl_policy_ralph_wigum.qnt)
-- [wtl_policy_gan.qnt](./wtl_policy_gan.qnt)
-- [wtl_policy_autoresearch.qnt](./wtl_policy_autoresearch.qnt)
-- [wtl_observer.qnt](./wtl_observer.qnt)
+- [lsm_engine.qnt](./lsm_engine.qnt)
+- [lsm_policy_interactive.qnt](./lsm_policy_interactive.qnt)
+- [lsm_policy_ralph_wigum.qnt](./lsm_policy_ralph_wigum.qnt)
+- [lsm_policy_gan.qnt](./lsm_policy_gan.qnt)
+- [lsm_policy_autoresearch.qnt](./lsm_policy_autoresearch.qnt)
+- [lsm_observer.qnt](./lsm_observer.qnt)
 
 ---
 
-# WTL CLI
+# LSM CLI
 
-The minimal implementation of the WTL interface. The goal is to implement the
-WTL interface as a working CLI tool.
+The minimal implementation of the LSM interface. The goal is to implement the
+LSM interface as a working CLI tool.
 
 ---
 
@@ -440,7 +440,7 @@ WTL interface as a working CLI tool.
 ### Running the CLI
 
 ```
-wtl run
+lsm run
 ```
 
 Flags:
@@ -453,7 +453,7 @@ Flags:
 ### Execution Flow
 
 ```
-$ wtl run
+$ lsm run
 > Enter your request: [user input]
 
 [turn 1] running...
@@ -498,9 +498,9 @@ continuing.
 ### Marker Formats
 
 ```
-##WTL_DONE##
-##WTL_WAIT##
-##WTL_COMPACT##
+##LSM_DONE##
+##LSM_WAIT##
+##LSM_COMPACT##
 ```
 
 - Position within the response does not matter (beginning, middle, or end)
@@ -512,21 +512,21 @@ Marker meanings:
 
 | Marker | Directive |
 |--------|-----------|
-| `##WTL_DONE##` | `complete` |
-| `##WTL_WAIT##` | `wait` |
-| `##WTL_COMPACT##` | `compact` |
+| `##LSM_DONE##` | `complete` |
+| `##LSM_WAIT##` | `wait` |
+| `##LSM_COMPACT##` | `compact` |
 
 ### Agent Runtime Instruction Requirement
 
 The system prompt or instruction passed to the agent runtime must include:
 
 ```
-When you determine that the task is fully complete, include ##WTL_DONE## at the
+When you determine that the task is fully complete, include ##LSM_DONE## at the
 end of your response.
 
-If you cannot continue until new external input arrives, include ##WTL_WAIT##.
+If you cannot continue until new external input arrives, include ##LSM_WAIT##.
 
-If context should be compacted before the next turn, include ##WTL_COMPACT##.
+If context should be compacted before the next turn, include ##LSM_COMPACT##.
 
 Do not emit more than one control marker in the same response.
 ```
@@ -539,9 +539,9 @@ The policy used by this CLI. Operates as a single loop with no phase distinction
 
 | Condition | Directive |
 |-----------|-----------|
-| Response contains `##WTL_DONE##` | `complete` |
-| Response contains `##WTL_WAIT##` | `wait` |
-| Response contains `##WTL_COMPACT##` | `compact` |
+| Response contains `##LSM_DONE##` | `complete` |
+| Response contains `##LSM_WAIT##` | `wait` |
+| Response contains `##LSM_COMPACT##` | `compact` |
 | Response contains multiple control markers | `retry` |
 | Turn failed (error occurred) | `retry` |
 | Otherwise | `continue` |

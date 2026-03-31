@@ -1015,7 +1015,7 @@ export default function App() {
           <div className="nav-row">
             <div className="brand-lockup">
               <span className="brand-dot" />
-              <span>WhatTheLoop</span>
+              <span>Loop State Machine</span>
             </div>
             <nav>
               <a href="#diagram">{t.nav.diagram}</a>

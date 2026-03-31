@@ -1,21 +1,21 @@
 <p align="center">
-  <img src="assets/logo.png" alt="What The Loop logo" width="420" />
+  <img src="assets/logo.png" alt="Loop State Machine logo" width="420" />
 </p>
 
-# what-the-loop.spec
+# loop-state-machine.spec
 
-Standalone specification repository for WhatTheLoop (WTL), a proposed shared
+Standalone specification repository for Loop State Machine (LSM), a proposed shared
 loop interface for agent execution.
 
 ## Contents
 
 - `SPEC.md` — primary behavioral specification and minimal CLI contract
-- `wtl_engine.qnt` — Quint reference model for engine mechanics
-- `wtl_policy_interactive.qnt` — Quint reference model for interactive completion
-- `wtl_policy_ralph_wigum.qnt` — Quint reference model for staged delivery
-- `wtl_policy_gan.qnt` — Quint reference model for adversarial generation with contract gating
-- `wtl_policy_autoresearch.qnt` — Quint reference model for autonomous experiment loops
-- `wtl_observer.qnt` — Quint reference model for observer events
+- `lsm_engine.qnt` — Quint reference model for engine mechanics
+- `lsm_policy_interactive.qnt` — Quint reference model for interactive completion
+- `lsm_policy_ralph_wigum.qnt` — Quint reference model for staged delivery
+- `lsm_policy_gan.qnt` — Quint reference model for adversarial generation with contract gating
+- `lsm_policy_autoresearch.qnt` — Quint reference model for autonomous experiment loops
+- `lsm_observer.qnt` — Quint reference model for observer events
 - `references/` — LLM-friendly reference material for example agent runtimes
 
 ## Notes

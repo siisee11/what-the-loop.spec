@@ -1,4 +1,4 @@
-module wtl_engine {
+module lsm_engine {
   pure val MAX_ITERATIONS = 4
   pure val MAX_FAILURES = 2
   pure val CONTEXT_WINDOW = 2

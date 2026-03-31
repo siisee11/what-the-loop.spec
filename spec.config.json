@@ -3,8 +3,8 @@
   "schema_version": 1,
   "spec": {
     "key": "github:siisee11/what-the-loop.spec",
-    "slug": "what-the-loop",
-    "title": "What The Loop",
+    "slug": "loop-state-machine",
+    "title": "Loop State Machine",
     "entry": "SPEC.md"
   },
   "dependencies": [],

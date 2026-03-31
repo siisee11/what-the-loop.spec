@@ -18,7 +18,7 @@
 // This adversarial loop continues until the Evaluator passes the output or
 // MAX_GENERATIONS is reached.
 
-module wtl_policy_gan {
+module lsm_policy_gan {
   pure val MAX_GENERATIONS = 3
 
   var phase: str

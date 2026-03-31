@@ -9,7 +9,7 @@
 // experiment budget is exhausted. Better candidates are "kept", regressions
 // are "discarded", and recoverable crashes are retried in-place.
 
-module wtl_policy_autoresearch {
+module lsm_policy_autoresearch {
   pure val MAX_EXPERIMENTS = 100
   pure val MAX_CRASH_RETRIES = 2
 

@@ -1,4 +1,4 @@
-module wtl_policy_interactive {
+module lsm_policy_interactive {
   var engine_directive: str
   var policy_state: str
   var completion_requested: bool

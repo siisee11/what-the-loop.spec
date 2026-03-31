@@ -34,7 +34,7 @@ export const i18n = {
     hero: {
       eyebrow: "Spec-first execution contract",
       h1: "The loop contract for agent runs.",
-      body: "WTL defines how an agent loop runs. The core idea: separate the Engine (the machine that runs turns) from the Policy (the brain that decides what results mean). Swap the policy, get a completely different workflow — without touching the engine.",
+      body: "LSM defines how an agent loop runs. The core idea: separate the Engine (the machine that runs turns) from the Policy (the brain that decides what results mean). Swap the policy, get a completely different workflow — without touching the engine.",
       btnSplit: "See the split",
       btnLoop: "Follow the loop",
       facts: [
@@ -62,7 +62,7 @@ export const i18n = {
         title: "A phase is a workflow stage, not a turn counter.",
         body: "Turns count repetitions. Phases describe what kind of work the run is doing right now, so policy can tell the difference between continuing, moving forward, and legally ending.",
         points: [
-          "`Discover`, `Draft`, and `Finalize` here are examples, not fixed WTL keywords.",
+          "`Discover`, `Draft`, and `Finalize` here are examples, not fixed LSM keywords.",
           "A real workflow could use names like `Plan / Execute / Review` or `Collect / Analyze / Answer`."
         ]
       },
@@ -199,7 +199,7 @@ export const i18n = {
       }
     },
     problems: {
-      eyebrow: "Why WTL exists",
+      eyebrow: "Why LSM exists",
       h2: "Six problems that break agent loops.",
       body: "These problems appear in every agent runtime that grows beyond a single script. Each one has a clean solution — once you separate mechanics from meaning.",
       items: [
@@ -243,7 +243,7 @@ export const i18n = {
     },
     band: {
       eyebrow: "Why this matters",
-      h2: "WTL separates mechanics from meaning.",
+      h2: "LSM separates mechanics from meaning.",
       points: [
         "You can swap policies without rewriting the loop controller.",
         "You can add observers for logs, traces, and UI without making them correctness dependencies.",
@@ -314,7 +314,7 @@ export const i18n = {
     hooks: {
       eyebrow: "Hook layer",
       title: "Hooks are optional host extensions built from observer events.",
-      body: "WTL does not add a fourth control role. Instead, an implementation may project observer events into a host-facing hook system for side effects like logs, notifications, cleanup, or UI refresh.",
+      body: "LSM does not add a fourth control role. Instead, an implementation may project observer events into a host-facing hook system for side effects like logs, notifications, cleanup, or UI refresh.",
       model: {
         eyebrow: "What it is",
         title: "A hook system is observer-derived, not engine-authoritative.",
@@ -373,7 +373,7 @@ export const i18n = {
     loopMap: {
       eyebrow: "System diagram",
       h2: "One run, three roles, two kinds of signal.",
-      body: "A WTL run has three roles. The engine produces outcomes, the policy returns meaning as directives, and the observer records what happened without steering the loop.",
+      body: "A LSM run has three roles. The engine produces outcomes, the policy returns meaning as directives, and the observer records what happened without steering the loop.",
       kicker: "How to read it",
       title: "The arrows move, but responsibility stays fixed.",
       lead: "Read the diagram as a contract, not as a UI mock. Each box keeps one job, and each arrow means one kind of handoff.",
@@ -397,7 +397,7 @@ export const i18n = {
       phase: {
         label: "What phase means",
         title: "A phase is a semantically distinct stage within a run.",
-        body: "In WTL, phase is policy-owned workflow meaning. For example, a coding workflow might move through `Discover -> Implement -> Review`. The policy sets that phase identity in the execution plan, and the engine carries out whatever mechanics that phase requires.",
+        body: "In LSM, phase is policy-owned workflow meaning. For example, a coding workflow might move through `Discover -> Implement -> Review`. The policy sets that phase identity in the execution plan, and the engine carries out whatever mechanics that phase requires.",
         points: [
           "A run may spend several turns inside `Discover` before moving on, because turns count repetitions while phases describe the kind of work.",
           "`continue` and `retry` stay inside the current phase.",
@@ -493,7 +493,7 @@ export const i18n = {
     policies: {
       eyebrow: "Policy examples",
       title: "Every policy shapes the loop differently.",
-      body: "WTL separates mechanics from meaning so the same engine can run radically different workflows. Here are three example policies — Ralph Wigum, an adversarial GAN loop, and an autoresearch loop.",
+      body: "LSM separates mechanics from meaning so the same engine can run radically different workflows. Here are three example policies — Ralph Wigum, an adversarial GAN loop, and an autoresearch loop.",
       items: [
         {
           id: "ralph_wigum",
@@ -594,27 +594,27 @@ export const i18n = {
       filesTitle: "What each file verifies",
       files: [
         {
-          name: "wtl_engine.qnt",
+          name: "lsm_engine.qnt",
           body: "Engine state machine. Defines every valid state transition and proves invariants like 'iteration never exceeds MAX_ITERATIONS' and 'waiting state always has a wait directive'."
         },
         {
-          name: "wtl_policy_interactive.qnt",
+          name: "lsm_policy_interactive.qnt",
           body: "Interactive completion policy. Encodes waiting, rejection, and explicit approval as a verifiable state machine. Proves completion cannot happen while blocked on input."
         },
         {
-          name: "wtl_policy_ralph_wigum.qnt",
+          name: "lsm_policy_ralph_wigum.qnt",
           body: "Ralph Wigum policy. Encodes staged planning → implementing → review flow. Proves phase ordering: review only after delivery, complete only when approved."
         },
         {
-          name: "wtl_policy_gan.qnt",
+          name: "lsm_policy_gan.qnt",
           body: "GAN Policy. Verifies planning → contracting → generating ⇄ evaluating. Proves generation cannot begin before contract agreement, generation_count never exceeds MAX_GENERATIONS, and completion only happens after evaluation_passed."
         },
         {
-          name: "wtl_policy_autoresearch.qnt",
+          name: "lsm_policy_autoresearch.qnt",
           body: "Autoresearch Policy. Verifies the setup → baseline → proposing → running → adjudicating research loop. Proves the loop cannot start experiments before baseline, only retries recoverable crashes, and only completes after the experiment budget is exhausted."
         },
         {
-          name: "wtl_observer.qnt",
+          name: "lsm_observer.qnt",
           body: "Observer event ordering. Proves turn_finished never exceeds turn_started, and no events are emitted after a terminal event like completed or failed."
         }
       ]
@@ -623,25 +623,25 @@ export const i18n = {
       eyebrow: "Minimal implementation",
       title: "The spec also defines a tiny CLI contract.",
       body: "The first implementation is intentionally small: one root request, turn logs, streamed runtime output, and a control marker protocol for `complete`, `wait`, and `compact`.",
-      snippet: `$ wtl run
+      snippet: `$ lsm run
 > Enter your request: review the repo and stop if you need approval
 
 [turn 1] running...
 assistant: I need confirmation before publishing.
-##WTL_WAIT##
+##LSM_WAIT##
 
 [wait] blocked on external input
 > Additional input: approval granted
 
 [turn 2] running...
 assistant: compacting context before the final pass.
-##WTL_COMPACT##
+##LSM_COMPACT##
 
 [compact] context compressed
 
 [turn 3] running...
 assistant: task complete.
-##WTL_DONE##
+##LSM_DONE##
 
 Done: your request was completed successfully.`
     }
@@ -682,7 +682,7 @@ Done: your request was completed successfully.`
     hero: {
       eyebrow: "스펙 기반 실행 계약",
       h1: "에이전트 실행의 루프 계약.",
-      body: "WTL은 에이전트 루프를 어떻게 돌릴지 정의하는 계약입니다. 핵심 아이디어: 루프를 기계적으로 돌리는 Engine과 결과의 의미를 판단하는 Policy를 분리합니다. Policy만 바꾸면 같은 Engine으로 전혀 다른 워크플로를 구현할 수 있습니다.",
+      body: "LSM은 에이전트 루프를 어떻게 돌릴지 정의하는 계약입니다. 핵심 아이디어: 루프를 기계적으로 돌리는 Engine과 결과의 의미를 판단하는 Policy를 분리합니다. Policy만 바꾸면 같은 Engine으로 전혀 다른 워크플로를 구현할 수 있습니다.",
       btnSplit: "역할 구분 보기",
       btnLoop: "루프 따라가기",
       facts: [
@@ -710,7 +710,7 @@ Done: your request was completed successfully.`
         title: "Phase는 턴 수가 아니라 작업 단계입니다.",
         body: "턴은 반복 횟수를 세고, phase는 지금 어떤 종류의 일을 하는지 보여줍니다. 이 구분이 있어야 Policy가 계속 진행할지, 다음 단계로 넘어갈지, 합법적으로 종료할지를 나눠 판단할 수 있습니다.",
         points: [
-          "여기서 `탐색 / 작성 / 마무리`는 설명용 예시일 뿐, WTL의 고정 키워드는 아닙니다.",
+          "여기서 `탐색 / 작성 / 마무리`는 설명용 예시일 뿐, LSM의 고정 키워드는 아닙니다.",
           "실제 워크플로에서는 `계획 / 실행 / 검토`나 `수집 / 분석 / 답변`처럼 다른 단계 이름을 써도 됩니다."
         ]
       },
@@ -847,7 +847,7 @@ Done: your request was completed successfully.`
       }
     },
     problems: {
-      eyebrow: "WTL이 존재하는 이유",
+      eyebrow: "LSM이 존재하는 이유",
       h2: "에이전트 루프를 망가뜨리는 여섯 가지 문제.",
       body: "이 문제들은 단순한 스크립트를 넘어 성장하는 모든 에이전트 런타임에서 나타납니다. 메커니즘과 의미를 분리하면 각각의 문제에 명확한 해답이 있습니다.",
       items: [
@@ -891,7 +891,7 @@ Done: your request was completed successfully.`
     },
     band: {
       eyebrow: "왜 중요한가",
-      h2: "WTL은 메커니즘과 의미를 분리합니다.",
+      h2: "LSM은 메커니즘과 의미를 분리합니다.",
       points: [
         "루프 컨트롤러를 재작성하지 않고도 정책을 교체할 수 있습니다.",
         "로그, 트레이스, UI를 위한 옵저버를 정확성 의존성 없이 추가할 수 있습니다.",
@@ -962,7 +962,7 @@ Done: your request was completed successfully.`
     hooks: {
       eyebrow: "훅 레이어",
       title: "Hook은 observer event 위에 얹히는 선택적 host 확장입니다.",
-      body: "WTL은 네 번째 제어 역할을 추가하지 않습니다. 대신 구현체는 observer event를 로그, 알림, 정리 작업, UI 갱신 같은 side effect를 위한 host-facing hook 시스템으로 투영할 수 있습니다.",
+      body: "LSM은 네 번째 제어 역할을 추가하지 않습니다. 대신 구현체는 observer event를 로그, 알림, 정리 작업, UI 갱신 같은 side effect를 위한 host-facing hook 시스템으로 투영할 수 있습니다.",
       model: {
         eyebrow: "무엇인가",
         title: "Hook system은 observer에서 파생되며, engine 권한을 가지지 않습니다.",
@@ -1021,7 +1021,7 @@ Done: your request was completed successfully.`
     loopMap: {
       eyebrow: "시스템 다이어그램",
       h2: "하나의 실행, 세 가지 역할, 두 종류의 신호.",
-      body: "WTL의 한 run에는 세 가지 역할이 있습니다. Engine은 outcome을 만들고, Policy는 directive로 의미를 돌려주며, Observer는 루프를 조종하지 않고 일어난 일을 기록합니다.",
+      body: "LSM의 한 run에는 세 가지 역할이 있습니다. Engine은 outcome을 만들고, Policy는 directive로 의미를 돌려주며, Observer는 루프를 조종하지 않고 일어난 일을 기록합니다.",
       kicker: "읽는 방법",
       title: "화살표는 움직여도, 책임은 고정됩니다.",
       lead: "이 그림은 UI 시안이 아니라 계약을 읽는 도식입니다. 각 박스는 하나의 역할만 맡고, 각 화살표는 하나의 핸드오프만 뜻합니다.",
@@ -1045,7 +1045,7 @@ Done: your request was completed successfully.`
       phase: {
         label: "Phase란 무엇인가",
         title: "Phase는 run 안의 의미적으로 구분되는 단계입니다.",
-        body: "WTL에서 phase는 policy가 소유하는 workflow 의미입니다. 예를 들어 코드 작업이라면 `Discover -> Implement -> Review` 같은 흐름을 둘 수 있습니다. Policy가 execution plan 안에 phase identity를 넣어 주고, engine은 그 단계에 필요한 메커니즘을 수행합니다.",
+        body: "LSM에서 phase는 policy가 소유하는 workflow 의미입니다. 예를 들어 코드 작업이라면 `Discover -> Implement -> Review` 같은 흐름을 둘 수 있습니다. Policy가 execution plan 안에 phase identity를 넣어 주고, engine은 그 단계에 필요한 메커니즘을 수행합니다.",
         points: [
           "하나의 run은 `Discover` 안에서 여러 turn을 보낼 수 있습니다. Turn은 반복 횟수이고, phase는 어떤 종류의 일을 하는 단계인지 나타냅니다.",
           "`continue`와 `retry`는 현재 phase 안에 머뭅니다.",
@@ -1141,7 +1141,7 @@ Done: your request was completed successfully.`
     policies: {
       eyebrow: "Policy 예시",
       title: "Policy마다 루프의 형태가 달라집니다.",
-      body: "WTL은 메커니즘과 의미를 분리하기 때문에 같은 Engine으로 전혀 다른 워크플로를 실행할 수 있습니다. Ralph Wigum, 대립적 GAN 루프, 그리고 autoresearch 루프까지 세 가지 Policy 예시를 소개합니다.",
+      body: "LSM은 메커니즘과 의미를 분리하기 때문에 같은 Engine으로 전혀 다른 워크플로를 실행할 수 있습니다. Ralph Wigum, 대립적 GAN 루프, 그리고 autoresearch 루프까지 세 가지 Policy 예시를 소개합니다.",
       items: [
         {
           id: "ralph_wigum",
@@ -1242,27 +1242,27 @@ Done: your request was completed successfully.`
       filesTitle: "파일별 검증 내용",
       files: [
         {
-          name: "wtl_engine.qnt",
+          name: "lsm_engine.qnt",
           body: "Engine 상태 머신. 모든 유효한 상태 전이를 정의하고 'iteration은 MAX_ITERATIONS를 절대 초과하지 않는다', '대기 상태에는 반드시 wait 지시어가 있다' 같은 불변 조건을 증명합니다."
         },
         {
-          name: "wtl_policy_interactive.qnt",
+          name: "lsm_policy_interactive.qnt",
           body: "Interactive completion policy. 대기, 거절, 명시적 승인 상태를 검증 가능한 상태 머신으로 인코딩합니다. 입력이 차단된 상태에서는 완료가 일어날 수 없음을 증명합니다."
         },
         {
-          name: "wtl_policy_ralph_wigum.qnt",
+          name: "lsm_policy_ralph_wigum.qnt",
           body: "Ralph Wigum policy. planning → implementing → review 흐름을 상태 머신으로 인코딩합니다. 'review는 delivery 완료 후에만 가능', 'complete는 승인 후에만 가능' 같은 단계 순서를 증명합니다."
         },
         {
-          name: "wtl_policy_gan.qnt",
+          name: "lsm_policy_gan.qnt",
           body: "GAN Policy. planning → contracting → generating ⇄ evaluating 흐름을 검증합니다. 계약 합의 전에는 생성이 시작될 수 없고, generation_count가 MAX_GENERATIONS를 초과하지 않으며, 완료는 반드시 evaluation_passed 상태에서만 가능함을 증명합니다."
         },
         {
-          name: "wtl_policy_autoresearch.qnt",
+          name: "lsm_policy_autoresearch.qnt",
           body: "Autoresearch Policy. setup → baseline → proposing → running → adjudicating 연구 루프를 검증합니다. baseline 이전에는 실험 루프가 시작될 수 없고, 복구 가능한 crash만 재시도하며, 완료는 실험 예산이 모두 소진된 뒤에만 가능함을 증명합니다."
         },
         {
-          name: "wtl_observer.qnt",
+          name: "lsm_observer.qnt",
           body: "Observer 이벤트 순서. turn_finished가 turn_started를 절대 초과하지 않고, completed/failed 같은 터미널 이벤트 이후에는 새 이벤트가 발생하지 않음을 증명합니다."
         }
       ]
@@ -1271,25 +1271,25 @@ Done: your request was completed successfully.`
       eyebrow: "최소 구현",
       title: "스펙은 작은 CLI 계약도 정의합니다.",
       body: "첫 번째 구현은 의도적으로 작게 유지됩니다. 하나의 루트 요청, 턴 로그, 스트리밍 런타임 출력, 그리고 `complete`, `wait`, `compact`를 위한 control marker 프로토콜만 포함합니다.",
-      snippet: `$ wtl run
+      snippet: `$ lsm run
 > 요청을 입력하세요: 리포를 검토하고 승인 필요 시 멈춰줘
 
 [turn 1] running...
 assistant: 배포 전에 확인이 필요합니다.
-##WTL_WAIT##
+##LSM_WAIT##
 
 [wait] 외부 입력 대기 중
 > 추가 입력: 승인됨
 
 [turn 2] running...
 assistant: 마지막 응답 전에 컨텍스트를 압축합니다.
-##WTL_COMPACT##
+##LSM_COMPACT##
 
 [compact] 컨텍스트 압축 완료
 
 [turn 3] running...
 assistant: 작업이 완료되었습니다.
-##WTL_DONE##
+##LSM_DONE##
 
 Done: your request was completed successfully.`
     }
