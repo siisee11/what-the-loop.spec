@@ -500,6 +500,11 @@ export const i18n = {
           name: "Ralph Wigum",
           tag: "Linear three-phase progression",
           body: "A policy that drives the run through Planning, Implementing, and Review in strict sequence. `advance_phase` installs each next stage. `complete` only appears in Review after delivery is confirmed.",
+          source: {
+            label: "Source",
+            text: "ghuntley.com/ralph",
+            url: "https://ghuntley.com/ralph/"
+          },
           loopNote: null,
           phases: [
             { id: "planning", name: "Planning" },
@@ -530,6 +535,11 @@ export const i18n = {
           name: "Autoresearch Policy",
           tag: "Autonomous experiment loop",
           body: "Models a code-research loop. The run prepares the worktree, records a baseline, proposes one experiment, runs it, and adjudicates the result. Good candidates loop back to the next proposal, bad ones are discarded, and completion only happens when the configured experiment budget is exhausted.",
+          source: {
+            label: "Source",
+            text: "karpathy/autoresearch",
+            url: "https://github.com/karpathy/autoresearch"
+          },
           loopNote: "keep or discard, then propose again",
           phases: [
             { id: "setup", name: "Setup" },
@@ -1138,6 +1148,11 @@ Done: your request was completed successfully.`
           name: "Ralph Wigum",
           tag: "선형 3단계 진행",
           body: "Planning, Implementing, Review를 순서대로 진행하는 Policy입니다. `advance_phase`로 다음 단계를 설치하고, Review에서 검증이 완료될 때만 `complete`를 반환합니다.",
+          source: {
+            label: "출처",
+            text: "ghuntley.com/ralph",
+            url: "https://ghuntley.com/ralph/"
+          },
           loopNote: null,
           phases: [
             { id: "planning", name: "Planning" },
@@ -1168,6 +1183,11 @@ Done: your request was completed successfully.`
           name: "Autoresearch Policy",
           tag: "자율 실험 루프",
           body: "코드 연구 루프를 모델링한 Policy입니다. worktree를 준비하고, baseline을 기록하고, 한 번의 실험을 제안하고, 실행하고, 결과를 판정합니다. 좋은 후보는 다음 제안 단계로 되돌아가고, 나쁜 후보는 버리며, 종료는 설정된 실험 예산이 모두 소진됐을 때만 일어납니다.",
+          source: {
+            label: "출처",
+            text: "karpathy/autoresearch",
+            url: "https://github.com/karpathy/autoresearch"
+          },
           loopNote: "keep/discard 후 다음 제안으로 복귀",
           phases: [
             { id: "setup", name: "Setup" },

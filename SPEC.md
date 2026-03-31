@@ -263,7 +263,9 @@ Required properties:
 
 ### Ralph Wigum Policy (example)
 
-Suitable for tasks that must progress through ordered stages.
+Suitable for tasks that must progress through ordered stages. This example is
+inspired by Geoffrey Huntley's Ralph workflow writeup at
+[ghuntley.com/ralph](https://ghuntley.com/ralph/).
 
 ```
 idle → init → planning → implementing → review → completed
@@ -299,6 +301,28 @@ Required properties:
 - evaluation cannot begin before at least one generation attempt exists
 - evaluator failure may loop back to generation under the same contract
 - terminal completion requires an explicit evaluator pass and `complete` directive
+
+### Autoresearch Policy (example)
+
+Suitable for autonomous experiment loops that prepare an environment, record a
+baseline, propose one experiment, run it, and adjudicate the result before
+continuing. This example is inspired by Andrej Karpathy's
+[karpathy/autoresearch](https://github.com/karpathy/autoresearch) repository.
+
+```
+idle → setup → baseline → proposing → running → adjudicating → completed
+                                           │               │
+                           (recoverable crash, budget left)│
+                                           ▼               │
+                                        running ───────────┘
+                              (limit reached → exhausted)
+```
+
+Required properties:
+- setup must complete before baseline can begin
+- baseline must be recorded before proposing, running, or adjudicating
+- recoverable crashes may retry in place during running
+- completion requires the experiment budget to be exhausted and `complete` to be issued explicitly
 
 ---
 
